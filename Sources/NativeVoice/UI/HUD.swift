@@ -212,14 +212,27 @@ final class HUD {
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             window.animator().alphaValue = 0
         } completionHandler: { [weak self] in
-            guard let self, self.showGeneration == generation else { return }
-            window.orderOut(nil)
+            // AppKit always calls this on the main thread, but it is imported
+            // as a `@Sendable` closure, so the compiler cannot see that. The
+            // assertion documents the fact instead of leaving a warning that
+            // stricter concurrency checking would later turn into an error.
+            MainActor.assumeIsolated {
+                guard let self, self.showGeneration == generation else { return }
+                window.orderOut(nil)
+            }
         }
     }
 
     // MARK: - Internals
 
     private func setCaption(_ text: String) {
+        // Guarded, because this is called on every audio sample — dozens of
+        // times a second while the user speaks — and the caption only ever
+        // changes at the silence boundary. Neither `stringValue` nor
+        // `setAccessibilityLabel` short-circuits on an unchanged value, so
+        // without this both invalidate on the main thread at the same moment
+        // it is redrawing the waveform.
+        guard label.stringValue != text else { return }
         label.stringValue = text
         // VoiceOver reads the panel as one element; the caption is the whole
         // of what it has to say.

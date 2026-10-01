@@ -122,18 +122,28 @@ public final class Log {
 extension Log {
     /// Where the log goes.
     ///
-    /// An override exists so a test run cannot write into the file the user is
-    /// reading. During live debugging, parser tests logged `HTTP 401 Invalid
-    /// API key` and `502 Bad Gateway` into the user's own log at the exact
-    /// moment they were dictating — and those lines looked exactly like real
-    /// failures of their app.
+    /// The production log belongs to the shipped app and to nothing else.
+    /// Detecting test runs by process name would only cover the invocations
+    /// somebody remembered — a bare `swift test`, a `--filter`, Xcode's own
+    /// test action — each would have to be thought of separately. Asking
+    /// instead whether this is the app running from its bundle covers every
+    /// other case by default.
+    ///
+    /// This is not hypothetical tidiness: parser tests once logged
+    /// `HTTP 401 Invalid API key` and `502 Bad Gateway` into the user's log in
+    /// the middle of a real dictation, and those lines looked exactly like
+    /// failures of the running app.
     public static func defaultPath(
         environment: [String: String] = ProcessInfo.processInfo.environment,
-        home: String = NSHomeDirectory()
+        home: String = NSHomeDirectory(),
+        bundlePath: String = Bundle.main.bundlePath
     ) -> String {
         if let override = environment["NATIVEVOICE_LOG"]?
             .trimmingCharacters(in: .whitespacesAndNewlines), !override.isEmpty {
             return override
+        }
+        guard bundlePath.hasSuffix(".app") else {
+            return NSTemporaryDirectory() + "nativevoice-scratch.log"
         }
         return home + "/Library/Logs/NativeVoice.log"
     }
