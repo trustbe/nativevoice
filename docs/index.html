@@ -3,26 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NativeVoice</title>
-<meta name="description" content="Hold-to-talk dictation for macOS in 36 languages — including the ones the big tools treat as an afterthought. Your own ElevenLabs key, pennies per use, and it just works.">
+<title>NativeVoice — dictation for the other 36 languages</title>
+<meta name="description" content="Mac dictation for people who don't dictate in English. 36 languages, hold-to-talk, your own ElevenLabs key, pennies per use.">
 <link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-large.png">
+<meta property="og:title" content="NativeVoice">
+<meta property="og:description" content="Mac dictation for people who don't dictate in English. 36 languages, hold-to-talk, your own key.">
+<meta property="og:image" content="https://nativevoice.trustbe.com/icon-large.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#fff; --soft:#f6f6f9; --ink:#121218; --ink-2:#56566a; --ink-3:#9292a4;
-  --line:#eaeaf1; --accent:#6b4fdb;
+  --bg:#fff; --soft:#f6f6fa; --ink:#101016; --ink-2:#55556a; --ink-3:#8f8fa3;
+  --line:#e9e9f0; --accent:#6b4fdb; --accent-2:#b545b0; --on-accent:#fff;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0e0e13; --soft:#17171e; --ink:#f0f0f6; --ink-2:#a0a0b2; --ink-3:#6c6c80;
-    --line:#242430; --accent:#a690ff;
+    --bg:#0d0d12; --soft:#16161d; --ink:#f2f2f8; --ink-2:#a0a0b4; --ink-3:#6b6b80;
+    --line:#232330; --accent:#a690ff; --accent-2:#e07ddb; --on-accent:#14101f;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0e0e13; --soft:#17171e; --ink:#f0f0f6; --ink-2:#a0a0b2; --ink-3:#6c6c80;
-  --line:#242430; --accent:#a690ff;
+  --bg:#0d0d12; --soft:#16161d; --ink:#f2f2f8; --ink-2:#a0a0b4; --ink-3:#6b6b80;
+  --line:#232330; --accent:#a690ff; --accent-2:#e07ddb; --on-accent:#14101f;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -30,125 +34,123 @@ body{margin:0; background:var(--bg); color:var(--ink);
   font:400 17px/1.65 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   -webkit-font-smoothing:antialiased}
 img{display:block}
-a{color:var(--accent); text-underline-offset:2px}
-.wrap{max-width:680px; margin:0 auto; padding:0 28px}
+a{color:var(--accent); text-underline-offset:3px}
+.wrap{max-width:760px; margin:0 auto; padding:0 28px}
 
-/* ---------- head ---------- */
-header{display:flex; align-items:center; gap:10px; padding:22px 0}
-header img{width:26px; height:26px; border-radius:6px}
-header b{font-weight:600; font-size:16px; letter-spacing:-.2px}
+.hero{position:relative; text-align:center; padding:72px 0 0; overflow:hidden}
+.hero::before{content:""; position:absolute; z-index:-1; left:50%; top:-180px;
+  width:760px; height:520px; transform:translateX(-50%);
+  background:radial-gradient(45% 50% at 50% 50%,
+    color-mix(in srgb,var(--accent) 20%,transparent), transparent 72%)}
+.mark{width:120px; height:120px; border-radius:27px; margin:0 auto 32px;
+  box-shadow:0 2px 6px rgba(16,16,22,.08),
+             0 26px 54px -18px color-mix(in srgb,var(--accent) 60%,transparent)}
 
-/* ---------- hero ---------- */
-.hero{padding:56px 0 0}
-.hero img.icon{width:76px; height:76px; border-radius:17px; margin-bottom:30px}
-h1{margin:0 0 20px; font-size:clamp(33px,5.6vw,46px); line-height:1.12;
-  font-weight:700; letter-spacing:-1.3px; text-wrap:balance}
-.lede{margin:0 0 34px; font-size:19px; line-height:1.55; color:var(--ink-2); text-wrap:pretty}
-.cta{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-a.btn{display:inline-block; padding:13px 24px; border-radius:10px; font-size:15px;
-  font-weight:600; text-decoration:none; background:var(--accent); color:#fff;
-  border:1px solid var(--accent); white-space:nowrap}
-a.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+h1{margin:0 auto 20px; font-weight:800; letter-spacing:-1.6px;
+  font-size:clamp(34px,5.6vw,52px); line-height:1.08;
+  max-width:13ch; text-wrap:balance}
+.who{margin:0 auto 34px; max-width:46ch; font-size:19px; line-height:1.55;
+  color:var(--ink-2); text-wrap:pretty}
+.who b{color:var(--ink); font-weight:600}
+
+.cta{display:flex; gap:11px; justify-content:center; flex-wrap:wrap}
+a.btn{display:inline-block; padding:14px 28px; border-radius:11px; font-size:15.5px;
+  font-weight:600; text-decoration:none; white-space:nowrap;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:var(--on-accent); border:1px solid transparent}
+a.btn.ghost{background:none; color:var(--ink); border-color:var(--line)}
 .meta{margin-top:18px; font-size:13.5px; color:var(--ink-3)}
 
-/* ---------- the languages, which are the argument ---------- */
-.langs{display:flex; flex-wrap:wrap; gap:7px; margin:0}
-.langs span{display:inline-flex; align-items:center; gap:7px;
+.flags{display:flex; flex-wrap:wrap; gap:7px; justify-content:center;
+  margin:44px auto 0; max-width:720px}
+.flags span{display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
   background:var(--soft); border:1px solid var(--line); border-radius:999px;
-  padding:6px 14px 6px 10px; font-size:14px; color:var(--ink); white-space:nowrap}
-.langs i{font-style:normal; font-size:16px; line-height:1}
+  padding:6px 14px 6px 10px; font-size:14px; color:var(--ink)}
+.flags i{font-style:normal; font-size:16px; line-height:1}
+.flags-note{text-align:center; margin:18px auto 0; font-size:14px; color:var(--ink-3)}
 
-/* ---------- sections ---------- */
-section{padding:64px 0 0}
-h2{font-size:25px; font-weight:700; letter-spacing:-.6px; margin:0 0 10px; text-wrap:balance}
-.sub{color:var(--ink-2); margin:0 0 26px; font-size:16.5px; text-wrap:pretty}
+section{padding:72px 0 0}
+h2{font-size:27px; font-weight:700; letter-spacing:-.7px; margin:0 0 10px;
+  max-width:22ch; text-wrap:balance}
+.sub{color:var(--ink-2); margin:0 0 28px; font-size:16.5px; max-width:62ch; text-wrap:pretty}
 h3{font-size:16.5px; font-weight:600; margin:0 0 5px}
-p{margin:0 0 15px; text-wrap:pretty}
+p{margin:0 0 15px; max-width:66ch; text-wrap:pretty}
 
-dl{margin:0; display:grid; grid-template-columns:minmax(0,auto) 1fr; gap:11px 22px; align-items:baseline}
+dl{margin:0; display:grid; grid-template-columns:minmax(0,max-content) 1fr; gap:12px 26px;
+  align-items:baseline}
 dt{font-weight:600; font-size:15.5px; white-space:nowrap}
 dd{margin:0; color:var(--ink-2); font-size:15.5px; text-wrap:pretty}
-@media (max-width:540px){
-  dl{grid-template-columns:1fr; gap:3px}
-  dd{margin-bottom:12px}
-}
+@media (max-width:560px){ dl{grid-template-columns:1fr; gap:3px} dd{margin-bottom:13px} }
 
 ol{counter-reset:s; list-style:none; padding:0; margin:0}
-ol > li{counter-increment:s; position:relative; padding:0 0 22px 36px}
+ol > li{counter-increment:s; position:relative; padding:0 0 22px 38px}
 ol > li::before{content:counter(s); position:absolute; left:0; top:2px;
-  width:23px; height:23px; border-radius:50%; background:var(--soft);
+  width:24px; height:24px; border-radius:50%; background:var(--soft);
   border:1px solid var(--line); color:var(--ink-2);
   font-size:12px; font-weight:700; display:grid; place-items:center}
 ol p{margin:0; color:var(--ink-2); font-size:15.5px}
-ol strong{color:var(--ink); font-weight:600}
+strong{color:var(--ink); font-weight:600}
 
-.tip{border-left:2px solid var(--accent); padding-left:18px; margin:0 0 26px}
+.tip{border-left:2px solid var(--accent); padding-left:19px; margin:0 0 26px}
 .tip p{margin:0; color:var(--ink-2); font-size:15.5px}
 
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.87em;
   background:var(--soft); padding:2px 6px; border-radius:5px; white-space:nowrap}
-pre{background:var(--soft); border:1px solid var(--line); border-radius:10px;
-  padding:15px 17px; overflow-x:auto; font-size:13.5px; line-height:1.65; margin:14px 0;
+pre{background:var(--soft); border:1px solid var(--line); border-radius:11px;
+  padding:16px 18px; overflow-x:auto; font-size:13.5px; line-height:1.65; margin:14px 0;
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 pre code{background:none; padding:0; white-space:pre}
 kbd{display:inline-block; padding:1px 8px; border:1px solid var(--line);
   border-bottom-width:2px; border-radius:5px; background:var(--soft);
   font-size:14px; white-space:nowrap}
 
-footer{border-top:1px solid var(--line); margin-top:72px; padding:26px 0 48px;
-  font-size:14px; color:var(--ink-3); display:flex; flex-wrap:wrap; gap:20px}
+footer{border-top:1px solid var(--line); margin-top:80px; padding:28px 0 52px;
+  font-size:14px; color:var(--ink-3)}
+footer .wrap{display:flex; flex-wrap:wrap; gap:22px; align-items:center}
 footer a{color:var(--ink-2); text-decoration:none}
+footer img{width:22px; height:22px; border-radius:5px}
 
-@media (max-width:540px){
+@media (max-width:560px){
   .wrap{padding:0 20px}
-  .hero{padding-top:36px}
-  section{padding-top:46px}
+  .hero{padding-top:44px}
+  .mark{width:96px; height:96px; border-radius:22px; margin-bottom:26px}
+  section{padding-top:52px}
+  .flags{margin-top:34px}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<header>
-  <img src="icon.png" alt="" width="26" height="26">
-  <b>NativeVoice</b>
-</header>
-
-<div class="hero">
-  <img class="icon" src="icon-large.png" alt="" width="76" height="76">
-  <h1>Dictation that speaks your language.</h1>
-  <p class="lede">Hold a key, speak, let go — the text appears where your cursor is.
-    Dictation on a Mac is excellent in English and patchy to absent in everything else. This is
-    built the other way round: the languages everyone treats as minor are the ones it is for,
-    it costs pennies, and it just works.</p>
+<div class="hero"><div class="wrap">
+  <img class="mark" src="icon-large.png" alt="NativeVoice" width="120" height="120">
+  <h1>Dictation in your language.</h1>
+  <p class="who">If you dictate in <b>Czech, Polish, Ukrainian, Greek</b> or thirty-two other
+    languages, macOS has never really had you covered. NativeVoice is built the other way round:
+    hold a key, speak, let go, and the text appears where your cursor is.</p>
   <div class="cta">
     <a class="btn" href="https://github.com/trustbe/nativevoice/releases/latest">Download for macOS</a>
     <a class="btn ghost" href="https://github.com/trustbe/nativevoice">Source</a>
   </div>
-  <p class="meta">Free · open source · macOS 13+ · Apple silicon and Intel</p>
-</div>
+  <p class="meta">Free · open source · pennies per use · macOS 13+ · Apple silicon and Intel</p>
 
-<section>
-  <h2>36 languages</h2>
-  <p class="sub">Including the ones the big tools treat as minor. All of them equal — there is no
-    first-class language here.</p>
-  <div class="langs">
-    <span><i>🇧🇾</i>Belarusian</span><span><i>🇧🇦</i>Bosnian</span><span><i>🇧🇬</i>Bulgarian</span><span><i>🇪🇸</i>Catalan</span>
-    <span><i>🇭🇷</i>Croatian</span><span><i>🇨🇿</i>Czech</span><span><i>🇩🇰</i>Danish</span><span><i>🇳🇱</i>Dutch</span>
-    <span><i>🇬🇧</i>English</span><span><i>🇪🇪</i>Estonian</span><span><i>🇫🇮</i>Finnish</span><span><i>🇫🇷</i>French</span>
-    <span><i>🇪🇸</i>Galician</span><span><i>🇩🇪</i>German</span><span><i>🇬🇷</i>Greek</span><span><i>🇭🇺</i>Hungarian</span>
-    <span><i>🇮🇸</i>Icelandic</span><span><i>🇮🇩</i>Indonesian</span><span><i>🇮🇹</i>Italian</span><span><i>🇯🇵</i>Japanese</span>
-    <span><i>🇮🇳</i>Kannada</span><span><i>🇱🇻</i>Latvian</span><span><i>🇲🇰</i>Macedonian</span><span><i>🇲🇾</i>Malay</span>
-    <span><i>🇮🇳</i>Malayalam</span><span><i>🇳🇴</i>Norwegian</span><span><i>🇵🇱</i>Polish</span><span><i>🇵🇹</i>Portuguese</span>
-    <span><i>🇷🇴</i>Romanian</span><span><i>🇷🇺</i>Russian</span><span><i>🇸🇰</i>Slovak</span><span><i>🇪🇸</i>Spanish</span>
-    <span><i>🇸🇪</i>Swedish</span><span><i>🇹🇷</i>Turkish</span><span><i>🇺🇦</i>Ukrainian</span><span><i>🇻🇳</i>Vietnamese</span>
+  <div class="flags">
+    <span><i>&#127463;&#127486;</i>Belarusian</span><span><i>&#127463;&#127462;</i>Bosnian</span><span><i>&#127463;&#127468;</i>Bulgarian</span><span><i>&#127466;&#127480;</i>Catalan</span>
+    <span><i>&#127469;&#127479;</i>Croatian</span><span><i>&#127464;&#127487;</i>Czech</span><span><i>&#127465;&#127472;</i>Danish</span><span><i>&#127475;&#127473;</i>Dutch</span>
+    <span><i>&#127468;&#127463;</i>English</span><span><i>&#127466;&#127466;</i>Estonian</span><span><i>&#127467;&#127470;</i>Finnish</span><span><i>&#127467;&#127479;</i>French</span>
+    <span><i>&#127466;&#127480;</i>Galician</span><span><i>&#127465;&#127466;</i>German</span><span><i>&#127468;&#127479;</i>Greek</span><span><i>&#127469;&#127482;</i>Hungarian</span>
+    <span><i>&#127470;&#127480;</i>Icelandic</span><span><i>&#127470;&#127465;</i>Indonesian</span><span><i>&#127470;&#127481;</i>Italian</span><span><i>&#127471;&#127477;</i>Japanese</span>
+    <span><i>&#127470;&#127475;</i>Kannada</span><span><i>&#127473;&#127483;</i>Latvian</span><span><i>&#127474;&#127472;</i>Macedonian</span><span><i>&#127474;&#127486;</i>Malay</span>
+    <span><i>&#127470;&#127475;</i>Malayalam</span><span><i>&#127475;&#127476;</i>Norwegian</span><span><i>&#127477;&#127473;</i>Polish</span><span><i>&#127477;&#127481;</i>Portuguese</span>
+    <span><i>&#127479;&#127476;</i>Romanian</span><span><i>&#127479;&#127482;</i>Russian</span><span><i>&#127480;&#127472;</i>Slovak</span><span><i>&#127466;&#127480;</i>Spanish</span>
+    <span><i>&#127480;&#127466;</i>Swedish</span><span><i>&#127481;&#127479;</i>Turkish</span><span><i>&#127482;&#127462;</i>Ukrainian</span><span><i>&#127483;&#127475;</i>Vietnamese</span>
   </div>
-</section>
+  <p class="flags-note">All thirty-six behave the same. There is no first-class language here.</p>
+</div></div>
 
-<section>
+<section><div class="wrap">
   <h2>One menu, one gesture</h2>
-  <p class="sub">Hold <kbd>right ⌘</kbd>, speak, let go. Everything else lives in a
-    single menu, and this is all of it:</p>
+  <p class="sub">Hold <kbd>right &#8984;</kbd>, speak, let go. There is no window to learn — everything
+    the app can do lives in a single menu, and this is all of it:</p>
   <dl>
     <dt>Trigger key</dt>
     <dd>Right Command, or Shift together with it.</dd>
@@ -173,64 +175,63 @@ footer a{color:var(--ink-2); text-decoration:none}
     <dt>Check for updates</dt>
     <dd>Manual only. Nothing is downloaded unless you ask.</dd>
   </dl>
-</section>
+</div></section>
 
-<section>
+<section><div class="wrap">
   <h2>Setting it up</h2>
   <p class="sub">Ten minutes. You bring your own ElevenLabs key: you pay them directly for what you
     dictate and nothing goes through anyone else. Their free tier is 10,000 credits a month and
-    transcription costs 330 credits a minute, so roughly half an hour of dictation every month
-    costs nothing at all — <a href="https://elevenlabs.io/pricing">check their current pricing</a>
-    before you rely on that.</p>
+    transcription costs 330 credits a minute — about half an hour of dictation every month for
+    nothing. <a href="https://elevenlabs.io/pricing">Check their current pricing</a> before you rely
+    on that.</p>
   <ol>
-    <li><p>Drag <strong>NativeVoice</strong> into Applications and open it. It has no
-      window; look for it in the menu bar.</p></li>
-    <li><p>Make a key at <a href="https://elevenlabs.io/app/settings/api-keys">ElevenLabs
-      → Settings → API Keys</a> and copy it at once — they show it only the first time.</p></li>
-    <li><p>Menu → <strong>Settings…</strong> → paste → <strong>Save</strong>. It goes into
-      the macOS keychain and the app never shows it again.</p></li>
-    <li><p>Allow <strong>Input Monitoring</strong> in System Settings, then
-      <strong>quit and reopen the app</strong>. macOS gives the permission only to a fresh process,
-      so nothing changes until you do.</p></li>
-    <li><p>Allow <strong>Accessibility</strong> too. This one fails quietly: without it
-      your words are transcribed and the paste is thrown away, so you hear the finishing sound and
-      nothing arrives.</p></li>
+    <li><p>Drag <strong>NativeVoice</strong> into Applications and open it. It has no window; look
+      for it in the menu bar.</p></li>
+    <li><p>Make a key at <a href="https://elevenlabs.io/app/settings/api-keys">ElevenLabs &#8594;
+      Settings &#8594; API Keys</a> and copy it at once — they show it only the first time.</p></li>
+    <li><p>Menu &#8594; <strong>Settings…</strong> &#8594; paste &#8594; <strong>Save</strong>. It goes
+      into the macOS keychain and the app never shows it again.</p></li>
+    <li><p>Allow <strong>Input Monitoring</strong> in System Settings, then <strong>quit and reopen
+      the app</strong>. macOS gives the permission only to a fresh process, so nothing changes until
+      you do.</p></li>
+    <li><p>Allow <strong>Accessibility</strong> too. This one fails quietly: without it your words
+      are transcribed and the paste is thrown away, so you hear the finishing sound and nothing
+      arrives.</p></li>
   </ol>
-</section>
+</div></section>
 
-<section>
+<section><div class="wrap">
   <h2>Two things that fix most mistakes</h2>
   <div class="tip">
     <h3>Turn the microphone up</h3>
-    <p>A quiet signal changes digits before it garbles words, which is the dangerous way
-      round. Measured here: at a −41 dB peak “one hundred and forty-two” came back as “one hundred and
-      sixty-two”; at −26 dB it was right. Speech should peak near −12 dB, and the app tells you when
-      yours does not.</p>
+    <p>A quiet signal changes digits before it garbles words, which is the dangerous way round.
+      Measured here: at a &#8722;41 dB peak “one hundred and forty-two” came back as “one hundred and
+      sixty-two”; at &#8722;26 dB it was right. Speech should peak near &#8722;12 dB, and the app tells
+      you when yours does not.</p>
   </div>
   <div class="tip">
     <h3>Add your own words</h3>
-    <p>Names and jargon are what transcription gets wrong, and they are a short list only
-      you know. One term per line, read before every transcription, so edits apply immediately.</p>
+    <p>Names and jargon are what transcription gets wrong, and they are a short list only you know.
+      One term per line, read before every transcription, so edits apply immediately.</p>
     <pre><code>~/.config/nativevoice/vocabulary.txt</code></pre>
   </div>
-</section>
+</div></section>
 
-<section>
+<section><div class="wrap">
   <h2>Build it yourself</h2>
   <p class="sub">No dependencies, nothing hidden, about 3,500 lines.</p>
 <pre><code>git clone https://github.com/trustbe/nativevoice.git
 cd nativevoice
 ./Scripts/build-app.sh 0.1.0 1</code></pre>
-</section>
+</div></section>
 
-<footer>
+<footer><div class="wrap">
+  <img src="icon.png" alt="" width="22" height="22">
   <span>MIT licence</span>
   <a href="https://github.com/trustbe/nativevoice">Source</a>
   <a href="https://github.com/trustbe/nativevoice/issues">Report an issue</a>
   <a href="https://buymeacoffee.com/jenicek666">Buy me a coffee</a>
-</footer>
-
-</div>
+</div></footer>
 
 </body>
 </html>
