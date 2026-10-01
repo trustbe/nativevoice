@@ -10,6 +10,7 @@ import NativeVoiceCore
 final class EventTap {
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
+    private var hasSeenAnEvent = false
     private let onChange: (UInt64) -> Void
 
     init(onChange: @escaping (UInt64) -> Void) {
@@ -38,7 +39,7 @@ final class EventTap {
             },
             userInfo: refcon
         ) else {
-            appLog("event tap could not be created — Accessibility not granted yet")
+            appLog("event tap could not be created — Input Monitoring not granted")
             return false
         }
 
@@ -47,7 +48,11 @@ final class EventTap {
         CGEvent.tapEnable(tap: tap, enable: true)
         self.tap = tap
         self.source = source
-        appLog("event tap active — ready")
+        // Deliberately not "ready". A tap can be created and still deliver
+        // nothing, and a log that claims readiness while the app is deaf is
+        // worse than no log at all — it sends whoever is diagnosing it
+        // somewhere else entirely.
+        appLog("event tap created — waiting for the first event")
         return true
     }
 
@@ -58,6 +63,10 @@ final class EventTap {
             return
         }
         guard type == .flagsChanged else { return }
+        if !hasSeenAnEvent {
+            hasSeenAnEvent = true
+            appLog("event tap is receiving events — ready")
+        }
         onChange(event.flags.rawValue)
     }
 }

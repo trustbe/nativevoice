@@ -31,14 +31,31 @@ import Testing
         #expect(tracker.update(flags: leftCommand) == .unchanged)
     }
 
-    @Test func forceReleaseMakesTheNextPressRegister() {
-        // This is the recording-cap case. The cap exists because a release
-        // event can go missing; if the tracker still believed the key was
-        // down, the next genuine press would read as "no change" and be
-        // dropped — the user would say a whole sentence into nothing.
+    @Test func forceReleaseMakesTheNextPressRegisterOnceTheKeyIsSeenUp() {
+        // The recording-cap case. The cap exists because a release event can
+        // go missing; if the tracker still believed the key was down, the next
+        // genuine press would read as "no change" and be dropped — the user
+        // would say a whole sentence into nothing.
         var tracker = HoldTracker(key: .rightCommand)
         _ = tracker.update(flags: rightCommand)
         tracker.forceRelease()
+        _ = tracker.update(flags: 0)        // the release, now actually observed
+        #expect(tracker.update(flags: rightCommand) == .pressed)
+    }
+
+    @Test func forceReleaseDoesNotTurnAnUnrelatedEventIntoAPress() {
+        // `flagsChanged` fires for every modifier. Without this guard, touching
+        // Shift while the trigger key is still physically held would carry the
+        // trigger bit, read as a fresh press, and start a recording nobody
+        // asked for.
+        var tracker = HoldTracker(key: .rightCommand)
+        _ = tracker.update(flags: rightCommand)
+        tracker.forceRelease()
+        let shiftWhileStillHolding = rightCommand | 0x2   // NX_DEVICELSHIFTKEYMASK
+        #expect(tracker.update(flags: shiftWhileStillHolding) == .unchanged)
+        #expect(tracker.update(flags: rightCommand) == .unchanged)
+        // Only a real release re-arms it.
+        _ = tracker.update(flags: 0)
         #expect(tracker.update(flags: rightCommand) == .pressed)
     }
 

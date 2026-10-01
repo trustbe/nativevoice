@@ -1,11 +1,9 @@
 import AppKit
 
-// `MainActor.assumeIsolated` rather than a bare call: the top-level code of
-// a main.swift executable runs on the main thread but is not inferred as
-// MainActor-isolated by the compiler, so a synchronous call into the
-// MainActor-isolated AppDelegate needs this assertion. It is a runtime
-// assertion of a fact that is true by construction here — this is the
-// process's main thread — not a workaround of an actual race.
+// `AppDelegate` is @MainActor, and top-level code in a SwiftPM executable is
+// nonisolated, so constructing it directly does not compile under Swift 6
+// concurrency checking. A SwiftPM executable does start on the main thread,
+// so this asserts a fact rather than changing behaviour.
 MainActor.assumeIsolated {
     let app = NSApplication.shared
     let delegate = AppDelegate()

@@ -13,8 +13,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clipboardRestore = ClipboardRestore()
 
     private var tap: EventTap?
+    private var tapIsRunning = false
     private var hold = HoldTracker(key: .default)
-    private var state: State = .idle { didSet { updateStatusIcon() } }
+    private var state: State = .idle {
+        didSet {
+            updateStatusIcon()
+            // A hold that began while the previous utterance was still being
+            // transcribed waits here rather than being thrown away.
+            if state == .idle, startWhenIdle {
+                startWhenIdle = false
+                if hold.isHolding { startRecording() }
+            }
+        }
+    }
+
+    /// Set when the hold threshold passed but the app was still busy with the
+    /// previous utterance. Dictating sentence after sentence is the normal way
+    /// to use this app, and a network round trip routinely outlasts the 0.4 s
+    /// threshold — so without this the second sentence is dropped in silence,
+    /// which is how a dictation tool earns the reputation of "sometimes it
+    /// just doesn't work".
+    private var startWhenIdle = false
 
     /// A press shorter than this is a shortcut, not dictation. The tap does
     /// not see ordinary keys, so it cannot tell that ⌘C used the same key —
@@ -28,7 +47,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Log.shared.rotateIfNeeded()
         appLog("launched from \(Bundle.main.bundlePath)")
-        appLog("accessibility trusted: \(AXIsProcessTrusted())")
+
+        // Two different permissions, for two different jobs, and confusing
+        // them cost a whole evening of diagnosis once:
+        //
+        //   Input Monitoring  lets the app *hear* the held key. A listen-only
+        //                     tap is gated by this one, not by Accessibility.
+        //   Accessibility     lets the app *press* ⌘V to paste the transcript.
+        //
+        // Either can be missing on its own, and each failure looks completely
+        // different to the user, so they are reported separately.
+        appLog("input monitoring: \(CGPreflightListenEventAccess())")
+        appLog("accessibility (needed to paste): \(AXIsProcessTrusted())")
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateStatusIcon()
@@ -40,7 +70,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task { @MainActor in self?.handle(flags: flags) }
         }
         self.tap = tap
-        tap.start()
+        tapIsRunning = tap.start()
+        if !tapIsRunning {
+            // Without this the menu bar icon is identical to a healthy idle
+            // app, and the only hint lives in a log file nobody is reading.
+            updateStatusIcon()
+            statusItem.menu = buildMenu()
+        }
     }
 
     // MARK: - Status item
@@ -49,10 +85,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // SF Symbols as template images, not text glyphs: they adapt to a
         // light or dark menu bar and to the highlight when the menu is open.
         let name: String
-        switch state {
-        case .idle:         name = "mic"
-        case .recording:    name = "mic.fill"
-        case .transcribing: name = "waveform"
+        if !tapIsRunning {
+            // A deaf app must not look like a healthy idle one. This is the
+            // only thing the user can see without opening a log file.
+            name = "mic.slash"
+        } else {
+            switch state {
+            case .idle:         name = "mic"
+            case .recording:    name = "mic.fill"
+            case .transcribing: name = "waveform"
+            }
         }
         let image = NSImage(systemSymbolName: name,
                             accessibilityDescription: String(localized: "NativeVoice", bundle: .module))
@@ -62,16 +104,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
-        let hint = NSMenuItem(
-            title: String(localized: "Hold \(hold.key.menuTitle) and speak", bundle: .module),
-            action: nil, keyEquivalent: "")
-        hint.isEnabled = false
+        let hint: NSMenuItem
+        if tapIsRunning {
+            hint = NSMenuItem(
+                title: String(localized: "Hold \(hold.key.menuTitle) and speak",
+                              bundle: .module),
+                action: nil, keyEquivalent: "")
+            hint.isEnabled = false
+        } else {
+            // Naming the permission matters: Input Monitoring is what a
+            // listen-only tap needs, and sending someone to Accessibility
+            // instead wastes their evening.
+            hint = NSMenuItem(
+                title: String(localized: "Allow Input Monitoring to use the key",
+                              bundle: .module),
+                action: #selector(openInputMonitoringSettings), keyEquivalent: "")
+            hint.target = self
+        }
         menu.addItem(hint)
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         return menu
+    }
+
+    @objc private func openInputMonitoringSettings() {
+        let url = URL(string:
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
+        NSWorkspace.shared.open(url)
     }
 
     private func requestMicrophone() {
@@ -99,7 +160,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         recorder.onLevel = { _ in }     // HUD arrives in plan 2
         recorder.warmUp()
         let work = DispatchWorkItem { [weak self] in
-            guard let self, self.hold.isHolding, self.state == .idle else { return }
+            guard let self, self.hold.isHolding else { return }
+            guard self.state == .idle else {
+                appLog("hold threshold passed while \(self.state) — "
+                       + "recording will start as soon as the previous one finishes")
+                self.startWhenIdle = true
+                return
+            }
             self.startRecording()
         }
         pendingStart = work
@@ -110,6 +177,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appLog("\(hold.key.rawValue) released")
         pendingStart?.cancel(); pendingStart = nil
         limitWork?.cancel(); limitWork = nil
+        // The key is up, so a deferred start has nothing left to record.
+        startWhenIdle = false
         guard state == .recording else {
             recorder.stop()             // short press, nothing was written
             return
