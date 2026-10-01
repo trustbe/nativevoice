@@ -68,6 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Log.shared.rotateIfNeeded()
+        installEditMenu()
         appLog("launched from \(Bundle.main.bundlePath)")
 
         // Two different permissions, for two different jobs, and confusing
@@ -165,6 +166,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         return menu
+    }
+
+    /// Standard editing commands for the settings window.
+    ///
+    /// A menu bar app has no main menu, and macOS routes ⌘V through the Edit
+    /// menu — so without one, paste silently does nothing. The API key is
+    /// fifty characters and is shown once; nobody is going to retype it, and
+    /// the settings window is useless without this.
+    ///
+    /// Nothing of this is ever displayed: the app stays an accessory and owns
+    /// no menu bar. Only the shortcuts become live, and only while one of its
+    /// windows is in front.
+    private func installEditMenu() {
+        let main = NSMenu()
+
+        let appItem = NSMenuItem()
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: String(localized: "Quit NativeVoice", bundle: .module),
+                        action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu
+        main.addItem(appItem)
+
+        let editItem = NSMenuItem()
+        let edit = NSMenu(title: String(localized: "Edit", bundle: .module))
+        edit.addItem(withTitle: String(localized: "Cut", bundle: .module),
+                     action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: String(localized: "Copy", bundle: .module),
+                     action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: String(localized: "Paste", bundle: .module),
+                     action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: String(localized: "Select All", bundle: .module),
+                     action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editItem.submenu = edit
+        main.addItem(editItem)
+
+        NSApp.mainMenu = main
     }
 
     @objc private func openSettings() { settings.show() }
