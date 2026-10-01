@@ -158,11 +158,23 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         // whose argument is that you can audit what happens to your key should
         // not put it on screen unasked.
         keyField.stringValue = ""
-        keyStatus.stringValue = secrets.hasKey
-            ? String(localized: "A key is stored. Paste a new one to replace it.",
-                     bundle: .module)
-            : String(localized: "No key yet. Dictation will not work until one is set.",
-                     bundle: .module)
+        // The one fact somebody opens this window to check is whether the key
+        // is in there. In the same small grey as every other caption it reads
+        // as boilerplate; green and bold, it answers the question from across
+        // the room.
+        if secrets.hasKey {
+            keyStatus.stringValue = String(
+                localized: "\u{2713} A key is stored. Paste a new one to replace it.",
+                bundle: .module)
+            keyStatus.font = .boldSystemFont(ofSize: 11)
+            keyStatus.textColor = .systemGreen
+        } else {
+            keyStatus.stringValue = String(
+                localized: "No key yet. Dictation will not work until one is set.",
+                bundle: .module)
+            keyStatus.font = .boldSystemFont(ofSize: 11)
+            keyStatus.textColor = .secondaryLabelColor
+        }
         removeButton?.isHidden = !secrets.hasKey
 
         if let index = languages.firstIndex(of: preferences.language) {
