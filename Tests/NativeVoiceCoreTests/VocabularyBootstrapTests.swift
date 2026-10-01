@@ -38,4 +38,22 @@ import Testing
     @Test func anUnwritablePathIsReportedRatherThanIgnored() {
         #expect(!Vocabulary.ensureFile(at: "/vocabulary-nobody-can-write.txt"))
     }
+
+    @Test func aDirectoryLeftOpenByAnEarlierVersionIsTightened() throws {
+        // Found on the author's own machine: the directory already existed at
+        // 755 from an older build, and the early return for "file is already
+        // there" meant the permissions were never corrected.
+        let directory = scratchDirectory()
+        let path = directory + "/vocabulary.txt"
+        try FileManager.default.createDirectory(
+            atPath: directory, withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o755])
+        try "terms\n".write(toFile: path, atomically: true, encoding: .utf8)
+
+        #expect(Vocabulary.ensureFile(at: path))
+
+        let mode = try FileManager.default
+            .attributesOfItem(atPath: directory)[.posixPermissions] as? NSNumber
+        #expect(mode?.int16Value == 0o700)
+    }
 }

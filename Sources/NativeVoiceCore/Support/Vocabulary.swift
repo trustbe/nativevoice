@@ -24,9 +24,19 @@ public enum Vocabulary {
     @discardableResult
     public static func ensureFile(at path: String) -> Bool {
         let manager = FileManager.default
-        if manager.fileExists(atPath: path) { return true }
-
         let directory = (path as NSString).deletingLastPathComponent
+
+        if manager.fileExists(atPath: path) {
+            // Measured on this machine: the directory was already there from
+            // an earlier version, at 755, and the early return left it that
+            // way. The file names the people and clients someone dictates
+            // about, so the permissions are corrected on every launch rather
+            // than only when the directory is new.
+            try? manager.setAttributes([.posixPermissions: 0o700],
+                                       ofItemAtPath: directory)
+            return true
+        }
+
         do {
             // The file lists names, clients and places someone dictates
             // about, so the directory stays private to its owner.
