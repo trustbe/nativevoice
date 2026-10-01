@@ -3,9 +3,10 @@ import Foundation
 /// Custom terms sent along with the audio.
 ///
 /// This is the single most effective lever on quality the app has — measured,
-/// not assumed. On one recording, with nothing else changed: `Journeyman`
-/// became `German`, `Cloudflare Worker` became `Cloud for Work`,
-/// `safetensors` became `Sage Sensor`. With the vocabulary, all correct.
+/// not assumed. On one recording, with nothing else changed, a company name
+/// came back as an unrelated German word, `Cloudflare Worker` became
+/// `Cloud for Work`, `safetensors` became `Sage Sensor` and `D1` became `Z1`.
+/// With the vocabulary, every one of them correct.
 ///
 /// It works because proper nouns and jargon are a finite known list.
 public enum Vocabulary {

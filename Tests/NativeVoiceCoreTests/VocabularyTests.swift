@@ -1,27 +1,28 @@
+import Foundation
 import Testing
 @testable import NativeVoiceCore
 
 @Suite struct VocabularyTests {
 
     @Test func oneTermPerLine() {
-        let terms = Vocabulary.terms(from: "Journeyman\nsafetensors\nWER")
-        #expect(terms == ["Journeyman", "safetensors", "WER"])
+        let terms = Vocabulary.terms(from: "Kubernetes\nsafetensors\nWER")
+        #expect(terms == ["Kubernetes", "safetensors", "WER"])
     }
 
     @Test func ignoresCommentsAndBlankLines() {
         let text = """
         # One term per line
-        Journeyman
+        Kubernetes
 
            # indented comment
         safetensors
         """
-        #expect(Vocabulary.terms(from: text) == ["Journeyman", "safetensors"])
+        #expect(Vocabulary.terms(from: text) == ["Kubernetes", "safetensors"])
     }
 
     @Test func trimsSurroundingWhitespace() {
-        #expect(Vocabulary.terms(from: "  Journeyman  \n\tsafetensors\t")
-                == ["Journeyman", "safetensors"])
+        #expect(Vocabulary.terms(from: "  Kubernetes  \n\tsafetensors\t")
+                == ["Kubernetes", "safetensors"])
     }
 
     @Test func dropsDuplicatesKeepingFirst() {
@@ -47,12 +48,26 @@ import Testing
         #expect(Vocabulary.terms(from: "# only a comment\n\n").isEmpty)
     }
 
-    @Test func templateIsEmptyOfTermsAndNamesNoCustomer() {
-        // The predecessor shipped a vocabulary naming the author's clients.
+    @Test func templateShipsEmpty() {
         #expect(Vocabulary.terms(from: Vocabulary.template).isEmpty)
+    }
+
+    @Test func noCustomerOfThePredecessorIsNamedAnywhereInTheFile() throws {
+        // The predecessor shipped a vocabulary naming the author's clients.
+        // Checking only `template` is not enough — a name in a doc comment is
+        // just as public once the repository is, and that is exactly where
+        // one slipped through before this test was widened.
+        let source = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()        // NativeVoiceCoreTests
+            .deletingLastPathComponent()        // Tests
+            .deletingLastPathComponent()        // package root
+            .appendingPathComponent("Sources/NativeVoiceCore/Support/Vocabulary.swift")
+        let text = try String(contentsOf: source, encoding: .utf8)
+
         let forbidden = ["Journeyman", "CFMOTO", "Fakturoid", "Helios",
                          "Nextup", "ISIR", "ISDS"]
         for name in forbidden {
+            #expect(!(text.contains(name)), "Vocabulary.swift mentions \(name)")
             #expect(!(Vocabulary.template.contains(name)), "template mentions \(name)")
         }
     }

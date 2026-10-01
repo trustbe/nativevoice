@@ -48,8 +48,8 @@ import Testing
     }
 
     @Test func sendsOneFieldPerKeyterm() {
-        let b = body(build(keyterms: ["Journeyman", "safetensors"]))
-        #expect(b.contains("name=\"keyterms\"\r\n\r\nJourneyman"))
+        let b = body(build(keyterms: ["Kubernetes", "safetensors"]))
+        #expect(b.contains("name=\"keyterms\"\r\n\r\nKubernetes"))
         #expect(b.contains("name=\"keyterms\"\r\n\r\nsafetensors"))
     }
 
@@ -79,8 +79,7 @@ import Testing
     @Test func parsesTranscript() {
         let data = Data(#"{"text":"toto je zkouška"}"#.utf8)
         guard case .text(let t) = ElevenLabsResponse.parse(data: data, httpStatus: 200) else {
-            Issue.record("expected text")
-            return
+            Issue.record("expected text"); return
         }
         #expect(t == "toto je zkouška")
     }
@@ -90,16 +89,14 @@ import Testing
         // tell the user, because only it knows the measured input level.
         let data = Data(#"{"text":""}"#.utf8)
         guard case .text(let t) = ElevenLabsResponse.parse(data: data, httpStatus: 200) else {
-            Issue.record("expected text")
-            return
+            Issue.record("expected text"); return
         }
         #expect(t == "")
     }
 
     @Test func emptyBodyMeansUnreachable() {
         guard case .failure(let e) = ElevenLabsResponse.parse(data: Data(), httpStatus: 0) else {
-            Issue.record("expected failure")
-            return
+            Issue.record("expected failure"); return
         }
         #expect(e == .unreachable)
     }
@@ -107,8 +104,7 @@ import Testing
     @Test func nonJSONBodyMeansBadResponse() {
         let data = Data("<html>502 Bad Gateway</html>".utf8)
         guard case .failure(let e) = ElevenLabsResponse.parse(data: data, httpStatus: 502) else {
-            Issue.record("expected failure")
-            return
+            Issue.record("expected failure"); return
         }
         #expect(e == .badResponse)
     }
@@ -116,8 +112,7 @@ import Testing
     @Test func serverMessageIsSurfacedFromDetailObject() {
         let data = Data(#"{"detail":{"message":"Invalid API key"}}"#.utf8)
         guard case .failure(let e) = ElevenLabsResponse.parse(data: data, httpStatus: 401) else {
-            Issue.record("expected failure")
-            return
+            Issue.record("expected failure"); return
         }
         #expect(e == .server("Invalid API key"))
     }
@@ -125,8 +120,7 @@ import Testing
     @Test func serverMessageIsSurfacedFromDetailString() {
         let data = Data(#"{"detail":"quota exceeded"}"#.utf8)
         guard case .failure(let e) = ElevenLabsResponse.parse(data: data, httpStatus: 429) else {
-            Issue.record("expected failure")
-            return
+            Issue.record("expected failure"); return
         }
         #expect(e == .server("quota exceeded"))
     }
@@ -134,8 +128,7 @@ import Testing
     @Test func jSONWithoutTextOrDetailMeansBadResponse() {
         let data = Data(#"{"unexpected":1}"#.utf8)
         guard case .failure(let e) = ElevenLabsResponse.parse(data: data, httpStatus: 200) else {
-            Issue.record("expected failure")
-            return
+            Issue.record("expected failure"); return
         }
         #expect(e == .badResponse)
     }
@@ -145,8 +138,7 @@ import Testing
         let data = Data(#"{"detail":"\#(long)"}"#.utf8)
         guard case .failure(.server(let message)) =
                 ElevenLabsResponse.parse(data: data, httpStatus: 400) else {
-            Issue.record("expected server failure")
-            return
+            Issue.record("expected server failure"); return
         }
         #expect(message.count <= 90)
     }
