@@ -25,7 +25,11 @@ import Foundation
         let log = makeLog()
         log.write("hello")
         log.drain()
+        // Trailing newline trimmed first: with plain .regularExpression the
+        // `$` anchor does not match ahead of it, so the pattern would fail on
+        // a line that is in fact correct.
         let text = try String(contentsOfFile: log.path, encoding: .utf8)
+            .trimmingCharacters(in: .newlines)
         // Expect "[MM-dd HH:mm:ss] hello". A time without a date made lines
         // from different days indistinguishable in the predecessor.
         #expect(text.range(of: #"^\[\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] hello$"#,
