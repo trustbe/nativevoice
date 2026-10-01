@@ -1,7 +1,27 @@
 # NativeVoice
 
-NativeVoice is a macOS menu bar dictation app aimed at languages the big
-dictation tools don't reach well.
+Hold a key, speak, let go. The text appears where your cursor is.
+
+NativeVoice is a macOS dictation app for the languages the big tools treat as
+an afterthought. Dictation on a Mac is excellent if you speak English and
+patchy to absent if you do not — macOS offers an offline model, automatic
+punctuation and continuous listening for `en-US` alone, and the well-known
+third-party apps advertise "100+ languages" while quietly listing Polish,
+Russian and Ukrainian but not Czech.
+
+This one treats those languages as the point rather than the long tail. It
+speaks 36:
+
+- Belarusian, Bosnian, Bulgarian, Catalan, Croatian, Czech
+- Danish, Dutch, English, Estonian, Finnish, French
+- Galician, German, Greek, Hungarian, Icelandic, Indonesian
+- Italian, Japanese, Kannada, Latvian, Macedonian, Malay
+- Malayalam, Norwegian, Polish, Portuguese, Romanian, Russian
+- Slovak, Spanish, Swedish, Turkish, Ukrainian, Vietnamese
+
+If a language is missing it is because ElevenLabs does not transcribe it yet,
+not because it was skipped. Anything on this list gets the same behaviour as
+any other — there is no first-class language here.
 
 ## An API key of your own
 
@@ -13,13 +33,18 @@ never anywhere else.
 
 ## Installation
 
+Requires macOS 13 or later. Universal: Apple silicon and Intel.
+
 1. Download the `.dmg` from the [releases page](https://github.com/trustbe/nativevoice/releases).
 2. Open it and drag **NativeVoice** into **Applications**.
-3. Open NativeVoice from Applications. macOS will ask you to grant two
-   permissions in System Settings. NativeVoice needs **both**:
+3. Open NativeVoice from Applications. It needs **two** permissions in
+   System Settings, and macOS will not ask you for the first one — the app's
+   own menu tells you which it is waiting for:
 
    - **Input Monitoring** — lets NativeVoice notice when you hold the
      trigger key. Without it, nothing happens when you hold the key down.
+     **Quit and reopen the app after granting it**; macOS hands the permission
+     only to a freshly started process, so nothing changes until you do.
    - **Accessibility** — lets NativeVoice paste the finished transcript into
      whatever you were typing into. Without it, NativeVoice still transcribes
      your speech, but nothing appears where you were typing: it pastes
