@@ -47,8 +47,8 @@ import Testing
 
     @Test func aChosenTriggerKeyIsRemembered() {
         let preferences = makePreferences()
-        preferences.triggerKey = .leftOption
-        #expect(preferences.triggerKey == .leftOption)
+        preferences.triggerKey = .shiftRightCommand
+        #expect(preferences.triggerKey == .shiftRightCommand)
     }
 
     @Test func anUnknownStoredTriggerKeyFallsBackToTheDefault() {

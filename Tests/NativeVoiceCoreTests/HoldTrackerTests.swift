@@ -62,7 +62,7 @@ import Testing
     @Test func changingKeyWhileHeldDoesNotLeaveItStuck() {
         var tracker = HoldTracker(key: .rightCommand)
         _ = tracker.update(flags: rightCommand)
-        tracker.key = .leftOption
+        tracker.key = .shiftRightCommand
         #expect(!(tracker.isHolding))
     }
 }

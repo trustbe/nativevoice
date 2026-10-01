@@ -47,7 +47,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     // MARK: - Building
 
     private func build() {
-        let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 460, height: 300),
+        let w = EscapableWindow(contentRect: NSRect(x: 0, y: 0, width: 460, height: 300),
                          styleMask: [.titled, .closable],
                          backing: .buffered, defer: false)
         w.title = String(localized: "NativeVoice Settings", bundle: .module)
@@ -162,17 +162,16 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         // is in there. In the same small grey as every other caption it reads
         // as boilerplate; green and bold, it answers the question from across
         // the room.
+        keyStatus.font = .boldSystemFont(ofSize: 11)
         if secrets.hasKey {
             keyStatus.stringValue = String(
                 localized: "\u{2713} A key is stored. Paste a new one to replace it.",
                 bundle: .module)
-            keyStatus.font = .boldSystemFont(ofSize: 11)
             keyStatus.textColor = .systemGreen
         } else {
             keyStatus.stringValue = String(
                 localized: "No key yet. Dictation will not work until one is set.",
                 bundle: .module)
-            keyStatus.font = .boldSystemFont(ofSize: 11)
             keyStatus.textColor = .secondaryLabelColor
         }
         removeButton?.isHidden = !secrets.hasKey
@@ -286,5 +285,17 @@ final class LinkButton: NSButton {
     @objc private func open() {
         guard let url else { return }
         NSWorkspace.shared.open(url)
+    }
+}
+
+/// A window that closes on Escape.
+///
+/// `NSWindow` routes Escape to `cancelOperation(_:)` and does nothing with it
+/// unless something answers. Every other window on the Mac shuts on Escape, so
+/// one that does not feels stuck — and this one has a default button bound to
+/// Return, which makes the missing counterpart more conspicuous, not less.
+final class EscapableWindow: NSWindow {
+    override func cancelOperation(_ sender: Any?) {
+        performClose(sender)
     }
 }
