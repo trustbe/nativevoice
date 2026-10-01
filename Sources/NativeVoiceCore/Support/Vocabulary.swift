@@ -21,10 +21,34 @@ public enum Vocabulary {
         for rawLine in text.components(separatedBy: .newlines) {
             let line = rawLine.trimmingCharacters(in: .whitespaces)
             guard !line.isEmpty, !line.hasPrefix("#") else { continue }
-            let term = String(line.prefix(maxTermLength))
+            let term = clipped(line)
             guard seen.insert(term).inserted else { continue }
             out.append(term)
             if out.count == maxTerms { break }
+        }
+        return out
+    }
+
+    /// Shortens a term to the API's limit.
+    ///
+    /// The documentation says "max characters per keyterm: 50" without saying
+    /// what it counts. Swift's `prefix(50)` counts grapheme clusters, which is
+    /// the most generous reading; a server counting Unicode scalars would see
+    /// more. `Ž` written as Z plus a combining caron is one grapheme and two
+    /// scalars, and a term of fifty such letters would pass here and be
+    /// rejected there — costing the whole transcription, which is exactly
+    /// what this clipping exists to prevent.
+    ///
+    /// So it satisfies both readings: at most 50 graphemes **and** at most 50
+    /// scalars. For plain Latin text the two agree and nothing changes.
+    static func clipped(_ term: String) -> String {
+        var out = ""
+        var scalars = 0
+        for character in term {
+            let width = character.unicodeScalars.count
+            if out.count == maxTermLength || scalars + width > maxTermLength { break }
+            out.append(character)
+            scalars += width
         }
         return out
     }

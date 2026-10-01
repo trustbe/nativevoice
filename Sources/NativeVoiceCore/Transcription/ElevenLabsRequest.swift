@@ -36,8 +36,15 @@ public struct ElevenLabsRequest {
         if removeFillers { field("no_verbatim", "true") }
         for term in keyterms { field("keyterms", term) }
 
+        // The filename is interpolated into a quoted header value, so a quote,
+        // a backslash or a newline inside it would break that header line.
+        // It is caller-supplied, so it gets cleaned rather than trusted.
+        let safeFilename = filename.unicodeScalars
+            .filter { $0 != "\"" && $0 != "\\" && !CharacterSet.newlines.contains($0) }
+            .reduce(into: "") { $0.unicodeScalars.append($1) }
+
         body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(safeFilename)\"\r\n")
         body.append("Content-Type: audio/wav\r\n\r\n")
         body.append(audio)
         body.append("\r\n")

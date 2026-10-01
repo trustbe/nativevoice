@@ -63,6 +63,20 @@ import Testing
             .contains("name=\"no_verbatim\"\r\n\r\ntrue"))
     }
 
+    @Test func aFilenameWithAQuoteCannotBreakTheHeader() {
+        // The filename lands inside a quoted header value. A quote or a
+        // backslash in it would end that value early and corrupt the part.
+        let r = ElevenLabsRequest.build(audio: Data("RIFFfake".utf8),
+                                        filename: "we\"ird\\name\n.wav",
+                                        language: "ces", keyterms: [],
+                                        removeFillers: false,
+                                        apiKey: "sk_test", boundary: boundary)
+        let b = String(data: r.httpBody ?? Data(), encoding: .utf8) ?? ""
+        #expect(b.contains("filename=\"weirdname.wav\""))
+        // Exactly one Content-Disposition line for the file part, not two.
+        #expect(b.components(separatedBy: "name=\"file\"").count == 2)
+    }
+
     @Test func bodyIsWellFormedMultipart() {
         let r = build(keyterms: ["a"])
         #expect(r.value(forHTTPHeaderField: "Content-Type")
@@ -140,7 +154,9 @@ import Testing
                 ElevenLabsResponse.parse(data: data, httpStatus: 400) else {
             Issue.record("expected server failure"); return
         }
-        #expect(message.count <= 90)
+        // `<=` alone would also pass if the code over-truncated to ten
+        // characters, so the exact length is asserted.
+        #expect(message.count == 90)
     }
 
     @Test func everyErrorHasANonEmptyUserMessage() {
