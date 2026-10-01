@@ -8,497 +8,223 @@
 <link rel="icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#fcfcfd; --surface:#fff; --raised:#fff;
-  --ink:#16161d; --ink-2:#5b5b6b; --ink-3:#8c8ca0;
-  --line:#e6e6ee; --line-soft:#f0f0f5;
-  --brand:#6b4fdb; --brand-2:#b545b0; --brand-ink:#5538c9;
-  --good:#0f7b3f; --good-bg:#e8f6ed;
-  --bad:#c0362c; --bad-bg:#fdeceb;
-  --warn:#8a5a00; --warn-bg:#fdf4e3;
-  --shadow:0 1px 2px rgba(22,22,29,.06), 0 8px 24px -8px rgba(22,22,29,.12);
-  --shadow-lg:0 2px 4px rgba(22,22,29,.06), 0 24px 56px -16px rgba(22,22,29,.22);
+  --bg:#fff; --soft:#f6f6f9; --ink:#121218; --ink-2:#56566a; --ink-3:#9292a4;
+  --line:#eaeaf1; --accent:#6b4fdb;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0f0f14; --surface:#17171f; --raised:#1d1d27;
-    --ink:#ececf2; --ink-2:#a3a3b5; --ink-3:#74748a;
-    --line:#2a2a36; --line-soft:#22222c;
-    --brand:#a690ff; --brand-2:#e07ddb; --brand-ink:#c4b2ff;
-    --good:#58c98a; --good-bg:#12301f;
-    --bad:#ff968c; --bad-bg:#311917;
-    --warn:#f0c15c; --warn-bg:#2e2412;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -8px rgba(0,0,0,.6);
-    --shadow-lg:0 2px 4px rgba(0,0,0,.4), 0 24px 56px -16px rgba(0,0,0,.7);
+    --bg:#0e0e13; --soft:#17171e; --ink:#f0f0f6; --ink-2:#a0a0b2; --ink-3:#6c6c80;
+    --line:#242430; --accent:#a690ff;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0f0f14; --surface:#17171f; --raised:#1d1d27;
-  --ink:#ececf2; --ink-2:#a3a3b5; --ink-3:#74748a;
-  --line:#2a2a36; --line-soft:#22222c;
-  --brand:#a690ff; --brand-2:#e07ddb; --brand-ink:#c4b2ff;
-  --good:#58c98a; --good-bg:#12301f;
-  --bad:#ff968c; --bad-bg:#311917;
-  --warn:#f0c15c; --warn-bg:#2e2412;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -8px rgba(0,0,0,.6);
-  --shadow-lg:0 2px 4px rgba(0,0,0,.4), 0 24px 56px -16px rgba(0,0,0,.7);
+  --bg:#0e0e13; --soft:#17171e; --ink:#f0f0f6; --ink-2:#a0a0b2; --ink-3:#6c6c80;
+  --line:#242430; --accent:#a690ff;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:400 16px/1.65 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased; overflow-x:hidden;
-}
-code,kbd,pre{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
-a{color:var(--brand-ink); text-decoration:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) a{color:var(--brand)}}
-:root[data-theme="dark"] a{color:var(--brand)}
-a:hover{text-decoration:underline}
-img{max-width:100%; display:block}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font:400 17px/1.65 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+img{display:block}
+a{color:var(--accent); text-underline-offset:2px}
+.wrap{max-width:680px; margin:0 auto; padding:0 28px}
 
-.wrap{max-width:1040px; margin:0 auto; padding:0 24px}
+/* ---------- head ---------- */
+header{display:flex; align-items:center; gap:10px; padding:22px 0}
+header img{width:26px; height:26px; border-radius:6px}
+header b{font-weight:600; font-size:16px; letter-spacing:-.2px}
 
-/* ---- top bar ---- */
-.bar{position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.6) blur(14px);
-  background:color-mix(in srgb, var(--bg) 84%, transparent); border-bottom:1px solid var(--line-soft)}
-.bar .wrap{display:flex; align-items:center; gap:12px; padding-top:12px; padding-bottom:12px}
-.bar img{width:30px; height:30px; border-radius:7px}
-.bar b{font-weight:600; font-size:17px; letter-spacing:-.2px}
-.bar nav{margin-left:auto; display:flex; align-items:center; gap:22px; font-size:14px}
-.bar nav a{color:var(--ink-2); font-weight:500}
-.lang{display:flex; gap:2px; background:var(--line-soft); border-radius:8px; padding:3px}
-.lang button{
-  border:0; background:transparent; color:var(--ink-2); cursor:pointer;
-  font:600 12px/1 Inter,sans-serif; letter-spacing:.4px; padding:6px 10px; border-radius:6px;
-}
-.lang button[aria-pressed="true"]{background:var(--raised); color:var(--ink); box-shadow:var(--shadow)}
-@media (max-width:760px){.bar nav a{display:none}}
-
-/* ---- hero ---- */
-.hero{position:relative; padding:76px 0 0; overflow:hidden}
-.hero::before{
-  content:""; position:absolute; inset:-30% -20% auto -20%; height:620px; z-index:-1;
-  background:
-    radial-gradient(60% 70% at 22% 18%, color-mix(in srgb,var(--brand) 26%, transparent), transparent 70%),
-    radial-gradient(52% 62% at 82% 6%, color-mix(in srgb,var(--brand-2) 22%, transparent), transparent 70%);
-  filter:blur(8px);
-}
-.hero-icon{width:96px; height:96px; border-radius:22px; box-shadow:var(--shadow-lg); margin-bottom:28px}
-h1{margin:0 0 16px; font-size:clamp(34px,5.4vw,56px); line-height:1.08;
-  font-weight:700; letter-spacing:-1.4px; max-width:16ch}
-.lede{margin:0 0 30px; font-size:clamp(17px,2.1vw,20px); color:var(--ink-2); max-width:54ch; line-height:1.55}
-.cta{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
-a.btn, .btn{
-  display:inline-flex; align-items:center; gap:8px; padding:13px 26px; border-radius:11px;
-  font-size:15px; font-weight:600; letter-spacing:-.1px; border:1px solid transparent;
-  background:linear-gradient(135deg,var(--brand),var(--brand-2));
-  color:#fff;   /* set after the gradient so a link rule cannot win on specificity */
-  box-shadow:var(--shadow); transition:transform .14s ease, box-shadow .14s ease;
-}
-.btn:hover{text-decoration:none; transform:translateY(-1px); box-shadow:var(--shadow-lg)}
-a.btn-2, .btn-2{background:var(--raised); color:var(--ink); border-color:var(--line)}
+/* ---------- hero ---------- */
+.hero{padding:56px 0 0}
+.hero img.icon{width:76px; height:76px; border-radius:17px; margin-bottom:30px}
+h1{margin:0 0 20px; font-size:clamp(33px,5.6vw,46px); line-height:1.12;
+  font-weight:700; letter-spacing:-1.3px; text-wrap:balance}
+.lede{margin:0 0 34px; font-size:19px; line-height:1.55; color:var(--ink-2); text-wrap:pretty}
+.cta{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+a.btn{display:inline-block; padding:13px 24px; border-radius:10px; font-size:15px;
+  font-weight:600; text-decoration:none; background:var(--accent); color:#fff;
+  border:1px solid var(--accent); white-space:nowrap}
+a.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
 .meta{margin-top:18px; font-size:13.5px; color:var(--ink-3)}
 
-.shot{margin:52px 0 0; border-radius:14px; overflow:hidden; border:1px solid var(--line);
-  box-shadow:var(--shadow-lg); background:var(--surface)}
-.shot img{width:100%}
-.shot-cap{font-size:13px; color:var(--ink-3); padding:11px 16px; border-top:1px solid var(--line-soft);
-  background:var(--surface)}
+/* ---------- the languages, which are the argument ---------- */
+.langs{display:flex; flex-wrap:wrap; gap:7px; margin:0}
+.langs span{background:var(--soft); border:1px solid var(--line); border-radius:999px;
+  padding:6px 13px; font-size:14px; color:var(--ink-2); white-space:nowrap}
+.langs span.me{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
 
-/* ---- facts ---- */
-.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin:44px 0 0}
-.fact{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:18px 20px;
-  box-shadow:var(--shadow)}
-.fact .k{font-size:11px; letter-spacing:.9px; text-transform:uppercase; color:var(--ink-3); font-weight:600}
-.fact .v{font-size:25px; font-weight:700; letter-spacing:-.6px; margin-top:7px; line-height:1.15}
-.fact .s{font-size:13px; color:var(--ink-2); margin-top:4px}
+/* ---------- sections ---------- */
+section{padding:64px 0 0}
+h2{font-size:25px; font-weight:700; letter-spacing:-.6px; margin:0 0 10px; text-wrap:balance}
+.sub{color:var(--ink-2); margin:0 0 26px; font-size:16.5px; text-wrap:pretty}
+h3{font-size:16.5px; font-weight:600; margin:0 0 5px}
+p{margin:0 0 15px; text-wrap:pretty}
 
-/* ---- sections ---- */
-section{padding:72px 0 0}
-h2{font-size:clamp(26px,3.3vw,34px); font-weight:700; letter-spacing:-.9px; margin:0 0 8px}
-.sub{color:var(--ink-2); margin:0 0 32px; font-size:17px; max-width:60ch}
-h3{font-size:17px; font-weight:600; margin:32px 0 8px; letter-spacing:-.2px}
-p{margin:0 0 14px}
-
-.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; align-items:start}
-
-.steps{counter-reset:s; list-style:none; padding:0; margin:0}
-.steps > li{counter-increment:s; position:relative; padding:0 0 32px 52px;
-  border-left:2px solid var(--line); margin-left:15px}
-.steps > li:last-child{border-left-color:transparent; padding-bottom:0}
-.steps > li::before{
-  content:counter(s); position:absolute; left:-16px; top:-3px; width:30px; height:30px;
-  border-radius:50%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff;
-  font-size:14px; font-weight:700; display:grid; place-items:center; box-shadow:var(--shadow);
+dl{margin:0; display:grid; grid-template-columns:minmax(0,auto) 1fr; gap:11px 22px; align-items:baseline}
+dt{font-weight:600; font-size:15.5px; white-space:nowrap}
+dd{margin:0; color:var(--ink-2); font-size:15.5px; text-wrap:pretty}
+@media (max-width:540px){
+  dl{grid-template-columns:1fr; gap:3px}
+  dd{margin-bottom:12px}
 }
-.steps h3{margin-top:0}
-.steps p{color:var(--ink-2); font-size:15px}
-.steps strong{color:var(--ink); font-weight:600}
 
-.card{background:var(--surface); border:1px solid var(--line); border-radius:13px;
-  padding:20px 22px; margin:18px 0; box-shadow:var(--shadow)}
-.card h4{margin:0 0 7px; font-size:15.5px; font-weight:600}
-.card p{margin:0; color:var(--ink-2); font-size:14.5px}
-.card p + p{margin-top:10px}
-.card.good{border-left:4px solid var(--good)}
-.card.warn{border-left:4px solid var(--warn)}
-.card.bad{border-left:4px solid var(--bad)}
+ol{counter-reset:s; list-style:none; padding:0; margin:0}
+ol > li{counter-increment:s; position:relative; padding:0 0 22px 36px}
+ol > li::before{content:counter(s); position:absolute; left:0; top:2px;
+  width:23px; height:23px; border-radius:50%; background:var(--soft);
+  border:1px solid var(--line); color:var(--ink-2);
+  font-size:12px; font-weight:700; display:grid; place-items:center}
+ol p{margin:0; color:var(--ink-2); font-size:15.5px}
+ol strong{color:var(--ink); font-weight:600}
 
-kbd{display:inline-block; padding:2px 9px; border:1px solid var(--line); border-bottom-width:2px;
-  border-radius:6px; background:var(--raised); font-size:13px; color:var(--ink); font-weight:500}
-pre{background:var(--surface); border:1px solid var(--line); border-radius:11px;
-  padding:16px 18px; overflow-x:auto; font-size:13.5px; line-height:1.65; margin:14px 0}
-code{font-size:.92em}
-:not(pre) > code{background:var(--line-soft); padding:2px 6px; border-radius:5px}
+.tip{border-left:2px solid var(--accent); padding-left:18px; margin:0 0 26px}
+.tip p{margin:0; color:var(--ink-2); font-size:15.5px}
 
-table{width:100%; border-collapse:collapse; margin:18px 0; font-size:14.5px}
-th,td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line-soft)}
-th{font-weight:600; color:var(--ink-3); font-size:11px; letter-spacing:.9px; text-transform:uppercase}
-td.num{font-family:"JetBrains Mono",monospace; white-space:nowrap; font-size:13.5px}
-.pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:12.5px; font-weight:600}
-.pill.g{background:var(--good-bg); color:var(--good)}
-.pill.r{background:var(--bad-bg); color:var(--bad)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.87em;
+  background:var(--soft); padding:2px 6px; border-radius:5px; white-space:nowrap}
+pre{background:var(--soft); border:1px solid var(--line); border-radius:10px;
+  padding:15px 17px; overflow-x:auto; font-size:13.5px; line-height:1.65; margin:14px 0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre code{background:none; padding:0; white-space:pre}
+kbd{display:inline-block; padding:1px 8px; border:1px solid var(--line);
+  border-bottom-width:2px; border-radius:5px; background:var(--soft);
+  font-size:14px; white-space:nowrap}
 
-footer{border-top:1px solid var(--line-soft); margin-top:88px; padding:32px 0 48px;
-  font-size:14px; color:var(--ink-3)}
-footer .wrap{display:flex; flex-wrap:wrap; gap:22px; align-items:center}
-footer a{color:var(--ink-2)}
+footer{border-top:1px solid var(--line); margin-top:72px; padding:26px 0 48px;
+  font-size:14px; color:var(--ink-3); display:flex; flex-wrap:wrap; gap:20px}
+footer a{color:var(--ink-2); text-decoration:none}
 
-[hidden]{display:none !important}
-@media (max-width:600px){
-  .hero{padding-top:48px}
-  section{padding-top:52px}
-  .wrap{padding:0 16px}
+@media (max-width:540px){
+  .wrap{padding:0 20px}
+  .hero{padding-top:36px}
+  section{padding-top:46px}
 }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="bar"><div class="wrap">
+<header>
   <img src="icon.png" alt="">
   <b>NativeVoice</b>
-  <nav>
-    <a href="#setup" data-i="nav.setup">Setup</a>
-    <a href="#accuracy" data-i="nav.accuracy">Accuracy</a>
-    <a href="https://github.com/trustbe/nativevoice" data-i="nav.source">Source</a>
-    <span class="lang">
-      <button type="button" data-lang="en" aria-pressed="true">EN</button>
-      <button type="button" data-lang="cs" aria-pressed="false">CS</button>
-    </span>
-  </nav>
-</div></div>
+</header>
 
-<header class="hero"><div class="wrap">
-  <img class="hero-icon" src="icon-large.png" alt="NativeVoice">
-  <h1 data-i="hero.title">Dictation for macOS, in languages the big tools skip.</h1>
-  <p class="lede" data-i="hero.lede">Hold a key, speak, let go. The text lands where your cursor is.
-     It lives in the menu bar, uses your own ElevenLabs key, and the whole thing is
-     a few thousand lines you can read.</p>
+<div class="hero">
+  <img class="icon" src="icon-large.png" alt="">
+  <h1>Dictation that speaks your language.</h1>
+  <p class="lede">Hold a key, speak, let go — the text appears where your cursor is.
+    Dictation on a Mac is excellent in English and patchy to absent in everything else. This is
+    built the other way round.</p>
   <div class="cta">
-    <a class="btn" href="https://github.com/trustbe/nativevoice/releases/latest" data-i="hero.download">Download for macOS</a>
-    <a class="btn btn-2" href="https://github.com/trustbe/nativevoice" data-i="hero.source">Read the source</a>
+    <a class="btn" href="https://github.com/trustbe/nativevoice/releases/latest">Download for macOS</a>
+    <a class="btn ghost" href="https://github.com/trustbe/nativevoice">Source</a>
   </div>
-  <p class="meta" data-i="hero.meta">Apple silicon and Intel · macOS 13 or later · signed and notarized · MIT licence</p>
+  <p class="meta">Free · open source · macOS 13+ · Apple silicon and Intel</p>
+</div>
 
-  <figure class="shot" style="margin-bottom:0">
-    <img src="shot-menu.png" alt="" width="776" height="976">
-    <figcaption class="shot-cap" data-i="shot.menu">Everything the app does is in one menu. There is no other window to learn.</figcaption>
-  </figure>
-
-  <div class="facts">
-    <div class="fact"><div class="k" data-i="fact.lang.k">Languages</div><div class="v">36</div><div class="s" data-i="fact.lang.s">in the menu</div></div>
-    <div class="fact"><div class="k" data-i="fact.key.k">Trigger</div><div class="v">Right ⌘</div><div class="s" data-i="fact.key.s">hold to talk</div></div>
-    <div class="fact"><div class="k" data-i="fact.audio.k">Audio kept</div><div class="v" data-i="fact.audio.v">None</div><div class="s" data-i="fact.audio.s">deleted after transcription</div></div>
-    <div class="fact"><div class="k" data-i="fact.acct.k">Account</div><div class="v">ElevenLabs</div><div class="s" data-i="fact.acct.s">your key, your bill</div></div>
+<section>
+  <h2>36 languages</h2>
+  <p class="sub">All of them equal. There is no first-class language here.</p>
+  <div class="langs">
+    <span>Belarusian</span><span>Bosnian</span><span>Bulgarian</span><span>Catalan</span>
+    <span>Croatian</span><span class="me">Czech</span><span>Danish</span><span>Dutch</span>
+    <span>English</span><span>Estonian</span><span>Finnish</span><span>French</span>
+    <span>Galician</span><span>German</span><span>Greek</span><span>Hungarian</span>
+    <span>Icelandic</span><span>Indonesian</span><span>Italian</span><span>Japanese</span>
+    <span>Kannada</span><span>Latvian</span><span>Macedonian</span><span>Malay</span>
+    <span>Malayalam</span><span>Norwegian</span><span>Polish</span><span>Portuguese</span>
+    <span>Romanian</span><span>Russian</span><span>Slovak</span><span>Spanish</span>
+    <span>Swedish</span><span>Turkish</span><span>Ukrainian</span><span>Vietnamese</span>
   </div>
-</div></header>
+</section>
 
-<section><div class="wrap">
-  <div class="card warn">
-    <h4 data-i="cost.h">This app is free. Running it is not.</h4>
-    <p data-i="cost.p">NativeVoice costs nothing and never will, but it talks to ElevenLabs, and
-      ElevenLabs charges for transcription. You bring your own key and pay them directly —
-      nothing goes through anyone else and there is no account here to sign up for. Check
-      what it costs today on <a href="https://elevenlabs.io/pricing">their pricing page</a>
-      before you commit to it.</p>
-  </div>
-</div></section>
+<section>
+  <h2>One menu, one gesture</h2>
+  <p class="sub">Hold <kbd>right ⌘</kbd>, speak, let go. Everything else lives in a
+    single menu, and this is all of it:</p>
+  <dl>
+    <dt>Trigger key</dt>
+    <dd>Right Command, or Shift together with it.</dd>
+    <dt>Language</dt>
+    <dd>Follows the system until you pick one.</dd>
+    <dt>Max recording length</dt>
+    <dd>Stops a recording you forgot about, so it cannot run up a bill.</dd>
+    <dt>History</dt>
+    <dd>Off by default. On, it keeps the last few transcripts so you can put one back on the clipboard.</dd>
+    <dt>Play sounds</dt>
+    <dd>A note when recording starts and when the text lands.</dd>
+    <dt>Paste automatically</dt>
+    <dd>On. Off, the text waits on the clipboard for you.</dd>
+    <dt>Remove filler words</dt>
+    <dd>Off by default, because it rewrites what you said.</dd>
+    <dt>Edit vocabulary</dt>
+    <dd>Your own names and jargon, one per line.</dd>
+    <dt>Open log</dt>
+    <dd>What the app did and why, in plain sentences.</dd>
+    <dt>Launch at login</dt>
+    <dd>Off by default.</dd>
+    <dt>Check for updates</dt>
+    <dd>Manual only. Nothing is downloaded unless you ask.</dd>
+  </dl>
+</section>
 
-<section id="setup"><div class="wrap">
-  <h2 data-i="setup.h">Setting it up</h2>
-  <p class="sub" data-i="setup.sub">About ten minutes, most of it waiting for a confirmation email.</p>
-
-  <ol class="steps">
-    <li>
-      <h3 data-i="s1.h">Install the app</h3>
-      <p data-i="s1.a">Open the DMG, drag <strong>NativeVoice</strong> onto Applications, then open it from there.</p>
-      <p data-i="s1.b">It has no window and no Dock icon. Look for it in the menu bar, at the top right of the screen.</p>
-    </li>
-    <li>
-      <h3 data-i="s2.h">Get an ElevenLabs key</h3>
-      <p data-i="s2.a">Create an account at <a href="https://elevenlabs.io">elevenlabs.io</a>, then open
-        <a href="https://elevenlabs.io/app/settings/api-keys">Settings → API Keys</a> and make one.
-        It starts with <code>sk_</code>.</p>
-      <p data-i="s2.b">Copy it straight away — ElevenLabs shows a key once and never again.</p>
-    </li>
-    <li>
-      <h3 data-i="s3.h">Give the key to NativeVoice</h3>
-      <p data-i="s3.a">Menu bar icon → <strong>Settings…</strong> → paste → <strong>Save</strong>. The line
-        underneath turns green when it is stored.</p>
-      <p data-i="s3.b">The key goes into the macOS keychain, not into a settings file, and the app never shows
-        it again — not even to you.</p>
-    </li>
-    <li>
-      <h3 data-i="s4.h">Allow Input Monitoring</h3>
-      <p data-i="s4.a"><strong>System Settings → Privacy &amp; Security → Input Monitoring</strong>, switch
-        NativeVoice on, then <strong>quit and reopen it</strong>. macOS hands the permission only to a
-        fresh process, which is why nothing changes until you do.</p>
-      <p data-i="s4.b">This is what lets the app notice you holding the trigger key. It watches modifier keys
-        only — never ordinary typing.</p>
-    </li>
-    <li>
-      <h3 data-i="s5.h">Allow Accessibility</h3>
-      <p data-i="s5.a"><strong>System Settings → Privacy &amp; Security → Accessibility</strong>, switch
-        NativeVoice on as well.</p>
-      <p data-i="s5.b">This is the one people miss, and it fails quietly: without it your words are transcribed
-        and copied, the paste keystroke is thrown away by the system, and a second later the clipboard
-        goes back to what it was. You hear the finishing sound and nothing arrives.</p>
-    </li>
-    <li>
-      <h3 data-i="s6.h">Turn the microphone up</h3>
-      <p data-i="s6.a"><strong>System Settings → Sound → Input</strong>. Speak normally and watch the meter;
-        if it barely moves, raise the input volume.</p>
-      <p data-i="s6.b">This matters far more than it sounds like it should — see below.</p>
-    </li>
+<section>
+  <h2>Setting it up</h2>
+  <p class="sub">Ten minutes. You bring your own ElevenLabs key — they charge for
+    transcription and you pay them directly, so nothing goes through anyone else.</p>
+  <ol>
+    <li><p>Drag <strong>NativeVoice</strong> into Applications and open it. It has no
+      window; look for it in the menu bar.</p></li>
+    <li><p>Make a key at <a href="https://elevenlabs.io/app/settings/api-keys">ElevenLabs
+      → Settings → API Keys</a> and copy it at once — they show it only the first time.</p></li>
+    <li><p>Menu → <strong>Settings…</strong> → paste → <strong>Save</strong>. It goes into
+      the macOS keychain and the app never shows it again.</p></li>
+    <li><p>Allow <strong>Input Monitoring</strong> in System Settings, then
+      <strong>quit and reopen the app</strong>. macOS gives the permission only to a fresh process,
+      so nothing changes until you do.</p></li>
+    <li><p>Allow <strong>Accessibility</strong> too. This one fails quietly: without it
+      your words are transcribed and the paste is thrown away, so you hear the finishing sound and
+      nothing arrives.</p></li>
   </ol>
+</section>
 
-  <figure class="shot">
-    <img src="shot-settings.png" alt="" width="880" height="818">
-    <figcaption class="shot-cap" data-i="shot.settings">The settings window. Four things, and the key never shown back to you.</figcaption>
-  </figure>
-</div></section>
-
-<section><div class="wrap">
-  <h2 data-i="use.h">Using it</h2>
-  <p class="sub" data-i="use.sub">One gesture, and that is the whole interface.</p>
-  <p data-i="use.p">Put the cursor where you want the text. Hold <kbd>right ⌘</kbd>, speak, let go. A small
-    panel shows the level while you talk, then the text appears where the cursor was.</p>
-
-  <table>
-    <tr><th data-i="menu.th1">In the menu</th><th data-i="menu.th2">What it does</th></tr>
-    <tr><td>Trigger Key</td><td data-i="menu.r1">Right Command, or Shift together with it</td></tr>
-    <tr><td>Language</td><td data-i="menu.r2">36 languages; follows the system until you choose</td></tr>
-    <tr><td>Max Recording Length</td><td data-i="menu.r3">Stops a recording you forgot about, so it cannot run up a bill</td></tr>
-    <tr><td>History</td><td data-i="menu.r4">Off by default. On, it keeps the last few transcripts to put back on the clipboard</td></tr>
-    <tr><td>Remove filler words</td><td data-i="menu.r5">Off by default, because it rewrites what you said</td></tr>
-    <tr><td>Edit vocabulary…</td><td data-i="menu.r6">The list of names the transcriber should expect</td></tr>
-    <tr><td>Check for updates…</td><td data-i="menu.r7">Manual only. Nothing is downloaded unless you ask</td></tr>
-  </table>
-
-  <div class="card">
-    <h4 data-i="hist.h">History is off unless you turn it on</h4>
-    <p data-i="hist.p1">Switched on, it keeps transcript text in the app's preferences, unencrypted. That is a
-      reasonable thing to want and a bad thing to inherit by accident, so you have to ask for it.
-      Switching it back off deletes what was stored rather than merely stopping.</p>
-    <p data-i="hist.p2">Audio is deleted as soon as it has been transcribed, whatever this setting says.</p>
+<section>
+  <h2>Two things that fix most mistakes</h2>
+  <div class="tip">
+    <h3>Turn the microphone up</h3>
+    <p>A quiet signal changes digits before it garbles words, which is the dangerous way
+      round. Measured here: at a −41 dB peak “one hundred and forty-two” came back as “one hundred and
+      sixty-two”; at −26 dB it was right. Speech should peak near −12 dB, and the app tells you when
+      yours does not.</p>
   </div>
-</div></section>
-
-<section id="accuracy"><div class="wrap">
-  <h2 data-i="acc.h">Getting it accurate</h2>
-  <p class="sub" data-i="acc.sub">Two things move the needle. Both are measured, not guessed.</p>
-
-  <h3 data-i="acc.h1">A quiet microphone breaks numbers first</h3>
-  <p data-i="acc.p1">This is the one nobody expects. A faint signal does not degrade gracefully — it starts
-    changing digits while the rest of the sentence still reads fine, and a wrong number does not look
-    like an error the way a mangled word does.</p>
-  <p data-i="acc.p2">The same sentence, three times, one Mac:</p>
-
-  <table>
-    <tr><th data-i="acc.t1">Input volume</th><th data-i="acc.t2">Peak</th><th data-i="acc.t3">“paragraph one hundred and forty-two”</th></tr>
-    <tr><td class="num">29 / 100</td><td class="num">−41 dB</td><td><span class="pill r" data-i="acc.wrong">came back as “one hundred and sixty-two”</span></td></tr>
-    <tr><td class="num">75 / 100</td><td class="num">−26 dB</td><td><span class="pill g" data-i="acc.right">correct</span></td></tr>
-    <tr><td class="num">75 / 100</td><td class="num">−25 dB</td><td><span class="pill g" data-i="acc.right2">correct</span></td></tr>
-  </table>
-
-  <p data-i="acc.p3">Ordinary speech peaks around −12 dB. NativeVoice watches this for you: after a
-    transcription that came in too quiet it says so once, and tells you the number, so you can see
-    whether raising the volume helped.</p>
-
-  <h3 data-i="acc.h2">A vocabulary beats a better model</h3>
-  <p data-i="acc.p4">Proper nouns are what transcription gets wrong, and they are a finite list only you know.
-    Menu → <strong>Edit vocabulary…</strong> opens a plain text file, one term per line. It is read before
-    every transcription, so edits take effect immediately.</p>
-
-  <pre>~/.config/nativevoice/vocabulary.txt</pre>
-
-  <p data-i="acc.p5">Same microphone level, before and after adding the terms:</p>
-
-  <table>
-    <tr><th data-i="acc.t4">Spoken</th><th data-i="acc.t5">Without the file</th><th data-i="acc.t6">With it</th></tr>
-    <tr><td>NativeVoice</td><td><span class="pill r">Native Voice</span></td><td><span class="pill g">NativeVoice</span></td></tr>
-    <tr><td>PostgreSQL</td><td><span class="pill r">Postgres QL</span></td><td><span class="pill g">PostgreSQL</span></td></tr>
-  </table>
-
-  <p data-i="acc.p6">It will not help with ordinary words. If a common word comes out wrong, that is the
-    microphone or the model, and adding it to the list changes nothing.</p>
-</div></section>
-
-<section><div class="wrap">
-  <h2 data-i="trb.h">When something is wrong</h2>
-  <div class="grid2">
-    <div>
-      <div class="card bad">
-        <h4 data-i="trb.1h">I hold the key and nothing happens</h4>
-        <p data-i="trb.1p">Input Monitoring is not granted, or it was granted after the app started. Grant it,
-          then quit and reopen NativeVoice. The menu says which permission it is waiting for.</p>
-      </div>
-      <div class="card bad">
-        <h4 data-i="trb.2h">It makes the finishing sound but no text appears</h4>
-        <p data-i="trb.2p">Accessibility is not granted. Your words are not lost —
-          <strong>Copy Last Transcript</strong> in the menu still has them.</p>
-      </div>
-    </div>
-    <div>
-      <div class="card warn">
-        <h4 data-i="trb.3h">Words go missing mid-sentence</h4>
-        <p data-i="trb.3p">Almost always the microphone level. Check Sound → Input, and look at the peak the
-          app reports under <strong>Open log</strong>.</p>
-      </div>
-      <div class="card">
-        <h4 data-i="trb.4h">Something else</h4>
-        <p data-i="trb.4p">Menu → <strong>Open log</strong> shows what the app did and why, in plain sentences.
-          If it does not explain itself,
-          <a href="https://github.com/trustbe/nativevoice/issues">that is a bug worth reporting</a>.</p>
-      </div>
-    </div>
+  <div class="tip">
+    <h3>Add your own words</h3>
+    <p>Names and jargon are what transcription gets wrong, and they are a short list only
+      you know. One term per line, read before every transcription, so edits apply immediately.</p>
+    <pre><code>~/.config/nativevoice/vocabulary.txt</code></pre>
   </div>
-</div></section>
+</section>
 
-<section><div class="wrap">
-  <h2 data-i="build.h">Building it yourself</h2>
-  <p class="sub" data-i="build.sub">No package dependencies. Command line tools are enough to compile; a Developer ID is only needed to sign it.</p>
-<pre>git clone https://github.com/trustbe/nativevoice.git
+<section>
+  <h2>Build it yourself</h2>
+  <p class="sub">No dependencies, nothing hidden, about 3,500 lines.</p>
+<pre><code>git clone https://github.com/trustbe/nativevoice.git
 cd nativevoice
-./Scripts/test.sh
-./Scripts/build-app.sh 0.1.0 1</pre>
-  <p data-i="build.p">The result is a universal binary at <code>.build/app/NativeVoice.app</code>.</p>
-</div></section>
+./Scripts/build-app.sh 0.1.0 1</code></pre>
+</section>
 
-<footer><div class="wrap">
-  <span data-i="foot.lic">MIT licence</span>
-  <a href="https://github.com/trustbe/nativevoice" data-i="foot.src">Source</a>
-  <a href="https://github.com/trustbe/nativevoice/issues" data-i="foot.iss">Report an issue</a>
-  <a href="https://buymeacoffee.com/jenicek666" data-i="foot.cof">Buy me a coffee</a>
-</div></footer>
+<footer>
+  <span>MIT licence</span>
+  <a href="https://github.com/trustbe/nativevoice">Source</a>
+  <a href="https://github.com/trustbe/nativevoice/issues">Report an issue</a>
+  <a href="https://buymeacoffee.com/jenicek666">Buy me a coffee</a>
+</footer>
 
-<script>
-// Two languages, written out rather than fetched: the page has to work the
-// moment it loads, including for the people it is aimed at, who do not read
-// English first.
-const CS = {
- "nav.setup":"Nastavení","nav.accuracy":"Přesnost","nav.source":"Zdroj",
- "hero.title":"Diktování pro macOS v jazycích, na které velké nástroje nedosáhnou.",
- "hero.lede":"Podrž klávesu, mluv, pusť. Text se objeví tam, kde máš kurzor. Žije v liště, používá tvůj vlastní klíč od ElevenLabs, a celé je to pár tisíc řádků, které si můžeš přečíst.",
- "hero.download":"Stáhnout pro macOS","hero.source":"Přečíst zdrojový kód",
- "hero.meta":"Apple silicon i Intel · macOS 13 a novější · podepsané a notarizované · licence MIT",
- "shot.menu":"Všechno, co aplikace umí, je v jedné nabídce. Žádné další okno se učit nemusíš.",
- "shot.settings":"Okno nastavení. Čtyři věci — a klíč se ti už nikdy nezobrazí.",
- "fact.lang.k":"Jazyků","fact.lang.s":"v nabídce",
- "fact.key.k":"Spouštěč","fact.key.s":"podrž a mluv",
- "fact.audio.k":"Uložený zvuk","fact.audio.v":"Žádný","fact.audio.s":"maže se po přepisu",
- "fact.acct.k":"Účet","fact.acct.s":"tvůj klíč, tvůj účet",
- "cost.h":"Aplikace je zdarma. Provoz ne.",
- "cost.p":"NativeVoice nic nestojí a stát nebude, ale mluví s ElevenLabs a ElevenLabs si za přepis účtuje. Přineseš si vlastní klíč a platíš přímo jim — nic nejde přes nikoho dalšího a žádný účet se tu zakládat nemusí. Než se do toho pustíš, podívej se, kolik to dnes stojí, na <a href=\"https://elevenlabs.io/pricing\">jejich ceníku</a>.",
- "setup.h":"Jak to zprovoznit","setup.sub":"Asi deset minut, z toho většina čekáním na potvrzovací e-mail.",
- "s1.h":"Nainstaluj aplikaci",
- "s1.a":"Otevři DMG, přetáhni <strong>NativeVoice</strong> do složky Aplikace a spusť ji odtamtud.",
- "s1.b":"Nemá okno ani ikonu v Docku. Hledej ji v liště nahoře vpravo.",
- "s2.h":"Získej klíč od ElevenLabs",
- "s2.a":"Založ si účet na <a href=\"https://elevenlabs.io\">elevenlabs.io</a>, otevři <a href=\"https://elevenlabs.io/app/settings/api-keys\">Settings → API Keys</a> a vytvoř klíč. Začíná na <code>sk_</code>.",
- "s2.b":"Hned si ho zkopíruj — ElevenLabs ho ukáže jednou a podruhé už ne.",
- "s3.h":"Předej klíč aplikaci",
- "s3.a":"Ikona v liště → <strong>Settings…</strong> → vložit → <strong>Save</strong>. Řádek pod polem zezelená, jakmile je klíč uložený.",
- "s3.b":"Klíč jde do klíčenky macOS, ne do souboru s nastavením, a aplikace ti ho už nikdy neukáže — ani tobě.",
- "s4.h":"Povol Monitorování vstupu",
- "s4.a":"<strong>Nastavení systému → Soukromí a zabezpečení → Monitorování vstupu</strong>, zapni NativeVoice a pak ji <strong>ukonči a spusť znovu</strong>. macOS předá oprávnění jen novému procesu — proto se do té doby nic nezmění.",
- "s4.b":"Díky tomu aplikace pozná, že držíš spouštěcí klávesu. Sleduje jen modifikátory, nikdy běžné psaní.",
- "s5.h":"Povol Zpřístupnění",
- "s5.a":"<strong>Nastavení systému → Soukromí a zabezpečení → Zpřístupnění</strong>, zapni NativeVoice i tady.",
- "s5.b":"Tohle lidem uniká nejčastěji a selhává to tiše: bez něj se text přepíše a zkopíruje, systém zahodí stisk pro vložení a za vteřinu se schránka vrátí k původnímu obsahu. Uslyšíš zvuk konce a nepřijde nic.",
- "s6.h":"Zvyš hlasitost mikrofonu",
- "s6.a":"<strong>Nastavení systému → Zvuk → Vstup</strong>. Mluv normálně a sleduj ukazatel; když se sotva hne, zvyš vstupní hlasitost.",
- "s6.b":"Záleží na tom mnohem víc, než to zní — viz níž.",
- "use.h":"Jak se to používá","use.sub":"Jedno gesto, a to je celé ovládání.",
- "use.p":"Dej kurzor tam, kam chceš text. Podrž <kbd>pravý ⌘</kbd>, mluv, pusť. Malý panel ukazuje hladinu, zatímco mluvíš, pak se text objeví tam, kde byl kurzor.",
- "menu.th1":"V nabídce","menu.th2":"Co to dělá",
- "menu.r1":"Pravý Command, nebo Shift spolu s ním",
- "menu.r2":"36 jazyků; drží se systému, dokud si nevybereš",
- "menu.r3":"Zastaví nahrávání, na které jsi zapomněl, aby nevyrostl účet",
- "menu.r4":"Vypnuto. Zapnutá drží posledních pár přepisů, aby šly vrátit do schránky",
- "menu.r5":"Vypnuto, protože to přepisuje, co jsi řekl",
- "menu.r6":"Seznam jmen, která má přepis očekávat",
- "menu.r7":"Jen ručně. Nic se nestahuje, dokud o to nepožádáš",
- "hist.h":"Historie je vypnutá, dokud ji nezapneš",
- "hist.p1":"Zapnutá drží text přepisů v nastavení aplikace, nešifrovaně. To je rozumná věc chtít a špatná věc zdědit omylem, takže si o ni musíš říct. Vypnutí uložené záznamy smaže, ne jen přestane přidávat.",
- "hist.p2":"Zvuk se maže hned po přepisu, ať je tohle nastavené jakkoli.",
- "acc.h":"Jak z toho dostat přesnost","acc.sub":"Dvě věci s tím hnou. Obě jsou změřené, ne odhadnuté.",
- "acc.h1":"Tichý mikrofon rozbije nejdřív čísla",
- "acc.p1":"Tohle nikdo nečeká. Slabý signál se nekazí pozvolna — začne měnit číslice, zatímco zbytek věty pořád dává smysl, a špatné číslo nevypadá jako chyba tak, jako zkomolené slovo.",
- "acc.p2":"Stejná věta, třikrát, jeden Mac:",
- "acc.t1":"Vstupní hlasitost","acc.t2":"Špička","acc.t3":"„paragrafu sto čtyřicet dva“",
- "acc.wrong":"vyšlo „sto šedesát dva“","acc.right":"správně","acc.right2":"správně",
- "acc.p3":"Běžná řeč má špičku kolem −12 dB. NativeVoice to hlídá za tebe: po přepisu, který přišel příliš tiše, to jednou řekne a uvede číslo, abys viděl, jestli zvýšení hlasitosti pomohlo.",
- "acc.h2":"Slovník předčí lepší model",
- "acc.p4":"Vlastní jména jsou to, co přepis komolí, a je to konečný seznam, který znáš jen ty. Nabídka → <strong>Edit vocabulary…</strong> otevře obyčejný textový soubor, jeden výraz na řádek. Čte se před každým přepisem, takže se úpravy projeví hned.",
- "acc.p5":"Stejná hlasitost mikrofonu, před přidáním výrazů a po něm:",
- "acc.t4":"Řečeno","acc.t5":"Bez souboru","acc.t6":"S ním",
- "acc.p6":"S běžnými slovy nepomůže. Když se komolí obyčejné slovo, je to mikrofonem nebo modelem a přidání do seznamu nezmění nic.",
- "trb.h":"Když něco nefunguje",
- "trb.1h":"Držím klávesu a nic se neděje",
- "trb.1p":"Není povolené Monitorování vstupu, nebo se povolilo až po spuštění aplikace. Povol ho a NativeVoice ukonči a spusť znovu. Nabídka říká, na které oprávnění se čeká.",
- "trb.2h":"Ozve se zvuk konce, ale text se neobjeví",
- "trb.2p":"Není povolené Zpřístupnění. O slova jsi nepřišel — <strong>Copy Last Transcript</strong> v nabídce je pořád má.",
- "trb.3h":"Uprostřed vět vypadávají slova",
- "trb.3p":"Skoro vždycky hlasitost mikrofonu. Zkontroluj Zvuk → Vstup a podívej se na špičku, kterou aplikace hlásí v <strong>Open log</strong>.",
- "trb.4h":"Něco jiného",
- "trb.4p":"Nabídka → <strong>Open log</strong> ukáže, co aplikace dělala a proč, obyčejnými větami. Když se nevysvětlí, <a href=\"https://github.com/trustbe/nativevoice/issues\">je to chyba, kterou stojí za to nahlásit</a>.",
- "build.h":"Sestavení ze zdrojů",
- "build.sub":"Žádné závislosti. K přeložení stačí vývojářské nástroje; Developer ID je potřeba jen na podpis.",
- "build.p":"Výsledkem je univerzální binárka v <code>.build/app/NativeVoice.app</code>.",
- "foot.lic":"Licence MIT","foot.src":"Zdrojový kód","foot.iss":"Nahlásit chybu","foot.cof":"Kup mi kafe"
-};
-
-const EN = {};
-document.querySelectorAll("[data-i]").forEach(el => { EN[el.dataset.i] = el.innerHTML; });
-
-function apply(lang){
-  const dict = lang === "cs" ? CS : EN;
-  document.querySelectorAll("[data-i]").forEach(el => {
-    const value = dict[el.dataset.i];
-    if (value !== undefined) el.innerHTML = value;
-  });
-  document.documentElement.lang = lang;
-  document.querySelectorAll(".lang button").forEach(b => {
-    b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
-  });
-  try { localStorage.setItem("nv-lang", lang); } catch (e) {}
-}
-
-document.querySelectorAll(".lang button").forEach(b => {
-  b.addEventListener("click", () => apply(b.dataset.lang));
-});
-
-// Czech readers should not have to find the switch. Storage can throw in a
-// private window, so the page has to be correct without it.
-let initial = null;
-try { initial = localStorage.getItem("nv-lang"); } catch (e) {}
-if (!initial) initial = (navigator.language || "en").toLowerCase().startsWith("cs") ? "cs" : "en";
-if (initial === "cs") apply("cs");
-</script>
+</div>
 
 </body>
 </html>
