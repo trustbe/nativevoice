@@ -1,9 +1,10 @@
 import AppKit
 import AVFoundation
 import NativeVoiceCore
+import ServiceManagement
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private enum State { case idle, recording, transcribing }
 
     private static let homepage = "https://github.com/trustbe/nativevoice"
@@ -35,6 +36,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var tap: EventTap?
     private var tapIsRunning = false
     private var hold = HoldTracker(key: .default)
+    private let history = History()
+    private var usageSnapshot: UsageStats.Snapshot?
+    private weak var usageMenuItem: NSMenuItem?
+    private var usageFetchedAt: Date?
     private var state: State = .idle {
         didSet {
             updateStatusIcon()
@@ -71,6 +76,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Log.shared.rotateIfNeeded()
+        Vocabulary.ensureFile(at: vocabularyPath())
         installEditMenu()
         appLog("launched from \(Bundle.main.bundlePath)")
 
@@ -88,7 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateStatusIcon()
-        statusItem.menu = buildMenu()
+        rebuildMenu()
 
         requestMicrophone()
 
@@ -103,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // this the app offers to fix a permission that is already granted,
         // and wears the crossed-out microphone while working perfectly.
         updateStatusIcon()
-        statusItem.menu = buildMenu()
+        rebuildMenu()
     }
 
     // MARK: - Status item
@@ -131,44 +137,242 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
-        let hint: NSMenuItem
-        if tapIsRunning {
-            hint = NSMenuItem(
-                title: String(localized: "Hold \(hold.key.menuTitle) and speak",
-                              bundle: .module),
-                action: nil, keyEquivalent: "")
-            hint.isEnabled = false
-        } else {
-            // Naming the permission matters: Input Monitoring is what a
-            // listen-only tap needs, and sending someone to Accessibility
-            // instead wastes their evening.
-            hint = NSMenuItem(
-                title: String(localized: "Allow Input Monitoring to use the key",
-                              bundle: .module),
-                action: #selector(openInputMonitoringSettings), keyEquivalent: "")
-            hint.target = self
-        }
-        menu.addItem(hint)
+        menu.delegate = self
+        menu.addItem(hintItem())
         menu.addItem(.separator())
+
+        // In memory only, and the only way back to it while history is off:
+        // see where `lastTranscript` is declared for why it is never written
+        // to disk.
         if let transcript = lastTranscript {
-            let item = NSMenuItem(
-                title: String(localized: "Copy Last Transcript", bundle: .module),
-                action: #selector(copyLastTranscript), keyEquivalent: "")
-            item.target = self
+            let item = actionItem(String(localized: "Copy Last Transcript", bundle: .module),
+                                  #selector(copyLastTranscript))
             item.toolTip = transcript
             menu.addItem(item)
             menu.addItem(.separator())
         }
-        let settingsItem = NSMenuItem(
-            title: String(localized: "Settings…", bundle: .module),
-            action: #selector(openSettings), keyEquivalent: ",")
-        settingsItem.target = self
-        menu.addItem(settingsItem)
+
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
+            as? String ?? "?"
+        menu.addItem(disabledItem(String(localized: "Version \(version)", bundle: .module)))
+
+        let usage = disabledItem(UsageStats.menuTitle(for: usageSnapshot))
+        usageMenuItem = usage
+        menu.addItem(usage)
+
+        menu.addItem(keyStatusItem())
+        menu.addItem(actionItem(secrets.hasKey
+            ? String(localized: "Change API key…", bundle: .module)
+            : String(localized: "Set API key…", bundle: .module),
+            #selector(openSettings)))
         menu.addItem(.separator())
+
+        menu.addItem(choiceItem(
+            String(localized: "Trigger Key", bundle: .module),
+            TriggerKey.allCases.map { ($0.menuTitle, $0.rawValue as Any, $0 == hold.key) },
+            #selector(selectTriggerKey(_:))))
+
+        menu.addItem(choiceItem(
+            String(localized: "Language", bundle: .module),
+            Language.sortedForDisplay().map {
+                ($0.name, $0.code as Any, $0 == preferences.language)
+            },
+            #selector(selectLanguage(_:))))
+
+        menu.addItem(choiceItem(
+            String(localized: "Max Recording Length", bundle: .module),
+            RecordingLimit.allCases.map {
+                ($0.menuTitle, $0.rawValue as Any, $0 == preferences.recordingLimit)
+            },
+            #selector(selectRecordingLimit(_:))))
+
+        menu.addItem(historyItem())
+
+        menu.addItem(toggleItem(String(localized: "Play sounds", bundle: .module),
+                                #selector(togglePlaySounds(_:)), preferences.playSounds))
+        menu.addItem(toggleItem(String(localized: "Paste automatically", bundle: .module),
+                                #selector(toggleAutoPaste(_:)), preferences.autoPaste))
+        menu.addItem(toggleItem(String(localized: "Remove filler words", bundle: .module),
+                                #selector(toggleRemoveFillers(_:)), preferences.removeFillers))
+        menu.addItem(.separator())
+
+        menu.addItem(actionItem(String(localized: "Edit vocabulary…", bundle: .module),
+                                #selector(openVocabulary)))
+        menu.addItem(actionItem(String(localized: "Open log", bundle: .module),
+                                #selector(openLog)))
+        menu.addItem(actionItem(String(localized: "Settings…", bundle: .module),
+                                #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(loginItem())
+        menu.addItem(.separator())
+
+        menu.addItem(actionItem(String(localized: "About NativeVoice…", bundle: .module),
+                                #selector(showAbout)))
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         return menu
+    }
+
+    private func hintItem() -> NSMenuItem {
+        guard tapIsRunning else {
+            // Naming the permission matters: a listen-only tap needs Input
+            // Monitoring, and sending someone to Accessibility instead wastes
+            // their evening.
+            return actionItem(
+                String(localized: "Allow Input Monitoring to use the key", bundle: .module),
+                #selector(openInputMonitoringSettings))
+        }
+        return disabledItem(String(localized: "Hold \(hold.key.menuTitle) and speak",
+                                   bundle: .module))
+    }
+
+    /// Whether there is a key, said where it can be seen without opening
+    /// anything. "Change API key…" implies a key exists, but only to someone
+    /// who already knows that the other wording is "Set"; it answers the
+    /// question by implication and that is not an answer.
+    private func keyStatusItem() -> NSMenuItem {
+        let item: NSMenuItem
+        if secrets.hasKey {
+            item = disabledItem(String(localized: "\u{2713} API key stored",
+                                       bundle: .module))
+            item.attributedTitle = NSAttributedString(
+                string: item.title,
+                attributes: [.foregroundColor: NSColor.systemGreen,
+                             .font: NSFont.menuFont(ofSize: 0)])
+        } else {
+            item = disabledItem(String(localized: "No API key — dictation is off",
+                                       bundle: .module))
+        }
+        return item
+    }
+
+    private func disabledItem(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.isEnabled = false
+        return item
+    }
+
+    private func actionItem(_ title: String, _ action: Selector,
+                            keyEquivalent: String = "") -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
+        item.target = self
+        return item
+    }
+
+    private func toggleItem(_ title: String, _ action: Selector, _ isOn: Bool) -> NSMenuItem {
+        let item = actionItem(title, action)
+        item.state = isOn ? .on : .off
+        return item
+    }
+
+    /// A submenu of mutually exclusive choices, one of them ticked.
+    private func choiceItem(_ title: String,
+                            _ choices: [(String, Any, Bool)],
+                            _ action: Selector) -> NSMenuItem {
+        let parent = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+        for (label, value, isCurrent) in choices {
+            let item = actionItem(label, action)
+            item.representedObject = value
+            item.state = isCurrent ? .on : .off
+            submenu.addItem(item)
+        }
+        parent.submenu = submenu
+        return parent
+    }
+
+    private func historyItem() -> NSMenuItem {
+        let parent = NSMenuItem(title: String(localized: "History", bundle: .module),
+                                action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        if history.isEnabled {
+            let items = history.items
+            if items.isEmpty {
+                submenu.addItem(disabledItem(String(localized: "Nothing yet", bundle: .module)))
+            } else {
+                // What clicking one does has to be written down. A list of
+                // past transcripts invites a click, and nothing about the row
+                // says the click puts it on the clipboard rather than, say,
+                // pasting it or deleting it.
+                submenu.addItem(disabledItem(String(
+                    localized: "Click one to copy it to the clipboard",
+                    bundle: .module)))
+                for text in items {
+                    let item = actionItem(History.menuTitle(for: text),
+                                          #selector(copyHistoryItem(_:)))
+                    item.representedObject = text
+                    item.toolTip = text
+                    submenu.addItem(item)
+                }
+                submenu.addItem(.separator())
+                submenu.addItem(actionItem(String(localized: "Clear", bundle: .module),
+                                           #selector(clearHistory)))
+            }
+            submenu.addItem(.separator())
+        }
+
+        submenu.addItem(toggleItem(String(localized: "Remember Transcripts", bundle: .module),
+                                   #selector(toggleHistory(_:)), history.isEnabled))
+
+        if history.isEnabled {
+            submenu.addItem(choiceItem(
+                String(localized: "Keep", bundle: .module),
+                History.limitChoices.map {
+                    (String(localized: "\($0) transcripts", bundle: .module),
+                     $0 as Any, $0 == history.limit)
+                },
+                #selector(selectHistoryLimit(_:))))
+        } else {
+            // Said plainly, because the switch is the thing that decides it.
+            submenu.addItem(disabledItem(String(
+                localized: "Transcripts are not stored while this is off.",
+                bundle: .module)))
+        }
+
+        parent.submenu = submenu
+        return parent
+    }
+
+    private func loginItem() -> NSMenuItem {
+        switch LoginItemState.from(rawStatus: SMAppService.mainApp.status.rawValue) {
+        case .needsApproval:
+            return actionItem(
+                String(localized: "Launch at Login — Approve in Settings…", bundle: .module),
+                #selector(openLoginItemSettings))
+        case .on:
+            return toggleItem(String(localized: "Launch at login", bundle: .module),
+                              #selector(toggleLoginItem(_:)), true)
+        case .off:
+            return toggleItem(String(localized: "Launch at login", bundle: .module),
+                              #selector(toggleLoginItem(_:)), false)
+        }
+    }
+
+    private func rebuildMenu() {
+        statusItem?.menu = buildMenu()
+    }
+
+    // MARK: - NSMenuDelegate
+
+    func menuWillOpen(_ menu: NSMenu) {
+        refreshUsage()
+    }
+
+    private func refreshUsage() {
+        guard secrets.hasKey else { return }
+        if let fetchedAt = usageFetchedAt,
+           Date().timeIntervalSince(fetchedAt) < 600 { return }
+        usageFetchedAt = Date()
+        Task { [weak self] in
+            guard let self else { return }
+            guard let snapshot = await ElevenLabsClient.usage(key: self.secrets.apiKey() ?? "")
+            else { return }
+            await MainActor.run {
+                self.usageSnapshot = snapshot
+                self.usageMenuItem?.title = UsageStats.menuTitle(for: snapshot)
+            }
+        }
     }
 
     /// Standard editing commands for the settings window.
@@ -260,13 +464,105 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // that maps to it, so the tracker is told plainly rather than left to
         // work it out.
         hold.key = preferences.triggerKey
-        statusItem.menu = buildMenu()
+        rebuildMenu()
     }
 
     @objc private func openInputMonitoringSettings() {
         let url = URL(string:
             "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
         NSWorkspace.shared.open(url)
+    }
+
+    @objc private func selectTriggerKey(_ item: NSMenuItem) {
+        guard let raw = item.representedObject as? String,
+              let key = TriggerKey(rawValue: raw) else { return }
+        preferences.triggerKey = key
+        hold = HoldTracker(key: key)
+        rebuildMenu()
+    }
+
+    @objc private func selectLanguage(_ item: NSMenuItem) {
+        guard let code = item.representedObject as? String,
+              let language = Language.named(code) else { return }
+        preferences.language = language
+        rebuildMenu()
+    }
+
+    @objc private func selectRecordingLimit(_ item: NSMenuItem) {
+        guard let seconds = item.representedObject as? Int else { return }
+        preferences.recordingLimit = RecordingLimit(storedSeconds: seconds)
+        rebuildMenu()
+    }
+
+    @objc private func togglePlaySounds(_ item: NSMenuItem) {
+        preferences.playSounds.toggle()
+        item.state = preferences.playSounds ? .on : .off
+        // Switching it on should be audible at once, so the switch proves it.
+        Sounds.confirm(enabled: preferences.playSounds)
+    }
+
+    @objc private func toggleAutoPaste(_ item: NSMenuItem) {
+        preferences.autoPaste.toggle()
+        item.state = preferences.autoPaste ? .on : .off
+    }
+
+    @objc private func toggleRemoveFillers(_ item: NSMenuItem) {
+        preferences.removeFillers.toggle()
+        item.state = preferences.removeFillers ? .on : .off
+    }
+
+    @objc private func toggleHistory(_ item: NSMenuItem) {
+        history.isEnabled.toggle()
+        rebuildMenu()
+    }
+
+    @objc private func selectHistoryLimit(_ item: NSMenuItem) {
+        guard let limit = item.representedObject as? Int else { return }
+        history.limit = limit
+        rebuildMenu()
+    }
+
+    @objc private func copyHistoryItem(_ item: NSMenuItem) {
+        guard let text = item.representedObject as? String else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    @objc private func clearHistory() {
+        history.clear()
+        rebuildMenu()
+    }
+
+    @objc private func openVocabulary() {
+        let path = vocabularyPath()
+        guard Vocabulary.ensureFile(at: path) else {
+            appLog("vocabulary: nothing to open at \(path)")
+            return
+        }
+        NSWorkspace.shared.open(URL(fileURLWithPath: path))
+    }
+
+    @objc private func openLog() {
+        NSWorkspace.shared.open(URL(fileURLWithPath: Log.defaultPath()))
+    }
+
+    @objc private func toggleLoginItem(_ item: NSMenuItem) {
+        let service = SMAppService.mainApp
+        do {
+            if LoginItemState.from(rawStatus: service.status.rawValue) == .on {
+                try service.unregister()
+            } else {
+                try service.register()
+            }
+        } catch {
+            appLog("launch at login: \(error.localizedDescription)")
+        }
+        rebuildMenu()
+    }
+
+    @objc private func openLoginItemSettings() {
+        NSWorkspace.shared.open(URL(
+            string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!)
     }
 
     private func requestMicrophone() {
@@ -405,7 +701,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         : String(localized: "Nothing was recognized.", bundle: .module))
                 case .text(let text):
                     self.lastTranscript = text
-                    self.statusItem.menu = self.buildMenu()
+                    self.history.record(text)
+                    self.rebuildMenu()
                     Sounds.done(enabled: self.preferences.playSounds)
                     Paste.deliver(text, autoPaste: self.preferences.autoPaste,
                                   restore: self.clipboardRestore)
@@ -414,16 +711,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func vocabularyPath() -> String {
+        NSString(string: "~/.config/nativevoice/vocabulary.txt").expandingTildeInPath
+    }
+
     private func loadVocabulary() -> [String] {
-        let path = NSString(string: "~/.config/nativevoice/vocabulary.txt")
-            .expandingTildeInPath
-        guard let text = try? String(contentsOfFile: path, encoding: .utf8) else {
-            try? FileManager.default.createDirectory(
-                atPath: (path as NSString).deletingLastPathComponent,
-                withIntermediateDirectories: true)
-            try? Vocabulary.template.write(toFile: path, atomically: true, encoding: .utf8)
-            return []
-        }
+        let path = vocabularyPath()
+        Vocabulary.ensureFile(at: path)
+        guard let text = try? String(contentsOfFile: path, encoding: .utf8) else { return [] }
         return Vocabulary.terms(from: text)
     }
 

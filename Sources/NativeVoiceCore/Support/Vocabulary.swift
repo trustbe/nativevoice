@@ -15,6 +15,32 @@ public enum Vocabulary {
     public static let maxTerms = 1000
     public static let maxTermLength = 50
 
+    /// Puts the template in place if there is nothing there yet, and returns
+    /// whether a file now exists.
+    ///
+    /// The menu row that opens this file is useless if the file is missing,
+    /// and a person who clicks it and gets an empty document or an error has
+    /// learned nothing about what the feature is for.
+    @discardableResult
+    public static func ensureFile(at path: String) -> Bool {
+        let manager = FileManager.default
+        if manager.fileExists(atPath: path) { return true }
+
+        let directory = (path as NSString).deletingLastPathComponent
+        do {
+            // The file lists names, clients and places someone dictates
+            // about, so the directory stays private to its owner.
+            try manager.createDirectory(atPath: directory,
+                                        withIntermediateDirectories: true,
+                                        attributes: [.posixPermissions: 0o700])
+            try Data(template.utf8).write(to: URL(fileURLWithPath: path))
+            return true
+        } catch {
+            appLog("vocabulary: could not create \(path): \(error.localizedDescription)")
+            return false
+        }
+    }
+
     public static func terms(from text: String) -> [String] {
         var seen = Set<String>()
         var out: [String] = []
