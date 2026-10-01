@@ -300,6 +300,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         audioURL = url
         startedAt = Date()
         state = .recording
+        Sounds.start(enabled: preferences.playSounds)
         armLimit(preferences.recordingLimit)
     }
 
@@ -351,7 +352,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let started = Date()
             let outcome = await self.transcriber.transcribe(
                 audio: url, language: language,
-                keyterms: vocabulary, removeFillers: false)
+                keyterms: vocabulary, removeFillers: preferences.removeFillers)
             appLog(String(format: "spoken %.1fs | peak %.0f dB | transcribe %.2fs",
                        spoken, peak, Date().timeIntervalSince(started)))
 
@@ -370,7 +371,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .text(let text):
                     self.lastTranscript = text
                     self.statusItem.menu = self.buildMenu()
-                    Paste.deliver(text, autoPaste: true, restore: self.clipboardRestore)
+                    Sounds.done(enabled: self.preferences.playSounds)
+                    Paste.deliver(text, autoPaste: self.preferences.autoPaste,
+                                  restore: self.clipboardRestore)
                 }
             }
         }
