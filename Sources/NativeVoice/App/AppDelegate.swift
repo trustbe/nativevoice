@@ -115,24 +115,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: - Status item
 
     private func updateStatusIcon() {
-        // SF Symbols as template images, not text glyphs: they adapt to a
-        // light or dark menu bar and to the highlight when the menu is open.
-        let name: String
+        // Drawn rather than taken from SF Symbols, so the menu bar carries the
+        // same mark as the app icon. See StatusIcon for why they had to differ
+        // before and no longer do.
+        let shape: StatusIcon.State
         if !tapIsRunning {
             // A deaf app must not look like a healthy idle one. This is the
             // only thing the user can see without opening a log file.
-            name = "mic.slash"
+            shape = .deaf
         } else {
             switch state {
-            case .idle:         name = "mic"
-            case .recording:    name = "mic.fill"
-            case .transcribing: name = "waveform"
+            case .idle:         shape = .idle
+            case .recording:    shape = .recording
+            case .transcribing: shape = .transcribing
             }
         }
-        let image = NSImage(systemSymbolName: name,
-                            accessibilityDescription: String(localized: "NativeVoice", bundle: .module))
-        image?.isTemplate = true
-        statusItem.button?.image = image
+        statusItem.button?.image = StatusIcon.image(for: shape)
     }
 
     private func rebuildMenu() {
