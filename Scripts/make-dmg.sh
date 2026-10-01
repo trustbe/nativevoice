@@ -18,14 +18,20 @@ trap 'rm -rf "$STAGE"' EXIT
 # Review Focus 5: an unsigned app inside a DMG is a download that fails at the
 # user, days later, with a message that blames them. It fails here instead.
 #
-# Captured into a variable rather than piped straight into `grep -q`: with
-# `pipefail` a pipe here raced codesign against grep closing early on match —
-# grep was done by line 8 of 11, and if codesign was still writing lines 9-11
-# it was killed by SIGPIPE (exit 141), which pipefail then reported as this
-# script's failure. A signed app was refused about one run in four.
-SIGNATURE="$(codesign -dv "$APP" 2>&1)"
-if [[ "$SIGNATURE" != *"TeamIdentifier=5XJALC3SPQ"* ]]; then
-    echo "✗ $APP is not signed by this developer — refusing to package it" >&2
+# This used to be `SIGNATURE="$(codesign -dv "$APP" 2>&1)"` followed by a
+# substring match on the captured text. Two problems, both reproduced: under
+# `set -e`, a command substitution takes the exit status of the command
+# inside it, and `codesign -dv` exits non-zero on an *unsigned* app — so
+# the one case this check exists to catch instead aborted the whole script
+# before printing anything. And `-dv` is a display command, not a
+# verification one, so a substring match on its output can be satisfied by
+# an ad-hoc bundle whose `--identifier` echoes our team ID back on an
+# unrelated line (see Scripts/team-id.sh). Using `verify_signed_by_us`
+# inside an `if` avoids both: the condition of an `if` is exempt from
+# `set -e`, and the predicate itself is a real verification, not a grep.
+source "$(dirname "$0")/team-id.sh"
+if ! verify_signed_by_us "$APP" >/dev/null 2>&1; then
+    echo "✗ $APP is not signed by $TEAM_ID — refusing to package it" >&2
     exit 1
 fi
 

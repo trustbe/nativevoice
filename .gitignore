@@ -5,3 +5,10 @@ DerivedData/
 *.dmg
 *.zip
 .DS_Store
+
+# Signing and notarization credentials. Nothing is at risk today, but these
+# are exactly the files Scripts/notarize.sh handles.
+*.p8
+*.p12
+*.env
+AuthKey_*
