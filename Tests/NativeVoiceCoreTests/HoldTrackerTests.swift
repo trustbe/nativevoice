@@ -65,4 +65,21 @@ import Testing
         tracker.key = .shiftRightCommand
         #expect(!(tracker.isHolding))
     }
+
+    @Test func changingKeyWhileHeldWaitsForAnObservedReleaseBeforeTheNextPress() {
+        // Right Command plus Shift is already enough to hold Right Command
+        // alone: switching from the combo down to the plain key while both
+        // are still physically down leaves the new key's required bit
+        // present in the very next `flagsChanged`. Without waiting for a
+        // real release first, that reads as a fresh press and starts a
+        // recording nobody asked for.
+        let leftShift: UInt64 = 0x2
+        var tracker = HoldTracker(key: .shiftRightCommand)
+        _ = tracker.update(flags: rightCommand | leftShift)
+        tracker.key = .rightCommand
+        #expect(tracker.update(flags: rightCommand | leftShift) == .unchanged)
+        // Only an observed release — the key's bit actually clear — re-arms it.
+        _ = tracker.update(flags: 0)
+        #expect(tracker.update(flags: rightCommand) == .pressed)
+    }
 }

@@ -6,11 +6,17 @@ enum Paste {
     /// Synthesizes ⌘V. Posting to the annotated session tap is what reaches
     /// the frontmost application.
     private static func pressCommandV() {
-        guard let source = CGEventSource(stateID: .combinedSessionState) else { return }
+        guard let source = CGEventSource(stateID: .combinedSessionState) else {
+            appLog("paste: could not create an event source — ⌘V was not sent")
+            return
+        }
         let v: CGKeyCode = 9
         guard let down = CGEvent(keyboardEventSource: source, virtualKey: v, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: v, keyDown: false)
-        else { return }
+        else {
+            appLog("paste: could not create the ⌘V key events — nothing was sent")
+            return
+        }
         down.flags = .maskCommand
         up.flags = .maskCommand
         down.post(tap: .cgAnnotatedSessionEventTap)

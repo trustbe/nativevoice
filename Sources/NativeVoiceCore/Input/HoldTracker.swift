@@ -12,8 +12,14 @@ public struct HoldTracker {
     public var key: TriggerKey {
         didSet {
             // Switching keys mid-hold would otherwise leave the old one
-            // latched down forever.
-            if key != oldValue { holding = false; waitingForRelease = false }
+            // latched down forever. And the physical key can still be down
+            // when this happens — the new key's required bits can even
+            // already be present in that same held state (a combo and its
+            // plain key overlap) — so the very next `flagsChanged` could
+            // read as a fresh press. `waitingForRelease` is the same guard
+            // `forceRelease()` uses for exactly that reason: wait for an
+            // observed release before reporting anything.
+            if key != oldValue { holding = false; waitingForRelease = true }
         }
     }
     private var holding = false

@@ -401,13 +401,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard secrets.hasKey else { return }
         if let fetchedAt = usageFetchedAt,
            Date().timeIntervalSince(fetchedAt) < 600 { return }
-        usageFetchedAt = Date()
         Task { [weak self] in
             guard let self else { return }
             guard let snapshot = await ElevenLabsClient.usage(key: self.secrets.apiKey() ?? "")
             else { return }
             await MainActor.run {
                 self.usageSnapshot = snapshot
+                // Stamped on success only: stamping before the request let
+                // one failure (offline, a revoked key) pin the row at
+                // "loading…" for a full ten minutes even after the network
+                // came back.
+                self.usageFetchedAt = Date()
                 self.usageMenuItem?.title = UsageStats.menuTitle(for: snapshot)
             }
         }
@@ -502,6 +506,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // that maps to it, so the tracker is told plainly rather than left to
         // work it out.
         hold.key = preferences.triggerKey
+        // A cap the user just shortened should apply to the recording
+        // already in progress, not just the next one.
+        if state == .recording { armLimit(preferences.recordingLimit) }
+        // This also fires for a language or trigger-key change, not only a
+        // key change — clearing here is cheap, and `refreshUsage` simply
+        // fetches again on the next menu open, so telling those apart is not
+        // worth the extra plumbing. What matters is that a key change can
+        // never leave the previous account's figures on screen.
+        usageSnapshot = nil
+        usageFetchedAt = nil
         rebuildMenu()
     }
 
@@ -535,6 +549,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func selectRecordingLimit(_ item: NSMenuItem) {
         guard let seconds = item.representedObject as? Int else { return }
         preferences.recordingLimit = RecordingLimit(storedSeconds: seconds)
+        // A cap the user just shortened should apply to the recording
+        // already in progress, not just the next one.
+        if state == .recording { armLimit(preferences.recordingLimit) }
         rebuildMenu()
     }
 
@@ -677,6 +694,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard recorder.startWriting(to: url) else {
             recorder.stop()
             appLog("could not open the audio input")
+            // Without this the user holds, speaks, releases, and nothing at
+            // all happens — no HUD, no sound. Reachable whenever the audio
+            // device is missing or changed, such as AirPods disconnecting
+            // mid-session.
+            hud.showError(String(localized: "Could not start recording — check the microphone",
+                                 bundle: .module))
             return
         }
         audioURL = url
