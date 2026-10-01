@@ -90,11 +90,9 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         self.removeButton = removeButton
         stack.addArrangedSubview(removeButton)
 
-        let links = NSTextField(labelWithString: "")
-        links.attributedStringValue = keyLinks()
-        links.isSelectable = true
-        links.allowsEditingTextAttributes = true    // without this the link is dead
-        stack.addArrangedSubview(links)
+        stack.addArrangedSubview(LinkButton(
+            title: String(localized: "How to get a key", bundle: .module),
+            url: Self.apiKeysPage))
 
         stack.addArrangedSubview(separator())
 
@@ -150,18 +148,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         return box
     }
 
-    private func keyLinks() -> NSAttributedString {
-        let out = NSMutableAttributedString()
-        var attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 11),
-            .foregroundColor: NSColor.secondaryLabelColor,
-        ]
-        attributes[.link] = "https://elevenlabs.io/app/settings/api-keys"
-        out.append(NSAttributedString(
-            string: String(localized: "Get a key", bundle: .module),
-            attributes: attributes))
-        return out
-    }
+    private static let apiKeysPage = "https://elevenlabs.io/app/settings/api-keys"
 
     // MARK: - State
 
@@ -248,5 +235,44 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         keyField.stringValue = ""
         // Back to being a menu bar app: no Dock icon, no menu bar of its own.
         NSApp.setActivationPolicy(.accessory)
+    }
+}
+
+/// A link that looks and behaves like one.
+///
+/// This started as an `NSTextField` carrying a `.link` attribute. It opened
+/// the page when clicked, but it drew in the same grey as the text above it
+/// and the pointer stayed an arrow over it, so there was nothing to tell
+/// anyone it could be clicked at all — which is how it got missed.
+///
+/// A button draws in the accent colour, and `resetCursorRects` is what puts
+/// the pointing hand over it; a text field never gets one by itself.
+final class LinkButton: NSButton {
+    private let url: URL?
+
+    init(title: String, url: String) {
+        self.url = URL(string: url)
+        super.init(frame: .zero)
+        isBordered = false
+        bezelStyle = .inline
+        let underlined = NSMutableAttributedString(string: title, attributes: [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.linkColor,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+        ])
+        attributedTitle = underlined
+        target = self
+        action = #selector(open)
+    }
+
+    required init?(coder: NSCoder) { fatalError("not used") }
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .pointingHand)
+    }
+
+    @objc private func open() {
+        guard let url else { return }
+        NSWorkspace.shared.open(url)
     }
 }
