@@ -88,12 +88,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.tap = tap
         tapIsRunning = tap.start()
-        if !tapIsRunning {
-            // Without this the menu bar icon is identical to a healthy idle
-            // app, and the only hint lives in a log file nobody is reading.
-            updateStatusIcon()
-            statusItem.menu = buildMenu()
-        }
+        // Rebuilt either way. The menu and the icon were first built before
+        // the tap existed, when `tapIsRunning` was still false — so without
+        // this the app offers to fix a permission that is already granted,
+        // and wears the crossed-out microphone while working perfectly.
+        updateStatusIcon()
+        statusItem.menu = buildMenu()
     }
 
     // MARK: - Status item
