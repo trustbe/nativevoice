@@ -183,7 +183,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: String(localized: "Quit NativeVoice", bundle: .module),
+        let name = String(localized: "NativeVoice", bundle: .module)
+        appMenu.addItem(withTitle: String(localized: "About \(name)", bundle: .module),
+                        action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
+                        keyEquivalent: "")
+        appMenu.addItem(.separator())
+        let settings = appMenu.addItem(
+            withTitle: String(localized: "Settings…", bundle: .module),
+            action: #selector(openSettings), keyEquivalent: ",")
+        settings.target = self
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: String(localized: "Hide \(name)", bundle: .module),
+                        action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: String(localized: "Quit \(name)", bundle: .module),
                         action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         main.addItem(appItem)

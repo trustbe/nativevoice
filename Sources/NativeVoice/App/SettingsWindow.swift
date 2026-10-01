@@ -21,6 +21,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     private let languagePopUp = NSPopUpButton()
     private let triggerPopUp = NSPopUpButton()
     private let limitPopUp = NSPopUpButton()
+    private var removeButton: NSButton?
 
     private let languages = Language.sortedForDisplay()
 
@@ -34,9 +35,13 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     func show() {
         if window == nil { build() }
         refresh()
+        // Order matters. Activating after ordering front leaves the window up
+        // with another app's menu bar above it, which on a menu bar app is
+        // indistinguishable from the app having no menus at all.
+        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        window?.makeKeyAndOrderFront(nil)
         window?.center()
+        window?.makeKeyAndOrderFront(nil)
     }
 
     // MARK: - Building
@@ -61,13 +66,29 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
                                                 bundle: .module)))
         keyField.placeholderString = "sk_…"
         keyField.target = self
-        keyField.action = #selector(saveKey)
-        keyField.widthAnchor.constraint(equalToConstant: 420).isActive = true
-        stack.addArrangedSubview(keyField)
+        keyField.action = #selector(saveKey)      // Return still works
+
+        let saveButton = NSButton(title: String(localized: "Save", bundle: .module),
+                                  target: self, action: #selector(saveKey))
+        saveButton.bezelStyle = .rounded
+        saveButton.keyEquivalent = "\r"           // and so does the default button
+
+        let keyRow = NSStackView(views: [keyField, saveButton])
+        keyRow.orientation = .horizontal
+        keyRow.spacing = 8
+        keyField.widthAnchor.constraint(equalToConstant: 330).isActive = true
+        stack.addArrangedSubview(keyRow)
 
         keyStatus.font = .systemFont(ofSize: 11)
         keyStatus.textColor = .secondaryLabelColor
         stack.addArrangedSubview(keyStatus)
+
+        let removeButton = NSButton(title: String(localized: "Remove key", bundle: .module),
+                                    target: self, action: #selector(removeKey))
+        removeButton.bezelStyle = .inline
+        removeButton.controlSize = .small
+        self.removeButton = removeButton
+        stack.addArrangedSubview(removeButton)
 
         let links = NSTextField(labelWithString: "")
         links.attributedStringValue = keyLinks()
@@ -146,10 +167,11 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         // not put it on screen unasked.
         keyField.stringValue = ""
         keyStatus.stringValue = secrets.hasKey
-            ? String(localized: "A key is stored. Type a new one to replace it, or leave empty and press Return to remove it.",
+            ? String(localized: "A key is stored. Paste a new one to replace it.",
                      bundle: .module)
             : String(localized: "No key yet. Dictation will not work until one is set.",
                      bundle: .module)
+        removeButton?.isHidden = !secrets.hasKey
 
         if let index = languages.firstIndex(of: preferences.language) {
             languagePopUp.selectItem(at: index)
@@ -165,15 +187,24 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     // MARK: - Actions
 
     @objc private func saveKey() {
-        let entered = keyField.stringValue
-        // Empty removes. There is no second place a removed key can come back
-        // from, and that is deliberate.
+        let entered = keyField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !entered.isEmpty else { return }     // Remove has its own button
         if secrets.save(entered) {
-            appLog(entered.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                   ? "API key removed" : "API key saved")
+            appLog("API key saved")
         } else {
             appLog("API key could not be saved")
         }
+        keyField.stringValue = ""
+        refresh()
+        onChange()
+    }
+
+    @objc private func removeKey() {
+        // A button of its own. Removing by clearing a field and pressing
+        // Return is a thing you have to be told, and nobody reads the thing
+        // that tells you.
+        secrets.delete()
+        appLog("API key removed")
         keyField.stringValue = ""
         refresh()
         onChange()
@@ -210,5 +241,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         // Nothing should outlive the window holding a half-typed secret.
         keyField.stringValue = ""
+        // Back to being a menu bar app: no Dock icon, no menu bar of its own.
+        NSApp.setActivationPolicy(.accessory)
     }
 }
