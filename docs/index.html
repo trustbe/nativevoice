@@ -53,8 +53,10 @@ a.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
 
 /* ---------- the languages, which are the argument ---------- */
 .langs{display:flex; flex-wrap:wrap; gap:7px; margin:0}
-.langs span{background:var(--soft); border:1px solid var(--line); border-radius:999px;
-  padding:6px 13px; font-size:14px; color:var(--ink-2); white-space:nowrap}
+.langs span{display:inline-flex; align-items:center; gap:7px;
+  background:var(--soft); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px 6px 10px; font-size:14px; color:var(--ink); white-space:nowrap}
+.langs i{font-style:normal; font-size:16px; line-height:1}
 
 /* ---------- sections ---------- */
 section{padding:64px 0 0}
@@ -108,12 +110,12 @@ footer a{color:var(--ink-2); text-decoration:none}
 <div class="wrap">
 
 <header>
-  <img src="icon.png" alt="">
+  <img src="icon.png" alt="" width="26" height="26">
   <b>NativeVoice</b>
 </header>
 
 <div class="hero">
-  <img class="icon" src="icon-large.png" alt="">
+  <img class="icon" src="icon-large.png" alt="" width="76" height="76">
   <h1>Dictation that speaks your language.</h1>
   <p class="lede">Hold a key, speak, let go — the text appears where your cursor is.
     Dictation on a Mac is excellent in English and patchy to absent in everything else. This is
@@ -131,15 +133,15 @@ footer a{color:var(--ink-2); text-decoration:none}
   <p class="sub">Including the ones the big tools treat as minor. All of them equal — there is no
     first-class language here.</p>
   <div class="langs">
-    <span>Belarusian</span><span>Bosnian</span><span>Bulgarian</span><span>Catalan</span>
-    <span>Croatian</span><span>Czech</span><span>Danish</span><span>Dutch</span>
-    <span>English</span><span>Estonian</span><span>Finnish</span><span>French</span>
-    <span>Galician</span><span>German</span><span>Greek</span><span>Hungarian</span>
-    <span>Icelandic</span><span>Indonesian</span><span>Italian</span><span>Japanese</span>
-    <span>Kannada</span><span>Latvian</span><span>Macedonian</span><span>Malay</span>
-    <span>Malayalam</span><span>Norwegian</span><span>Polish</span><span>Portuguese</span>
-    <span>Romanian</span><span>Russian</span><span>Slovak</span><span>Spanish</span>
-    <span>Swedish</span><span>Turkish</span><span>Ukrainian</span><span>Vietnamese</span>
+    <span><i>🇧🇾</i>Belarusian</span><span><i>🇧🇦</i>Bosnian</span><span><i>🇧🇬</i>Bulgarian</span><span><i>🇪🇸</i>Catalan</span>
+    <span><i>🇭🇷</i>Croatian</span><span><i>🇨🇿</i>Czech</span><span><i>🇩🇰</i>Danish</span><span><i>🇳🇱</i>Dutch</span>
+    <span><i>🇬🇧</i>English</span><span><i>🇪🇪</i>Estonian</span><span><i>🇫🇮</i>Finnish</span><span><i>🇫🇷</i>French</span>
+    <span><i>🇪🇸</i>Galician</span><span><i>🇩🇪</i>German</span><span><i>🇬🇷</i>Greek</span><span><i>🇭🇺</i>Hungarian</span>
+    <span><i>🇮🇸</i>Icelandic</span><span><i>🇮🇩</i>Indonesian</span><span><i>🇮🇹</i>Italian</span><span><i>🇯🇵</i>Japanese</span>
+    <span><i>🇮🇳</i>Kannada</span><span><i>🇱🇻</i>Latvian</span><span><i>🇲🇰</i>Macedonian</span><span><i>🇲🇾</i>Malay</span>
+    <span><i>🇮🇳</i>Malayalam</span><span><i>🇳🇴</i>Norwegian</span><span><i>🇵🇱</i>Polish</span><span><i>🇵🇹</i>Portuguese</span>
+    <span><i>🇷🇴</i>Romanian</span><span><i>🇷🇺</i>Russian</span><span><i>🇸🇰</i>Slovak</span><span><i>🇪🇸</i>Spanish</span>
+    <span><i>🇸🇪</i>Swedish</span><span><i>🇹🇷</i>Turkish</span><span><i>🇺🇦</i>Ukrainian</span><span><i>🇻🇳</i>Vietnamese</span>
   </div>
 </section>
 
