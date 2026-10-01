@@ -777,10 +777,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     appLog("error: \(error.userMessage)")
                     if self.state == .idle { self.hud.showError(error.userMessage) }
                 case .text(let text) where text.isEmpty:
-                    appLog(peak < -55 ? "empty transcript — the input was silent"
-                                   : "empty transcript although there was sound")
+                    let silent = LevelAdvice.of(peakDecibels: Double(peak)) == .silent
+                    appLog(silent ? "empty transcript — the input was silent"
+                                  : "empty transcript although there was sound")
                     if self.state == .idle {
-                        self.hud.showError(peak < -55
+                        self.hud.showError(silent
                             ? String(localized: "Nothing was heard.", bundle: .module)
                             : String(localized: "Nothing was recognized.", bundle: .module))
                     }
@@ -791,8 +792,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     Sounds.done(enabled: self.preferences.playSounds)
                     Paste.deliver(text, autoPaste: self.preferences.autoPaste,
                                   restore: self.clipboardRestore)
+                    self.warnAboutQuietInput(peak: peak)
                 }
             }
+        }
+    }
+
+    /// Says so, once, when the microphone is audible but too quiet to trust.
+    ///
+    /// Once per launch and no more. The text arrived, so this is a remark and
+    /// not a failure, and a remark that repeats after every sentence is a
+    /// remark people learn to dismiss without reading. It waits 1.5 s so it
+    /// lands after the paste rather than on top of it.
+    private var hasWarnedAboutLevel = false
+
+    private func warnAboutQuietInput(peak: Float) {
+        guard !hasWarnedAboutLevel,
+              let message = LevelAdvice.message(forPeakDecibels: Double(peak))
+        else { return }
+        hasWarnedAboutLevel = true
+        appLog(String(format: "input is quiet — peak %.0f dB", peak))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self, self.state == .idle else { return }
+            self.hud.showError(message)
         }
     }
 

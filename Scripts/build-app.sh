@@ -57,6 +57,19 @@ cp "$ROOT/Sources/NativeVoice/Resources/Info.plist" "$APP/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$APP/Contents/Info.plist"
 
+# The icon is generated rather than committed as a binary, so that changing it
+# is a diff somebody can read. Design/make-icon.swift draws it; this step only
+# refuses to ship without one, because a missing icon is most visible exactly
+# where it matters least to us and most to the user: the Input Monitoring and
+# Accessibility lists, where they decide whether to trust the thing.
+ICON="$ROOT/Design/AppIcon.icns"
+if [ ! -f "$ICON" ]; then
+    echo "✗ $ICON missing — run: cd Design && swift make-icon.swift . && iconutil -c icns AppIcon.iconset -o AppIcon.icns" >&2
+    exit 1
+fi
+cp "$ICON" "$APP/Contents/Resources/AppIcon.icns"
+echo "▸ icon: AppIcon.icns"
+
 # Resource bundles produced by SwiftPM (String Catalog) sit next to the binary.
 for b in "$BIN"/*.bundle; do
     [ -e "$b" ] && cp -R "$b" "$APP/Contents/Resources/"
