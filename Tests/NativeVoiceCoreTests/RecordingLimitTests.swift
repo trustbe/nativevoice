@@ -35,4 +35,16 @@ import Testing
             #expect(RecordingLimit(storedSeconds: limit.rawValue) == limit)
         }
     }
+
+    @Test func everyChoiceHasATitle() {
+        for limit in RecordingLimit.allCases {
+            #expect(!(limit.menuTitle.isEmpty), "\(limit) has no title")
+        }
+    }
+
+    @Test func titlesAreDistinct() {
+        // Two choices sharing a label would be indistinguishable in the popup.
+        let titles = RecordingLimit.allCases.map(\.menuTitle)
+        #expect(Set(titles).count == titles.count)
+    }
 }

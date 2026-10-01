@@ -12,6 +12,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let secrets = KeychainSecretStore()
     private lazy var transcriber: Transcriber = ElevenLabsClient(secrets: secrets)
     private let clipboardRestore = ClipboardRestore()
+    private let preferences = Preferences()
+    private lazy var settings = SettingsWindow(
+        preferences: preferences, secrets: secrets) { [weak self] in
+            self?.applyPreferences()
+        }
 
     /// The most recent transcript, kept so it can be recovered.
     ///
@@ -88,6 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.tap = tap
         tapIsRunning = tap.start()
+        hold.key = preferences.triggerKey
         // Rebuilt either way. The menu and the icon were first built before
         // the tap existed, when `tapIsRunning` was still false — so without
         // this the app offers to fix a permission that is already granted,
@@ -149,10 +155,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(item)
             menu.addItem(.separator())
         }
+        let settingsItem = NSMenuItem(
+            title: String(localized: "Settings…", bundle: .module),
+            action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         return menu
+    }
+
+    @objc private func openSettings() { settings.show() }
+
+    /// Picks up a changed setting without a restart.
+    private func applyPreferences() {
+        // Changing the key mid-hold would leave the recording with no key-up
+        // that maps to it, so the tracker is told plainly rather than left to
+        // work it out.
+        hold.key = preferences.triggerKey
+        statusItem.menu = buildMenu()
     }
 
     @objc private func openInputMonitoringSettings() {
@@ -227,7 +250,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         audioURL = url
         startedAt = Date()
         state = .recording
-        armLimit(RecordingLimit.default)
+        armLimit(preferences.recordingLimit)
     }
 
     private func armLimit(_ limit: RecordingLimit) {
@@ -262,7 +285,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let peak = recorder.peakDecibels
         let vocabulary = loadVocabulary()
-        let language = Language.forSystem().code
+        let language = preferences.language.code
 
         Task { [weak self] in
             defer { try? FileManager.default.removeItem(at: url) }

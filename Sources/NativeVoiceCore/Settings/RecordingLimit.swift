@@ -23,6 +23,18 @@ public enum RecordingLimit: Int, CaseIterable, Equatable {
 
     public var seconds: TimeInterval? { self == .none ? nil : TimeInterval(rawValue) }
 
+    /// Shown in the settings. Localized, because these are the only words the
+    /// user ever sees about this setting.
+    public var menuTitle: String {
+        switch self {
+        case .oneMinute:   return String(localized: "1 minute", bundle: .module)
+        case .twoMinutes:  return String(localized: "2 minutes", bundle: .module)
+        case .fiveMinutes: return String(localized: "5 minutes", bundle: .module)
+        case .tenMinutes:  return String(localized: "10 minutes", bundle: .module)
+        case .none:        return String(localized: "No limit", bundle: .module)
+        }
+    }
+
     /// Zero is a real choice ("no limit"), so it must not be read as "unset".
     public init(storedSeconds: Int) {
         self = RecordingLimit(rawValue: storedSeconds) ?? .default
