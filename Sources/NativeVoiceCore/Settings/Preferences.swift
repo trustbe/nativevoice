@@ -13,6 +13,9 @@ public final class Preferences {
         static let language = "languageCode"
         static let triggerKey = "triggerKey"
         static let recordingLimit = "recordingLimitSeconds"
+        static let playSounds = "playSounds"
+        static let autoPaste = "autoPaste"
+        static let removeFillers = "removeFillers"
     }
 
     public init(defaults: UserDefaults = .standard) {
@@ -61,5 +64,26 @@ public final class Preferences {
             return RecordingLimit(storedSeconds: defaults.integer(forKey: Key.recordingLimit))
         }
         set { defaults.set(newValue.rawValue, forKey: Key.recordingLimit) }
+    }
+
+    /// Two defaults that are not `false`, which is why they read through
+    /// `object(forKey:)`: `bool(forKey:)` returns false for an unset key, and
+    /// a dictation tool that ships silent and pastes nothing is the opposite
+    /// of what someone installing it expects.
+    public var playSounds: Bool {
+        get { defaults.object(forKey: Key.playSounds) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Key.playSounds) }
+    }
+
+    public var autoPaste: Bool {
+        get { defaults.object(forKey: Key.autoPaste) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Key.autoPaste) }
+    }
+
+    /// Off unless asked for. Filler removal edits what was said, and a tool
+    /// that quietly rewrites your words has to be switched on knowingly.
+    public var removeFillers: Bool {
+        get { defaults.bool(forKey: Key.removeFillers) }
+        set { defaults.set(newValue, forKey: Key.removeFillers) }
     }
 }

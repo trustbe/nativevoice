@@ -77,4 +77,42 @@ import Testing
         defaults.set(999, forKey: "recordingLimitSeconds")
         #expect(Preferences(defaults: defaults).recordingLimit == .twoMinutes)
     }
+
+    @Test func soundsAndPastingAreOnBeforeAnyoneChoosesAnything() {
+        let preferences = makePreferences()
+        #expect(preferences.playSounds)
+        #expect(preferences.autoPaste)
+    }
+
+    @Test func fillerRemovalIsOffBeforeAnyoneChoosesIt() {
+        // It changes what you said. Someone dictating a commit message or a
+        // filing wants their own words back.
+        #expect(!makePreferences().removeFillers)
+    }
+
+    @Test func soundsCanBeTurnedOff() {
+        // The one that catches the real mistake: `defaults.bool(forKey:)`
+        // cannot tell "off" from "never set", so a default of true written
+        // that way ignores this.
+        let preferences = makePreferences()
+        preferences.playSounds = false
+        #expect(!preferences.playSounds)
+    }
+
+    @Test func pastingCanBeTurnedOff() {
+        let preferences = makePreferences()
+        preferences.autoPaste = false
+        #expect(!preferences.autoPaste)
+    }
+
+    @Test func togglesSurviveANewInstance() {
+        let name = "nativevoice-tests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: name)!
+        let first = Preferences(defaults: defaults)
+        first.playSounds = false
+        first.removeFillers = true
+        let second = Preferences(defaults: defaults)
+        #expect(!second.playSounds)
+        #expect(second.removeFillers)
+    }
 }
