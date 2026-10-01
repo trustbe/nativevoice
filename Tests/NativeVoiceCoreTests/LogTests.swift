@@ -1,10 +1,10 @@
-import Testing
 import Foundation
+import Testing
 @testable import NativeVoiceCore
 
-/// swift-testing vytvari novou instanci sady na kazdy test, takze `init`
-/// a `deinit` nahrazuji setUp a tearDown a kazdy test dostane vlastni
-/// prazdnou slozku.
+/// swift-testing builds a fresh instance of the suite for every test, so
+/// `init` and `deinit` take the place of setUp and tearDown and each test
+/// gets its own empty directory.
 @Suite struct LogTests: ~Copyable {
     private let dir: URL
 
@@ -14,7 +14,7 @@ import Foundation
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     }
 
-    // deinit nesmi vyhazovat, proto `try?`.
+    // deinit cannot throw, hence `try?`.
     deinit { try? FileManager.default.removeItem(at: dir) }
 
     private func makeLog(maxBytes: Int = 1_000_000) -> Log {
@@ -36,7 +36,7 @@ import Foundation
                            options: .regularExpression) != nil)
     }
 
-    @Test func concurrentWritesDoNotInterleave() throws {
+    @Test func concurrentWritesNeitherInterleaveNorGoMissing() throws {
         let log = makeLog()
         let count = 400
         DispatchQueue.concurrentPerform(iterations: count) { i in
@@ -46,11 +46,24 @@ import Foundation
         let text = try String(contentsOfFile: log.path, encoding: .utf8)
         let lines = text.split(separator: "\n")
         #expect(lines.count == count)
+
+        // Counting lines is not enough: a race that dropped one write and
+        // duplicated another would still produce 400 well-formed lines. The
+        // indices have to be exactly 0..<count, each once.
+        var seen = Set<Int>()
         for line in lines {
-            #expect(line.range(of: #"^\[\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] line-\d+$"#,
-                               options: .regularExpression) != nil,
-                    "garbled line: \(line)")
+            guard let range = line.range(of: #"^\[\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] line-\d+$"#,
+                                         options: .regularExpression),
+                  range.lowerBound == line.startIndex else {
+                Issue.record("garbled line: \(line)")
+                continue
+            }
+            if let dash = line.range(of: "line-", options: .backwards),
+               let index = Int(line[dash.upperBound...]) {
+                seen.insert(index)
+            }
         }
+        #expect(seen == Set(0..<count))
     }
 
     @Test func smallLogIsNotRotated() throws {
@@ -81,10 +94,43 @@ import Foundation
         #expect(!(kept.contains("first 0")))
     }
 
-    @Test func writingToAnUnwritablePathDoesNotCrash() {
+    @Test func growthIsBoundedWithoutAnyoneCallingRotate() throws {
+        // Rotation has to happen by itself. A logger that only shrinks when
+        // some caller remembers to ask would grow without bound on a machine
+        // that stays awake for weeks — and nothing in the app would notice.
+        let log = makeLog(maxBytes: 200)
+        for i in 0..<600 { log.write("line \(i)") }
+        log.drain()
+        #expect(FileManager.default.fileExists(atPath: log.path + ".1"))
+    }
+
+    @Test func writingToAMissingDirectoryDoesNotCrash() {
         let log = Log(path: "/this/path/does/not/exist/nv.log", maxBytes: 1000)
         log.write("still alive")
         log.drain()
         log.rotateIfNeeded()
+    }
+
+    @Test func aFileItCannotWriteNeitherCrashesNorWedgesTheLogger() throws {
+        // The missing-directory case short-circuits before any real I/O. This
+        // one actually attempts a write that the file system refuses, and
+        // then proves the logger still works afterwards — a logger that dies
+        // on one bad write would take the whole app with it.
+        let file = dir.appendingPathComponent("readonly.log")
+        try Data().write(to: file)
+        let fm = FileManager.default
+        try fm.setAttributes([.posixPermissions: 0o444], ofItemAtPath: file.path)
+
+        let log = Log(path: file.path, maxBytes: 1_000_000)
+        log.write("this one cannot land")
+        log.drain()
+
+        try fm.setAttributes([.posixPermissions: 0o644], ofItemAtPath: file.path)
+        log.write("this one can")
+        log.drain()
+
+        let text = try String(contentsOfFile: file.path, encoding: .utf8)
+        #expect(text.contains("this one can"))
+        #expect(!(text.contains("this one cannot land")))
     }
 }
