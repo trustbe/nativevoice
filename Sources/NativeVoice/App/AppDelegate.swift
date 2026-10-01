@@ -6,6 +6,9 @@ import NativeVoiceCore
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private enum State { case idle, recording, transcribing }
 
+    private static let homepage = "https://github.com/trustbe/nativevoice"
+    private static let donate = "https://buymeacoffee.com/jenicek666"
+
     private var statusItem: NSStatusItem!
     private let recorder = Recorder()
     private let hud = HUD()
@@ -218,6 +221,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() { settings.show() }
+
+    @objc private func showAbout() {
+        let credits = NSMutableAttributedString()
+        let centered = NSMutableParagraphStyle()
+        centered.alignment = .center
+
+        func line(_ text: String, link: String?, breakAfter: Bool = true) {
+            var attributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 11),
+                .foregroundColor: NSColor.labelColor,
+                .paragraphStyle: centered,
+            ]
+            if let link { attributes[.link] = link }
+            credits.append(NSAttributedString(string: text, attributes: attributes))
+            if breakAfter {
+                credits.append(NSAttributedString(string: "\n", attributes: attributes))
+            }
+        }
+
+        line(String(localized: "Dictation that works in languages the big tools skip.",
+                    bundle: .module), link: nil)
+        line("", link: nil)
+        line(String(localized: "Report an issue", bundle: .module),
+             link: Self.homepage + "/issues")
+        line(String(localized: "Buy me a coffee", bundle: .module),
+             link: Self.donate, breakAfter: false)
+
+        // An accessory app's about panel opens behind everything unless the
+        // app is brought forward first.
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
+    }
 
     /// Picks up a changed setting without a restart.
     private func applyPreferences() {
