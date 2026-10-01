@@ -62,7 +62,25 @@ for b in "$BIN"/*.bundle; do
     [ -e "$b" ] && cp -R "$b" "$APP/Contents/Resources/"
 done
 
-echo "▸ signing ad-hoc (Developer ID comes in plan 3)"
-codesign --force --sign - --timestamp=none "$APP"
+# Signed with Developer ID when one is available, ad-hoc otherwise.
+#
+# This is not about distribution — notarization comes later. It is about the
+# signature staying the same between builds. macOS ties Accessibility
+# permission to the code signature, and an ad-hoc signature changes on every
+# build, so the permission is revoked every time and has to be granted again
+# before the app can see a key press. With a stable identity it is granted
+# once.
+IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null \
+            | grep "Developer ID Application" | head -1 \
+            | sed -E 's/.*"(.*)"/\1/')"
+
+if [ -n "$IDENTITY" ]; then
+    echo "▸ signing as: $IDENTITY"
+    codesign --force --options runtime --sign "$IDENTITY" --timestamp "$APP"
+else
+    echo "▸ signing ad-hoc — no Developer ID found"
+    echo "   Accessibility permission will be revoked on every rebuild."
+    codesign --force --sign - --timestamp=none "$APP"
+fi
 
 echo "✓ $APP"
