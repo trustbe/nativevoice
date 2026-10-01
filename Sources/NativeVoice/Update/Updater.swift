@@ -99,43 +99,90 @@ enum Updater {
         }
 
         let destination = Bundle.main.bundleURL
-        let backup = scratch.appendingPathComponent("previous.app")
+
+        // `replaceItemAt` is only atomic — and only documented to leave the
+        // original item untouched on failure — when the original and the
+        // replacement are on the same volume; across volumes it simply
+        // errors. The download was unpacked under `scratch`, which is
+        // wherever `NSTemporaryDirectory()` happens to be, so it is staged
+        // again here into a directory the OS hands back on the destination's
+        // own volume before the swap is attempted.
+        let staged: URL
+        let replacementDir: URL
         do {
-            try manager.moveItem(at: destination, to: backup)
+            replacementDir = try manager.url(for: .itemReplacementDirectory,
+                                              in: .userDomainMask,
+                                              appropriateFor: destination,
+                                              create: true)
+            staged = replacementDir.appendingPathComponent(unpacked.lastPathComponent)
+            if manager.fileExists(atPath: staged.path) {
+                try manager.removeItem(at: staged)
+            }
+            try manager.moveItem(at: unpacked, to: staged)
         } catch {
-            appLog("update: could not move the old bundle: \(error.localizedDescription)")
+            appLog("update: could not stage the new bundle: \(error.localizedDescription)")
             return String(localized: """
-                The old version could not be moved aside. Nothing was changed.
+                Could not prepare the new version for installation. Nothing \
+                was changed.
                 """, bundle: .module)
         }
+        defer { try? manager.removeItem(at: replacementDir) }
+
+        // Review Focus (data loss). The previous version of this swap moved
+        // the old bundle aside by hand, moved the new one in, and on failure
+        // tried to move the old one back with `try?` — discarding whether
+        // that worked — and then told the user their old version "was
+        // restored" unconditionally. Reproduced: with `TMPDIR` on another
+        // volume, the move-aside succeeds (the app is now gone from
+        // /Applications), the move-in fails, the silently-discarded restore
+        // also fails, and the message still claims a restore that did not
+        // happen — right before the enclosing `defer` deletes the one copy
+        // that could have put it back. `replaceItemAt` performs the same
+        // exchange as one operation that is documented to guarantee no data
+        // loss: on failure the original item is left either at its original
+        // location or, if something unusual happened to it, at a location
+        // named in the thrown error's `NSFileOriginalItemLocationKey`. So
+        // the failure path below reports whichever of those is actually
+        // true instead of asserting a restore nothing confirmed.
         do {
-            try manager.moveItem(at: unpacked, to: destination)
+            _ = try manager.replaceItemAt(destination, withItemAt: staged)
         } catch {
-            // Put it back. Leaving no application at all is the one outcome
-            // worse than failing to update.
-            try? manager.moveItem(at: backup, to: destination)
-            appLog("update: install failed, old version restored: \(error.localizedDescription)")
+            let stillAt = (error as NSError).userInfo["NSFileOriginalItemLocationKey"] as? URL
+            let path = stillAt?.path ?? destination.path
+            appLog("update: install failed, previous version left at \(path): \(error.localizedDescription)")
             return String(localized: """
-                The new version could not be put in place, so the old one was \
-                restored.
+                The new version could not be installed. Your previous copy \
+                was not touched; it is still at \(path).
                 """, bundle: .module)
         }
         appLog("update: installed \(release.version)")
         return nil
     }
 
+    /// Verifies the downloaded bundle is genuinely signed with our team ID.
+    ///
+    /// `codesign -d`/`-dv` is a *display* command, not a verification one: it
+    /// prints whatever is in the signature's own free-form fields and does
+    /// not check that the signature is intact. Both its exit status and its
+    /// output are attacker-controlled, which made the previous version of
+    /// this check — exit 0 plus a substring search for
+    /// `TeamIdentifier=<ours>` in that output — bypassable two ways, both
+    /// reproduced: (1) `codesign --identifier 'x TeamIdentifier=<ours>' …`
+    /// signs ad hoc with anyone's key and echoes our team ID verbatim on an
+    /// `Identifier=` line that the substring match cannot tell apart from
+    /// the real `TeamIdentifier=` line; (2) a signed bundle with a file
+    /// added afterwards, so `_CodeSignature` no longer matches the contents,
+    /// still prints the genuine ID and still exits 0. `codesign --verify` is
+    /// the actual verification command, and `-R` constrains what it accepts
+    /// to a code requirement anchored on Apple's root with our team ID in
+    /// the certificate — not a line of text anywhere in the output — so only
+    /// its exit status is read here; nothing from codesign is parsed.
     private static func isSignedByUs(_ bundle: URL) -> Bool {
-        let output = Pipe()
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/codesign")
-        process.arguments = ["-dv", "--verbose=2", bundle.path]
-        process.standardError = output
-        process.standardOutput = output
-        do { try process.run() } catch { return false }
-        let data = output.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return false }
-        return String(decoding: data, as: UTF8.self).contains("TeamIdentifier=\(teamID)")
+        run("/usr/bin/codesign", [
+            "--verify", "--deep", "--strict",
+            "-R", #"=anchor apple generic and certificate leaf[subject.OU] = "\#(teamID)""#,
+            bundle.path,
+        ])
     }
 
     private static func run(_ tool: String, _ arguments: [String]) -> Bool {
