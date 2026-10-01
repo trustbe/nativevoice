@@ -194,6 +194,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             ? String(localized: "Change API key…", bundle: .module)
             : String(localized: "Set API key…", bundle: .module),
             #selector(openSettings)))
+        menu.addItem(actionItem(String(localized: "Check for updates…", bundle: .module),
+                                #selector(checkForUpdates)))
         menu.addItem(.separator())
 
         menu.addItem(choiceItem(
@@ -467,6 +469,57 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func openSettings() { settings.show() }
+
+    @objc private func checkForUpdates() {
+        Task { @MainActor in
+            guard let release = await Updater.check() else {
+                let alert = NSAlert()
+                alert.messageText = String(
+                    localized: "NativeVoice \(Updater.currentVersion) is up to date.",
+                    bundle: .module)
+                NSApp.activate(ignoringOtherApps: true)
+                alert.runModal()
+                return
+            }
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Version \(release.version) is available.",
+                                       bundle: .module)
+            alert.informativeText = String(localized: """
+                You are running \(Updater.currentVersion). Installing replaces this \
+                copy and NativeVoice will quit; open it again afterwards.
+                """, bundle: .module)
+            alert.addButton(withTitle: String(localized: "Install", bundle: .module))
+            alert.addButton(withTitle: String(localized: "Release notes", bundle: .module))
+            alert.addButton(withTitle: String(localized: "Later", bundle: .module))
+            NSApp.activate(ignoringOtherApps: true)
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                if let problem = await Updater.install(release) {
+                    let failed = NSAlert()
+                    failed.messageText = problem
+                    failed.alertStyle = .warning
+                    failed.runModal()
+                } else {
+                    // Relaunching the bundle we have just replaced from inside
+                    // that same bundle is not something to attempt; quitting
+                    // and saying so is honest and works.
+                    let done = NSAlert()
+                    done.messageText = String(
+                        localized: "Version \(release.version) is installed.",
+                        bundle: .module)
+                    done.informativeText = String(
+                        localized: "NativeVoice will now quit. Open it again to use it.",
+                        bundle: .module)
+                    done.runModal()
+                    NSApp.terminate(nil)
+                }
+            case .alertSecondButtonReturn:
+                NSWorkspace.shared.open(release.pageURL)
+            default:
+                break
+            }
+        }
+    }
 
     @objc private func showAbout() {
         let credits = NSMutableAttributedString()
