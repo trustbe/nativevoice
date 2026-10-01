@@ -11,4 +11,10 @@
 # a full Xcode install.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Keep a test run out of the log the user reads. Without this, a parser test
+# logging an HTTP 401 lands in the middle of their real dictation and looks
+# exactly like a failure of the running app.
+export NATIVEVOICE_LOG="${TMPDIR:-/tmp}/nativevoice-tests.log"
+
 exec swift test --package-path "$ROOT" "$@"

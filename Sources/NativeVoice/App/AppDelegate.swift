@@ -13,6 +13,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var transcriber: Transcriber = ElevenLabsClient(secrets: secrets)
     private let clipboardRestore = ClipboardRestore()
 
+    /// The most recent transcript, kept so it can be recovered.
+    ///
+    /// Pasting goes into whatever is under the cursor. When nothing there
+    /// takes text the ⌘V lands nowhere, and 1.2 s later the clipboard is
+    /// restored and the transcript is gone — six seconds of speech for
+    /// nothing. It happened on the first real use of the app.
+    ///
+    /// In memory only. Dictated text is not written anywhere; recovering it
+    /// is worth a menu item, not a file on disk.
+    private var lastTranscript: String?
+
     private var tap: EventTap?
     private var tapIsRunning = false
     private var hold = HoldTracker(key: .default)
@@ -129,6 +140,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menu.addItem(hint)
         menu.addItem(.separator())
+        if let transcript = lastTranscript {
+            let item = NSMenuItem(
+                title: String(localized: "Copy Last Transcript", bundle: .module),
+                action: #selector(copyLastTranscript), keyEquivalent: "")
+            item.target = self
+            item.toolTip = transcript
+            menu.addItem(item)
+            menu.addItem(.separator())
+        }
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
@@ -275,6 +295,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         ? String(localized: "Nothing was heard.", bundle: .module)
                         : String(localized: "Nothing was recognized.", bundle: .module))
                 case .text(let text):
+                    self.lastTranscript = text
+                    self.statusItem.menu = self.buildMenu()
                     Paste.deliver(text, autoPaste: true, restore: self.clipboardRestore)
                 }
             }
@@ -292,5 +314,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return []
         }
         return Vocabulary.terms(from: text)
+    }
+
+    @objc private func copyLastTranscript() {
+        guard let transcript = lastTranscript else { return }
+        // Cancel the pending restore first: it would overwrite this a moment
+        // later, and the user would see the click do nothing.
+        clipboardRestore.cancel()
+        let board = NSPasteboard.general
+        board.clearContents()
+        board.setString(transcript, forType: .string)
+        appLog("last transcript copied to the clipboard")
     }
 }

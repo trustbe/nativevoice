@@ -120,8 +120,25 @@ public final class Log {
 }
 
 extension Log {
-    public static let shared = Log(
-        path: NSString(string: "~/Library/Logs/NativeVoice.log").expandingTildeInPath)
+    /// Where the log goes.
+    ///
+    /// An override exists so a test run cannot write into the file the user is
+    /// reading. During live debugging, parser tests logged `HTTP 401 Invalid
+    /// API key` and `502 Bad Gateway` into the user's own log at the exact
+    /// moment they were dictating — and those lines looked exactly like real
+    /// failures of their app.
+    public static func defaultPath(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        home: String = NSHomeDirectory()
+    ) -> String {
+        if let override = environment["NATIVEVOICE_LOG"]?
+            .trimmingCharacters(in: .whitespacesAndNewlines), !override.isEmpty {
+            return override
+        }
+        return home + "/Library/Logs/NativeVoice.log"
+    }
+
+    public static let shared = Log(path: defaultPath())
 }
 
 /// Shorthand used throughout the app.
