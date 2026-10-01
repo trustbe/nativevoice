@@ -25,12 +25,17 @@ APP="$OUT/NativeVoice.app"
 rm -rf "$OUT"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-# Two single-architecture builds joined with lipo. `swift build --arch`
-# always routes through XCBuild, which cannot initialize without a full
-# Xcode.app — on a Command Line Tools machine it fails outright. Building
-# each triple separately uses the native build system, which works.
-SB=(swift build -c release --build-system native --package-path "$ROOT")
+# Two single-architecture builds joined with lipo, rather than
+# `swift build --arch`. Separate triples are explicit about the deployment
+# target, and the lipo result is checked below: a binary that claimed to be
+# universal but was not has already shipped once in this project's
+# predecessor.
+SB=(swift build -c release --package-path "$ROOT")
 
+# Each architecture is built, then the same command is repeated with
+# --show-bin-path purely to learn where the product landed. The second call
+# is a no-op against an up-to-date build, and asking the tool for the path
+# beats hardcoding .build/<triple>/release, which is not a documented layout.
 echo "▸ building arm64"
 "${SB[@]}" --triple arm64-apple-macosx13.0
 ARM="$("${SB[@]}" --triple arm64-apple-macosx13.0 --show-bin-path)"
@@ -43,14 +48,14 @@ echo "▸ joining into a universal binary"
 lipo -create "$ARM/NativeVoice" "$X86/NativeVoice" \
      -output "$APP/Contents/MacOS/NativeVoice"
 ARCHS="$(lipo -archs "$APP/Contents/MacOS/NativeVoice")"
-echo "   architektury: $ARCHS"
+echo "   architectures: $ARCHS"
 case "$ARCHS" in
     *arm64*) ;;
-    *) echo "arm64 chybi v hotove binarce" >&2; exit 1 ;;
+    *) echo "arm64 missing from the finished binary" >&2; exit 1 ;;
 esac
 case "$ARCHS" in
     *x86_64*) ;;
-    *) echo "x86_64 chybi v hotove binarce" >&2; exit 1 ;;
+    *) echo "x86_64 missing from the finished binary" >&2; exit 1 ;;
 esac
 
 echo "▸ Info.plist ($VERSION / $BUILD)"

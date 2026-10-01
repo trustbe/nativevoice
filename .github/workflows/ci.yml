@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: swift build --build-system native
-      # Stejny skript jako lokalne, aby CI zkouselo totez co vyvojar.
+        run: swift build
+      # The same script as locally, so CI exercises what the developer does.
       - name: Test
         run: ./Scripts/test.sh

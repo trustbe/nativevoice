@@ -1,24 +1,14 @@
 #!/bin/bash
 # Runs the test suite.
 #
-# Two flags this machine cannot do without, both verified by measurement:
+# One command, identical locally and in CI, so a green build here means the
+# same thing as a green build there.
 #
-#   --build-system native   The default build system (XCBuild) cannot even
-#                           initialize without a full Xcode.app — it fails
-#                           with "Could not initialize build system". The
-#                           native one works. It is deprecated upstream; when
-#                           it goes away, Xcode becomes a requirement.
-#
-#   -F …/Developer/Frameworks   Testing.framework ships with the Command Line
-#                           Tools but sits outside the default search path.
-#                           XCTest.framework is not there at all, which is why
-#                           the tests use swift-testing.
+# The tests use swift-testing (`import Testing`), not XCTest. Both ship with
+# Xcode and the two can coexist in one target, but swift-testing also works
+# on a machine that only has the Command Line Tools — where XCTest.framework
+# is absent entirely. Choosing it costs nothing and removes a dependency on
+# a full Xcode install.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FRAMEWORKS=/Library/Developer/CommandLineTools/Library/Developer/Frameworks
-
-exec swift test \
-    --package-path "$ROOT" \
-    --build-system native \
-    -Xswiftc -F -Xswiftc "$FRAMEWORKS" \
-    "$@"
+exec swift test --package-path "$ROOT" "$@"
