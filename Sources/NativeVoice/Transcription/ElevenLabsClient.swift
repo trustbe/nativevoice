@@ -44,9 +44,21 @@ struct ElevenLabsClient: Transcriber {
     /// The account's own accounting. Fetched only when someone opens the menu:
     /// it costs a request, and nobody is looking at it the rest of the time.
     static func usage(key: String) async -> UsageStats.Snapshot? {
-        guard !key.isEmpty,
-              let url = URL(string: "https://api.elevenlabs.io/v1/usage/character-stats"
-                                  + "?breakdown_type=request_queue")
+        guard !key.isEmpty else { return nil }
+
+        // start_unix and end_unix are required and are MILLISECONDS, not
+        // seconds — omitting them is an HTTP 422, which is how this was found.
+        // breakdown_type=product_type is what makes the response carry an
+        // "STT" series; the other breakdowns group by something else and the
+        // parser finds nothing.
+        let now = Date()
+        let from = now.addingTimeInterval(-2000 * 86_400)
+        func milliseconds(_ date: Date) -> Int { Int(date.timeIntervalSince1970 * 1000) }
+
+        guard let url = URL(string: "https://api.elevenlabs.io/v1/usage/character-stats"
+                                  + "?start_unix=\(milliseconds(from))"
+                                  + "&end_unix=\(milliseconds(now))"
+                                  + "&breakdown_type=product_type")
         else { return nil }
         var request = URLRequest(url: url)
         request.setValue(key, forHTTPHeaderField: "xi-api-key")
@@ -54,7 +66,7 @@ struct ElevenLabsClient: Transcriber {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let code = (response as? HTTPURLResponse)?.statusCode,
                !(200..<300).contains(code) {
-                appLog("usage: HTTP \(code)")
+                appLog("usage: HTTP \(code) — \(url.query ?? "no query")")
                 return nil
             }
             return UsageStats.snapshot(from: data)
