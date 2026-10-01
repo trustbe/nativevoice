@@ -164,4 +164,34 @@ import Testing
                                          .server("boom")]
         for e in all { #expect(!(e.userMessage.isEmpty), "\(e)") }
     }
+
+    @Test func unparseableBodyNeverLeaksDictatedWordsToTheLog() throws {
+        // A truncated *success* response: it starts exactly like a real one,
+        // `{"language_code":"cs","text":"…`, but the cut-off means it is not
+        // valid JSON, so `parse` falls into its failure-logging path. Real
+        // spoken words sit right at the front of the body, and the log must
+        // never show them — History is off by default for exactly this
+        // reason, and a log line would quietly defeat that.
+        let fm = FileManager.default
+        let path = Log.defaultPath()
+        var before = 0
+        if let attrs = try? fm.attributesOfItem(atPath: path),
+           let size = attrs[.size] as? Int {
+            before = size
+        }
+
+        let data = Data(#"{"language_code":"cs","text":"tajneSlovo odhaleno"#.utf8)
+        _ = ElevenLabsResponse.parse(data: data, httpStatus: 200)
+        Log.shared.drain()
+
+        let fullData = fm.contents(atPath: path) ?? Data()
+        let appendedData = fullData.count > before ? fullData.suffix(from: before) : Data()
+        let appended = String(decoding: appendedData, as: UTF8.self)
+
+        #expect(!appended.contains("tajneSlovo"))
+        #expect(!appended.contains("odhaleno"))
+        // The length and status are still worth having for diagnosis.
+        #expect(appended.contains("\(data.count)"))
+        #expect(appended.contains("200"))
+    }
 }

@@ -135,10 +135,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.image = image
     }
 
-    private func buildMenu() -> NSMenu {
-        let menu = NSMenu()
-        menu.delegate = self
+    private func rebuildMenu() {
+        // Updated in place rather than replaced: this runs from inside
+        // `menuWillOpen` too, and the menu the system is about to display is
+        // already `statusItem.menu` by the time that delegate call happens.
+        // Swapping in a different `NSMenu` instance there does not change
+        // what gets shown for that opening — AppKit already captured the old
+        // one — so the existing object's items are cleared and rebuilt
+        // instead.
+        let menu = statusItem.menu ?? {
+            let menu = NSMenu()
+            menu.delegate = self
+            statusItem.menu = menu
+            return menu
+        }()
+        populate(menu)
+    }
+
+    private func populate(_ menu: NSMenu) {
+        menu.removeAllItems()
         menu.addItem(hintItem())
+        // Re-read every time this is built, not cached from launch: both
+        // permissions can be granted or revoked while the app keeps running,
+        // and the menu is the only place either fact is surfaced.
+        if !AXIsProcessTrusted() {
+            // Without Accessibility, `Paste.deliver` copies, synthesises a
+            // ⌘V the system drops, and 1.2 s later restores the old
+            // clipboard — a success sound with no pasted text and nothing
+            // in the menu to say why.
+            menu.addItem(actionItem(
+                String(localized: "Allow Accessibility to paste automatically",
+                      bundle: .module),
+                #selector(openAccessibilitySettings)))
+        }
         menu.addItem(.separator())
 
         // In memory only, and the only way back to it while history is off:
@@ -202,7 +231,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                 #selector(openLog)))
         menu.addItem(actionItem(String(localized: "Settings…", bundle: .module),
                                 #selector(openSettings), keyEquivalent: ","))
-        menu.addItem(loginItem())
+        loginItem().forEach { menu.addItem($0) }
         menu.addItem(.separator())
 
         menu.addItem(actionItem(String(localized: "About NativeVoice…", bundle: .module),
@@ -210,7 +239,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
-        return menu
     }
 
     private func hintItem() -> NSMenuItem {
@@ -334,29 +362,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return parent
     }
 
-    private func loginItem() -> NSMenuItem {
+    /// Returns one row for "on" and "off", but two for "needs approval": the
+    /// explanatory row stays, and underneath it a real toggle — bound to the
+    /// same `toggleLoginItem(_:)` as the other two states — so the feature
+    /// can be turned back off without a trip to System Settings.
+    private func loginItem() -> [NSMenuItem] {
         switch LoginItemState.from(rawStatus: SMAppService.mainApp.status.rawValue) {
         case .needsApproval:
-            return actionItem(
-                String(localized: "Launch at Login — Approve in Settings…", bundle: .module),
-                #selector(openLoginItemSettings))
+            return [
+                actionItem(
+                    String(localized: "Launch at Login — Approve in Settings…",
+                          bundle: .module),
+                    #selector(openLoginItemSettings)),
+                toggleItem(String(localized: "Launch at login", bundle: .module),
+                          #selector(toggleLoginItem(_:)), true),
+            ]
         case .on:
-            return toggleItem(String(localized: "Launch at login", bundle: .module),
-                              #selector(toggleLoginItem(_:)), true)
+            return [toggleItem(String(localized: "Launch at login", bundle: .module),
+                              #selector(toggleLoginItem(_:)), true)]
         case .off:
-            return toggleItem(String(localized: "Launch at login", bundle: .module),
-                              #selector(toggleLoginItem(_:)), false)
+            return [toggleItem(String(localized: "Launch at login", bundle: .module),
+                              #selector(toggleLoginItem(_:)), false)]
         }
-    }
-
-    private func rebuildMenu() {
-        statusItem?.menu = buildMenu()
     }
 
     // MARK: - NSMenuDelegate
 
     func menuWillOpen(_ menu: NSMenu) {
         refreshUsage()
+        // Every status read in here — login item, Accessibility, the API
+        // key — can go stale while the app sits in the background, so the
+        // whole menu is rebuilt on every open rather than only when a menu
+        // action changes something.
+        rebuildMenu()
     }
 
     private func refreshUsage() {
@@ -473,6 +511,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSWorkspace.shared.open(url)
     }
 
+    @objc private func openAccessibilitySettings() {
+        let url = URL(string:
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        NSWorkspace.shared.open(url)
+    }
+
     @objc private func selectTriggerKey(_ item: NSMenuItem) {
         guard let raw = item.representedObject as? String,
               let key = TriggerKey(rawValue: raw) else { return }
@@ -524,6 +568,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func copyHistoryItem(_ item: NSMenuItem) {
         guard let text = item.representedObject as? String else { return }
+        // Cancel the pending restore first: it would overwrite this a moment
+        // later, and the user would see the click do nothing. Same as
+        // `copyLastTranscript`, below.
+        clipboardRestore.cancel()
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
     }
@@ -549,10 +597,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleLoginItem(_ item: NSMenuItem) {
         let service = SMAppService.mainApp
         do {
-            if LoginItemState.from(rawStatus: service.status.rawValue) == .on {
-                try service.unregister()
-            } else {
+            // `.needsApproval` counts as "on" here too: it is what the extra
+            // toggle row under "Approve in Settings…" is wired to, and its
+            // whole point is letting that state be turned back off again.
+            if LoginItemState.from(rawStatus: service.status.rawValue) == .off {
                 try service.register()
+            } else {
+                try service.unregister()
             }
         } catch {
             appLog("launch at login: \(error.localizedDescription)")
@@ -689,16 +740,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
             await MainActor.run {
                 self.state = .idle
+                // Setting `state` above can, through its own `didSet`,
+                // synchronously start the *next* recording right here — that
+                // is what a hold for sentence two that arrived while this
+                // one was still transcribing is waiting for. When that
+                // happens `state` is no longer `.idle` by the time execution
+                // reaches here, and showing an error HUD for sentence one
+                // would overwrite the HUD the recording just put up. So the
+                // ordinary case (still `.idle`) is unaffected, and the
+                // overlapping case simply skips the error display.
                 switch outcome {
                 case .failure(let error):
                     appLog("error: \(error.userMessage)")
-                    self.hud.showError(error.userMessage)
+                    if self.state == .idle { self.hud.showError(error.userMessage) }
                 case .text(let text) where text.isEmpty:
                     appLog(peak < -55 ? "empty transcript — the input was silent"
                                    : "empty transcript although there was sound")
-                    self.hud.showError(peak < -55
-                        ? String(localized: "Nothing was heard.", bundle: .module)
-                        : String(localized: "Nothing was recognized.", bundle: .module))
+                    if self.state == .idle {
+                        self.hud.showError(peak < -55
+                            ? String(localized: "Nothing was heard.", bundle: .module)
+                            : String(localized: "Nothing was recognized.", bundle: .module))
+                    }
                 case .text(let text):
                     self.lastTranscript = text
                     self.history.record(text)
