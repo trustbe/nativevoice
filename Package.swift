@@ -15,7 +15,8 @@ let package = Package(
         .executableTarget(
             name: "NativeVoice",
             dependencies: ["NativeVoiceCore"],
-            exclude: ["Resources/Info.plist"]
+            exclude: ["Resources/Info.plist"],
+            resources: [.process("Resources/Localizable.xcstrings")]
         ),
         .testTarget(name: "NativeVoiceCoreTests", dependencies: ["NativeVoiceCore"]),
     ]

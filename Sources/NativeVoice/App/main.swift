@@ -1,26 +1,15 @@
 import AppKit
 
-/// Menu bar only. A Dock icon and a window at launch would both be wrong
-/// for a utility that is driven entirely by one held key.
-final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var statusItem: NSStatusItem!
-
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "mic",
-                                           accessibilityDescription: "NativeVoice")
-        statusItem.button?.image?.isTemplate = true
-
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Quit NativeVoice",
-                                action: #selector(NSApplication.terminate(_:)),
-                                keyEquivalent: "q"))
-        statusItem.menu = menu
-    }
+// `MainActor.assumeIsolated` rather than a bare call: the top-level code of
+// a main.swift executable runs on the main thread but is not inferred as
+// MainActor-isolated by the compiler, so a synchronous call into the
+// MainActor-isolated AppDelegate needs this assertion. It is a runtime
+// assertion of a fact that is true by construction here — this is the
+// process's main thread — not a workaround of an actual race.
+MainActor.assumeIsolated {
+    let app = NSApplication.shared
+    let delegate = AppDelegate()
+    app.delegate = delegate
+    app.setActivationPolicy(.accessory)
+    app.run()
 }
-
-let app = NSApplication.shared
-let delegate = AppDelegate()
-app.delegate = delegate
-app.setActivationPolicy(.accessory)
-app.run()
