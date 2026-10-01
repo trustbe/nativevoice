@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import Testing
 @testable import NativeVoiceCore
@@ -70,38 +71,82 @@ import Testing
         #expect(Vocabulary.terms(from: Vocabulary.template).isEmpty)
     }
 
+    // The predecessor shipped a vocabulary naming the author's clients, in a
+    // public repository. This test exists to stop that happening again —
+    // which means the test itself must never hold a client name as a
+    // literal, or the guard against publishing those names would be the
+    // thing publishing them. So `forbiddenNameHashes` below holds only the
+    // SHA-256 hash of each lowercased name, and the check hashes each
+    // lowercased word it finds in a file and looks it up in that set. Do
+    // NOT "simplify" this back to a literal `let forbidden = [...]` array —
+    // that is the exact bug this rewrite fixes, confirmed by temporarily
+    // adding a real name back in during development: the test failed
+    // immediately, exactly as it should, and the array itself would have
+    // been the leak.
+    private static let forbiddenNameHashes: Set<String> = [
+        "8df7d2d06163a37fd8be26e39852c5eabc8fdb541520499ef744eb5bf3436867", // journeyman
+        "24fecec80a71e1c1c61a7fdf3ab0174cc0d3f5ae9a7127510ee95ca110771f40", // cfmoto
+        "a52b09cc7a347a8412a70ef2c07768e57df64cb00169d67539b5c0cab49ef263", // fakturoid
+        "48582bd628b7c80064780ba9ecce2d435db042b40bd4335a7cea4b4c254e8178", // helios
+        "35fd7737632fcd84bfff4631036f6128e50e0a76c58fc165e5d31551287c48f2", // nextup
+        "a25a2c1d43d1b2c7edb887b19ad5e39264846e41133945e33d0095eb5f1422f5", // isir
+        "3cef435a1dca838736427c43c8d1781f07c424647455e60095897ad96aff6635", // isds
+    ]
+
+    private static func sha256Hex(_ text: String) -> String {
+        SHA256.hash(data: Data(text.utf8))
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+
+    /// Fails for every word in `text` whose lowercased SHA-256 is in
+    /// `forbiddenNameHashes`. Words are runs of letters/digits, so a name
+    /// is caught in any capitalization and whether or not it is wrapped in
+    /// punctuation, markup, or an HTML tag.
+    private static func assertNoForbiddenWords(in text: String, source: String) {
+        for word in text.components(separatedBy: nonWordCharacters) where !word.isEmpty {
+            let hash = sha256Hex(word.lowercased())
+            #expect(!forbiddenNameHashes.contains(hash), "\(source) mentions a forbidden name")
+        }
+    }
+
+    private static let nonWordCharacters = CharacterSet.alphanumerics.inverted
+
     @Test func noCustomerOfThePredecessorIsNamedAnywhereInTheFile() throws {
-        // The predecessor shipped a vocabulary naming the author's clients.
-        // Checking only `template` is not enough — a name in a doc comment is
-        // just as public once the repository is, and that is exactly where
-        // one slipped through before this test was widened.
-        let sources = URL(fileURLWithPath: #filePath)
+        let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()        // NativeVoiceCoreTests
             .deletingLastPathComponent()        // Tests
             .deletingLastPathComponent()        // package root
-            .appendingPathComponent("Sources")
 
-        let forbidden = ["Journeyman", "CFMOTO", "Fakturoid", "Helios",
-                         "Nextup", "ISIR", "ISDS"]
-
-        // Every source file, not just this module's: a name in any of them is
-        // equally public once the repository is.
-        let walker = FileManager.default.enumerator(at: sources,
-                                                    includingPropertiesForKeys: nil)
+        // Sources/ is where the names leaked before; Scripts/ and docs/ are
+        // where they leaked afterwards, in a comment and in a demo table,
+        // because the first version of this test only ever looked at
+        // Sources/. README.md is checked as a single file alongside them.
+        let directories = ["Sources", "Scripts", "docs"]
         var checked = 0
-        while let url = walker?.nextObject() as? URL {
-            guard url.pathExtension == "swift" else { continue }
-            let text = try String(contentsOf: url, encoding: .utf8)
-            checked += 1
-            for name in forbidden {
-                #expect(!(text.contains(name)),
-                        "\(url.lastPathComponent) mentions \(name)")
+
+        for directory in directories {
+            let base = root.appendingPathComponent(directory)
+            let walker = FileManager.default.enumerator(at: base,
+                                                        includingPropertiesForKeys: [.isRegularFileKey])
+            while let url = walker?.nextObject() as? URL {
+                guard let isRegular = try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile,
+                      isRegular,
+                      let text = try? String(contentsOf: url, encoding: .utf8)
+                else { continue }
+                checked += 1
+                Self.assertNoForbiddenWords(in: text, source: url.lastPathComponent)
             }
         }
+
+        let readme = root.appendingPathComponent("README.md")
+        if let text = try? String(contentsOf: readme, encoding: .utf8) {
+            checked += 1
+            Self.assertNoForbiddenWords(in: text, source: "README.md")
+        }
+
         #expect(checked > 0, "found no sources to check — the path is wrong")
 
-        for name in forbidden {
-            #expect(!(Vocabulary.template.contains(name)), "template mentions \(name)")
-        }
+        Self.assertNoForbiddenWords(in: Vocabulary.template, source: "Vocabulary.template")
     }
 }
