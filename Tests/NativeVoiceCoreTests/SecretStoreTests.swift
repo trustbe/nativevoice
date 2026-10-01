@@ -7,37 +7,53 @@ import Testing
 /// assert not only what came back but that nothing else was consulted.
 final class FakeKeychain: KeychainBackend, @unchecked Sendable {
     private let lock = NSLock()
-    private var stored: Data?
-    private(set) var readCount = 0
-    /// Forced status for the next read, used to simulate a locked keychain.
-    var readStatusOverride: OSStatus?
+    /// Keyed by service and account, like the real thing. A single slot would
+    /// not notice a store that queried the wrong account.
+    private var items: [String: Data] = [:]
+    private var reads = 0
+    private var forcedReadStatus: OSStatus?
+
+    var readCount: Int { lock.lock(); defer { lock.unlock() }; return reads }
+
+    func forceNextReads(_ status: OSStatus?) {
+        lock.lock(); forcedReadStatus = status; lock.unlock()
+    }
+
+    private func key(_ query: [String: Any]) -> String {
+        let service = query[kSecAttrService as String] as? String ?? "?"
+        let account = query[kSecAttrAccount as String] as? String ?? "?"
+        return "\(service)/\(account)"
+    }
 
     func copyMatching(_ query: [String: Any]) -> (status: OSStatus, data: Data?) {
         lock.lock(); defer { lock.unlock() }
-        readCount += 1
-        if let forced = readStatusOverride { return (forced, nil) }
-        guard let stored else { return (errSecItemNotFound, nil) }
-        return (errSecSuccess, stored)
+        reads += 1
+        if let forced = forcedReadStatus { return (forced, nil) }
+        guard let data = items[key(query)] else { return (errSecItemNotFound, nil) }
+        return (errSecSuccess, data)
     }
 
     func add(_ attributes: [String: Any]) -> OSStatus {
         lock.lock(); defer { lock.unlock() }
-        guard stored == nil else { return errSecDuplicateItem }
-        stored = attributes[kSecValueData as String] as? Data
+        let k = key(attributes)
+        guard items[k] == nil else { return errSecDuplicateItem }
+        items[k] = attributes[kSecValueData as String] as? Data
         return errSecSuccess
     }
 
     func update(_ query: [String: Any], _ attributes: [String: Any]) -> OSStatus {
         lock.lock(); defer { lock.unlock() }
-        guard stored != nil else { return errSecItemNotFound }
-        stored = attributes[kSecValueData as String] as? Data
+        let k = key(query)
+        guard items[k] != nil else { return errSecItemNotFound }
+        items[k] = attributes[kSecValueData as String] as? Data
         return errSecSuccess
     }
 
     func delete(_ query: [String: Any]) -> OSStatus {
         lock.lock(); defer { lock.unlock() }
-        guard stored != nil else { return errSecItemNotFound }
-        stored = nil
+        guard items.removeValue(forKey: key(query)) != nil else {
+            return errSecItemNotFound
+        }
         return errSecSuccess
     }
 }
@@ -106,6 +122,51 @@ final class FakeKeychain: KeychainBackend, @unchecked Sendable {
         #expect(fake.readCount > 0)     // it really did ask the backend
     }
 
+    @Test func theStoreHasExactlyOnePlaceToLookForAKey() throws {
+        // The invariant this whole file exists for, checked the only way that
+        // actually holds.
+        //
+        // A behavioural test cannot catch this, and it is worth being precise
+        // about why: a fallback that reads a file the test never created
+        // returns nothing, so the store still answers nil and the test still
+        // passes. The predecessor's bug — a stale key lying in a file from an
+        // earlier run — would come back invisible to a green suite.
+        //
+        // So this asks the source instead. Naming the APIs a second source
+        // would need is blunt, and that is the point: it fails loudly the
+        // moment one appears, and whoever has a good reason to add one has to
+        // come here and say so.
+        let source = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()        // NativeVoiceCoreTests
+            .deletingLastPathComponent()        // Tests
+            .deletingLastPathComponent()        // package root
+            .appendingPathComponent("Sources/NativeVoiceCore/Support/SecretStore.swift")
+        let text = try String(contentsOf: source, encoding: .utf8)
+
+        let waysToReadFromSomewhereElse = [
+            "contentsOfFile", "contentsOf:", "UserDefaults", "ProcessInfo",
+            "FileManager", "FileHandle", "NSHomeDirectory", "URLSession",
+            "Bundle.main",
+        ]
+        for api in waysToReadFromSomewhereElse {
+            #expect(!(text.contains(api)),
+                    "the Keychain must be the only source of the key — found \(api)")
+        }
+    }
+
+    @Test func aStoreNeverSeesAnotherStoresKey() {
+        // The fake keys on service and account, like the real Keychain does,
+        // so a store asking under the wrong name finds nothing. Without this
+        // the fake would hand any key to any query and a wrong-account bug
+        // would pass unnoticed.
+        let fake = FakeKeychain()
+        let ours = KeychainSecretStore(backend: fake)
+        let theirs = KeychainSecretStore(service: "com.example.other", backend: fake)
+        ours.save("sk_ours")
+        #expect(ours.apiKey() == "sk_ours")
+        #expect(theirs.apiKey() == nil)
+    }
+
     @Test func aFailedReadIsNotMistakenForNoKey() {
         // A locked keychain or a denied prompt must not be cached as "empty".
         let (store, fake) = makeStore()
@@ -113,9 +174,9 @@ final class FakeKeychain: KeychainBackend, @unchecked Sendable {
         _ = store.apiKey()
 
         let (store2, fake2) = (KeychainSecretStore(backend: fake), fake)
-        fake2.readStatusOverride = errSecInteractionNotAllowed
+        fake2.forceNextReads(errSecInteractionNotAllowed)
         #expect(store2.apiKey() == nil)
-        fake2.readStatusOverride = nil
+        fake2.forceNextReads(nil)
         // A fresh store must find the key again — the failure was transient
         // and must not have destroyed anything.
         let store3 = KeychainSecretStore(backend: fake2)
