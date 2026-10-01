@@ -1,8 +1,8 @@
-import XCTest
+import Testing
 @testable import NativeVoiceCore
 
-final class PlaceholderTests: XCTestCase {
-    func testTargetCompilesAndTestsRun() {
-        XCTAssertEqual(Placeholder.marker, "nativevoice")
+@Suite struct PlaceholderTests {
+    @Test func targetCompilesAndTestsRun() {
+        #expect(Placeholder.marker == "nativevoice")
     }
 }

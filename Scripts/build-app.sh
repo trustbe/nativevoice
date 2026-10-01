@@ -25,10 +25,33 @@ APP="$OUT/NativeVoice.app"
 rm -rf "$OUT"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-echo "▸ building universal binary"
-swift build -c release --arch arm64 --arch x86_64 --package-path "$ROOT"
-BIN="$(swift build -c release --arch arm64 --arch x86_64 --package-path "$ROOT" --show-bin-path)"
-cp "$BIN/NativeVoice" "$APP/Contents/MacOS/NativeVoice"
+# Two single-architecture builds joined with lipo. `swift build --arch`
+# always routes through XCBuild, which cannot initialize without a full
+# Xcode.app — on a Command Line Tools machine it fails outright. Building
+# each triple separately uses the native build system, which works.
+SB=(swift build -c release --build-system native --package-path "$ROOT")
+
+echo "▸ building arm64"
+"${SB[@]}" --triple arm64-apple-macosx13.0
+ARM="$("${SB[@]}" --triple arm64-apple-macosx13.0 --show-bin-path)"
+
+echo "▸ building x86_64"
+"${SB[@]}" --triple x86_64-apple-macosx13.0
+X86="$("${SB[@]}" --triple x86_64-apple-macosx13.0 --show-bin-path)"
+
+echo "▸ joining into a universal binary"
+lipo -create "$ARM/NativeVoice" "$X86/NativeVoice" \
+     -output "$APP/Contents/MacOS/NativeVoice"
+ARCHS="$(lipo -archs "$APP/Contents/MacOS/NativeVoice")"
+echo "   architektury: $ARCHS"
+case "$ARCHS" in
+    *arm64*) ;;
+    *) echo "arm64 chybi v hotove binarce" >&2; exit 1 ;;
+esac
+case "$ARCHS" in
+    *x86_64*) ;;
+    *) echo "x86_64 chybi v hotove binarce" >&2; exit 1 ;;
+esac
 
 echo "▸ Info.plist ($VERSION / $BUILD)"
 cp "$ROOT/Sources/NativeVoice/Resources/Info.plist" "$APP/Contents/Info.plist"
@@ -36,7 +59,7 @@ cp "$ROOT/Sources/NativeVoice/Resources/Info.plist" "$APP/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$APP/Contents/Info.plist"
 
 # Resource bundles produced by SwiftPM (String Catalog) sit next to the binary.
-for b in "$BIN"/*.bundle; do
+for b in "$ARM"/*.bundle; do
     [ -e "$b" ] && cp -R "$b" "$APP/Contents/Resources/"
 done
 
