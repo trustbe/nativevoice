@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem!
     private let recorder = Recorder()
+    private let hud = HUD()
     private let secrets = KeychainSecretStore()
     private lazy var transcriber: Transcriber = ElevenLabsClient(secrets: secrets)
     private let clipboardRestore = ClipboardRestore()
@@ -18,6 +19,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var state: State = .idle {
         didSet {
             updateStatusIcon()
+            switch state {
+            case .recording:    hud.showRecording()
+            case .transcribing: hud.showTranscribing()
+            case .idle:         hud.hide()
+            }
             // A hold that began while the previous utterance was still being
             // transcribed waits here rather than being thrown away.
             if state == .idle, startWhenIdle {
@@ -157,7 +163,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func pressed() {
         appLog("\(hold.key.rawValue) pressed")
-        recorder.onLevel = { _ in }     // HUD arrives in plan 2
+        recorder.onLevel = { [weak self] decibels in
+            self?.hud.setLevel(decibels: decibels)
+        }
         recorder.warmUp()
         let work = DispatchWorkItem { [weak self] in
             guard let self, self.hold.isHolding else { return }
@@ -259,9 +267,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 switch outcome {
                 case .failure(let error):
                     appLog("error: \(error.userMessage)")
+                    self.hud.showError(error.userMessage)
                 case .text(let text) where text.isEmpty:
                     appLog(peak < -55 ? "empty transcript — the input was silent"
                                    : "empty transcript although there was sound")
+                    self.hud.showError(peak < -55
+                        ? String(localized: "Nothing was heard.", bundle: .module)
+                        : String(localized: "Nothing was recognized.", bundle: .module))
                 case .text(let text):
                     Paste.deliver(text, autoPaste: true, restore: self.clipboardRestore)
                 }

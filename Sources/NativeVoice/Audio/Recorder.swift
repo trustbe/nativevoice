@@ -19,17 +19,14 @@ final class Recorder {
     private var writing = false
     private var peak: Float = -200
 
-    /// Normalized 0…1 level for the meter.
-    var onLevel: ((Double) -> Void)?
+    /// Input level in dB, reported continuously. Raw, not normalized — the
+    /// scaling belongs to `LevelHistory`, where it is tested.
+    var onLevel: ((Float) -> Void)?
 
     /// Loudest point since writing began, in dB. When a transcript comes back
     /// empty this is the only thing that tells silence on the input apart from
     /// speech the model did not recognize.
     var peakDecibels: Float { lock.lock(); defer { lock.unlock() }; return peak }
-
-    private let floorDb: Float = -72
-    private var ceilDb: Float = -38
-    private let ceilFloor: Float = -50
 
     func warmUp() {
         guard !running else { return }
@@ -63,13 +60,7 @@ final class Recorder {
                 self.lock.unlock()
             }
 
-            // The ceiling follows recent peaks so the meter stays lively on a
-            // quiet microphone instead of sitting flat.
-            if db > self.ceilDb { self.ceilDb = db }
-            else { self.ceilDb = max(self.ceilFloor, self.ceilDb - 0.06) }
-            let span = max(6, self.ceilDb - self.floorDb)
-            let level = Double(max(0, min(1, (db - self.floorDb) / span)))
-            DispatchQueue.main.async { self.onLevel?(level) }
+            DispatchQueue.main.async { self.onLevel?(db) }
         }
 
         do {
