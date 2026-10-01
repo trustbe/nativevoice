@@ -127,8 +127,13 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
             stack.leadingAnchor.constraint(equalTo: content.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: content.trailingAnchor),
             stack.topAnchor.constraint(equalTo: content.topAnchor),
+            // Pinning the bottom too is what makes the window take its height
+            // from what is in it. Without it the stack simply ran past the
+            // fixed 300pt frame and the last rows were cut off the window.
+            stack.bottomAnchor.constraint(equalTo: content.bottomAnchor),
         ])
         w.contentView = content
+        w.setContentSize(content.fittingSize)
         window = w
     }
 
