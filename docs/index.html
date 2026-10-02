@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NativeVoice — dictation for the other 36 languages</title>
-<meta name="description" content="Mac dictation for people who don't dictate in English. 36 languages, hold-to-talk, your own ElevenLabs key, pennies per use.">
+<meta name="description" content="Mac dictation for people who don't dictate in English. Built on the ElevenLabs Scribe API, which handled minor languages better than anything else I tried. 36 languages, hold-to-talk, cents per use.">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon-large.png">
 <meta property="og:title" content="NativeVoice">
@@ -52,6 +52,11 @@ h1{margin:0 auto 20px; font-weight:800; letter-spacing:-1.6px;
 .who{margin:0 auto 34px; max-width:46ch; font-size:19px; line-height:1.55;
   color:var(--ink-2); text-wrap:pretty}
 .who b{color:var(--ink); font-weight:600}
+
+.why{margin:0 auto 32px; max-width:48ch; font-size:16px; line-height:1.6;
+  color:var(--ink-2); text-wrap:pretty;
+  border-left:2px solid var(--accent); padding-left:18px; text-align:left}
+.why b{color:var(--ink); font-weight:600}
 
 .cta{display:flex; gap:11px; justify-content:center; flex-wrap:wrap}
 a.btn{display:inline-block; padding:14px 28px; border-radius:11px; font-size:15.5px;
@@ -127,6 +132,10 @@ footer img{width:22px; height:22px; border-radius:5px}
   <p class="who">If you dictate in <b>Czech, Polish, Ukrainian, Greek</b> or thirty-two other
     languages, macOS has never really had you covered. NativeVoice is built the other way round:
     hold a key, speak, let go, and the text appears where your cursor is.</p>
+  <p class="why">Built on the <b>ElevenLabs Scribe</b> API. I tried the alternatives on the
+    languages I actually dictate in, and this was the one that got them right — reliably, and
+    accurately enough to trust. It costs cents.</p>
+
   <div class="cta">
     <a class="btn" href="https://github.com/trustbe/nativevoice/releases/latest">Download for macOS</a>
     <a class="btn ghost" href="https://github.com/trustbe/nativevoice">Source</a>
