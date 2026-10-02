@@ -43,6 +43,31 @@ struct ElevenLabsClient: Transcriber {
 
     /// The account's own accounting. Fetched only when someone opens the menu:
     /// it costs a request, and nobody is looking at it the rest of the time.
+    /// The plan's quota for the current billing period.
+    ///
+    /// A separate endpoint from the daily statistics, and necessarily so: the
+    /// buckets can be summed over the last N days, but a billing period does
+    /// not begin N days ago, and the number on the bill is this one.
+    static func subscription(key: String) async -> UsageStats.Subscription? {
+        guard !key.isEmpty,
+              let url = URL(string: "https://api.elevenlabs.io/v1/user/subscription")
+        else { return nil }
+        var request = URLRequest(url: url)
+        request.setValue(key, forHTTPHeaderField: "xi-api-key")
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let code = (response as? HTTPURLResponse)?.statusCode,
+               !(200..<300).contains(code) {
+                appLog("subscription: HTTP \(code)")
+                return nil
+            }
+            return UsageStats.subscription(from: data)
+        } catch {
+            appLog("subscription: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
     static func usage(key: String) async -> UsageStats.Snapshot? {
         guard !key.isEmpty else { return nil }
 

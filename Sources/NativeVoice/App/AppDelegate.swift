@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private static let homepage = "https://github.com/trustbe/nativevoice"
     private static let donate = "https://buymeacoffee.com/jenicek666"
+    private static let website = "https://nativevoice.trustbe.com"
 
     private var statusItem: NSStatusItem!
     private let recorder = Recorder()
@@ -17,10 +18,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private lazy var transcriber: Transcriber = ElevenLabsClient(secrets: secrets)
     private let clipboardRestore = ClipboardRestore()
     private let preferences = Preferences()
-    private lazy var settings = SettingsWindow(
-        preferences: preferences, secrets: secrets) { [weak self] in
-            self?.applyPreferences()
-        }
+    private lazy var keyWindow = KeyWindow(secrets: secrets) { [weak self] in
+        self?.applyPreferences()
+    }
 
     /// The most recent transcript, kept so it can be recovered.
     ///
@@ -38,7 +38,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var hold = HoldTracker(key: .default)
     private let history = History()
     private var usageSnapshot: UsageStats.Snapshot?
-    private weak var usageMenuItem: NSMenuItem?
+    private var subscription: UsageStats.Subscription?
+    private weak var todayMenuItem: NSMenuItem?
+    private weak var periodMenuItem: NSMenuItem?
     private var usageFetchedAt: Date?
     private var state: State = .idle {
         didSet {
@@ -155,55 +157,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func populate(_ menu: NSMenu) {
         menu.removeAllItems()
+
+        // Ordered the way a macOS menu is: how to use it at the top, the
+        // things you do with it next, the settings you change after that, and
+        // everything belonging to the app itself at the bottom with Quit last.
+        //
+        // The version, the usage figures and the API key used to sit third
+        // from the top — above every row anyone actually opens this menu for.
+        // They are account administration; they are now where that belongs.
+
         menu.addItem(hintItem())
-        // Re-read every time this is built, not cached from launch: both
-        // permissions can be granted or revoked while the app keeps running,
-        // and the menu is the only place either fact is surfaced.
         if !AXIsProcessTrusted() {
-            // Without Accessibility, `Paste.deliver` copies, synthesises a
-            // ⌘V the system drops, and 1.2 s later restores the old
-            // clipboard — a success sound with no pasted text and nothing
-            // in the menu to say why.
             menu.addItem(actionItem(
                 String(localized: "Allow Accessibility to paste automatically",
-                      bundle: .module),
+                       bundle: .module),
                 #selector(openAccessibilitySettings)))
         }
         menu.addItem(.separator())
 
-        // In memory only, and the only way back to it while history is off:
-        // see where `lastTranscript` is declared for why it is never written
-        // to disk.
+        // What you do with it.
         if let transcript = lastTranscript {
             let item = actionItem(String(localized: "Copy Last Transcript", bundle: .module),
                                   #selector(copyLastTranscript))
             item.toolTip = transcript
             menu.addItem(item)
-            menu.addItem(.separator())
         }
-
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
-            as? String ?? "?"
-        menu.addItem(disabledItem(String(localized: "Version \(version)", bundle: .module)))
-
-        let usage = disabledItem(UsageStats.menuTitle(for: usageSnapshot))
-        usageMenuItem = usage
-        menu.addItem(usage)
-
-        menu.addItem(keyStatusItem())
-        menu.addItem(actionItem(secrets.hasKey
-            ? String(localized: "Change API key…", bundle: .module)
-            : String(localized: "Set API key…", bundle: .module),
-            #selector(openSettings)))
-        menu.addItem(actionItem(String(localized: "Check for updates…", bundle: .module),
-                                #selector(checkForUpdates)))
+        menu.addItem(historyItem())
         menu.addItem(.separator())
 
-        menu.addItem(choiceItem(
-            String(localized: "Trigger Key", bundle: .module),
-            TriggerKey.allCases.map { ($0.menuTitle, $0.rawValue as Any, $0 == hold.key) },
-            #selector(selectTriggerKey(_:))))
-
+        // What you change.
         menu.addItem(choiceItem(
             String(localized: "Language", bundle: .module),
             Language.sortedForDisplay().map {
@@ -212,36 +194,76 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             #selector(selectLanguage(_:))))
 
         menu.addItem(choiceItem(
+            String(localized: "Trigger Key", bundle: .module),
+            TriggerKey.allCases.map { ($0.menuTitle, $0.rawValue as Any, $0 == hold.key) },
+            #selector(selectTriggerKey(_:))))
+
+        menu.addItem(choiceItem(
             String(localized: "Max Recording Length", bundle: .module),
             RecordingLimit.allCases.map {
                 ($0.menuTitle, $0.rawValue as Any, $0 == preferences.recordingLimit)
             },
             #selector(selectRecordingLimit(_:))))
 
-        menu.addItem(historyItem())
+        menu.addItem(actionItem(String(localized: "Edit vocabulary…", bundle: .module),
+                                #selector(openVocabulary)))
+        menu.addItem(.separator())
 
+        // Switches, together, because they are read as a set.
         menu.addItem(toggleItem(String(localized: "Play sounds", bundle: .module),
                                 #selector(togglePlaySounds(_:)), preferences.playSounds))
         menu.addItem(toggleItem(String(localized: "Paste automatically", bundle: .module),
                                 #selector(toggleAutoPaste(_:)), preferences.autoPaste))
         menu.addItem(toggleItem(String(localized: "Remove filler words", bundle: .module),
                                 #selector(toggleRemoveFillers(_:)), preferences.removeFillers))
+        // Returns two rows when macOS is waiting for approval: the one that
+        // opens Settings, and a real toggle, so it can still be switched off.
+        for item in loginItem() { menu.addItem(item) }
         menu.addItem(.separator())
 
-        menu.addItem(actionItem(String(localized: "Edit vocabulary…", bundle: .module),
-                                #selector(openVocabulary)))
-        menu.addItem(actionItem(String(localized: "Open log", bundle: .module),
-                                #selector(openLog)))
-        menu.addItem(actionItem(String(localized: "Settings…", bundle: .module),
-                                #selector(openSettings), keyEquivalent: ","))
-        loginItem().forEach { menu.addItem($0) }
-        menu.addItem(.separator())
-
+        // The app and the account.
+        menu.addItem(accountItem())
         menu.addItem(actionItem(String(localized: "About NativeVoice…", bundle: .module),
                                 #selector(showAbout)))
+        menu.addItem(actionItem(String(localized: "Check for updates…", bundle: .module),
+                                #selector(checkForUpdates)))
+        menu.addItem(actionItem(String(localized: "Open log", bundle: .module),
+                                #selector(openLog)))
+        menu.addItem(.separator())
+
         menu.addItem(NSMenuItem(title: String(localized: "Quit NativeVoice", bundle: .module),
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
+    }
+
+    /// Everything about the ElevenLabs account, under its own name.
+    ///
+    /// A submenu rather than four rows in the main one: these are read
+    /// occasionally and the main menu is read constantly. Its own heading also
+    /// settles whose credits these are — a bare "Today: 13 credits" in an
+    /// app's menu reads as if the app were charging for something.
+    private func accountItem() -> NSMenuItem {
+        let parent = NSMenuItem(title: String(localized: "ElevenLabs account", bundle: .module),
+                                action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        let today = disabledItem(UsageStats.todayTitle(for: usageSnapshot))
+        todayMenuItem = today
+        submenu.addItem(today)
+
+        let period = disabledItem(UsageStats.periodTitle(for: subscription))
+        periodMenuItem = period
+        submenu.addItem(period)
+
+        submenu.addItem(.separator())
+        submenu.addItem(keyStatusItem())
+        submenu.addItem(actionItem(secrets.hasKey
+            ? String(localized: "Change API key…", bundle: .module)
+            : String(localized: "Set API key…", bundle: .module),
+            #selector(openKeyWindow)))
+
+        parent.submenu = submenu
+        return parent
     }
 
     private func hintItem() -> NSMenuItem {
@@ -274,6 +296,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item = disabledItem(String(localized: "No API key — dictation is off",
                                        bundle: .module))
         }
+        return item
+    }
+
+    private func indented(_ item: NSMenuItem) -> NSMenuItem {
+        item.indentationLevel = 1
         return item
     }
 
@@ -406,16 +433,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
            Date().timeIntervalSince(fetchedAt) < 600 { return }
         Task { [weak self] in
             guard let self else { return }
-            guard let snapshot = await ElevenLabsClient.usage(key: self.secrets.apiKey() ?? "")
-            else { return }
+            let key = self.secrets.apiKey() ?? ""
+            // Both, because they answer different questions and come from
+            // different endpoints: the daily buckets cannot tell you where a
+            // billing period starts, and the subscription cannot tell you
+            // about today.
+            async let stats = ElevenLabsClient.usage(key: key)
+            async let plan = ElevenLabsClient.subscription(key: key)
+            let (snapshot, subscription) = await (stats, plan)
+            guard snapshot != nil || subscription != nil else { return }
             await MainActor.run {
-                self.usageSnapshot = snapshot
+                if let snapshot { self.usageSnapshot = snapshot }
+                if let subscription { self.subscription = subscription }
                 // Stamped on success only: stamping before the request let
                 // one failure (offline, a revoked key) pin the row at
                 // "loading…" for a full ten minutes even after the network
                 // came back.
                 self.usageFetchedAt = Date()
-                self.usageMenuItem?.title = UsageStats.menuTitle(for: snapshot)
+                self.todayMenuItem?.title = UsageStats.todayTitle(for: self.usageSnapshot)
+                self.periodMenuItem?.title = UsageStats.periodTitle(for: self.subscription)
             }
         }
     }
@@ -442,7 +478,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         appMenu.addItem(.separator())
         let settings = appMenu.addItem(
             withTitle: String(localized: "Settings…", bundle: .module),
-            action: #selector(openSettings), keyEquivalent: ",")
+            action: #selector(openKeyWindow), keyEquivalent: ",")
         settings.target = self
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: String(localized: "Hide \(name)", bundle: .module),
@@ -469,7 +505,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.mainMenu = main
     }
 
-    @objc private func openSettings() { settings.show() }
+    @objc private func openKeyWindow() { keyWindow.show() }
 
     @objc private func checkForUpdates() {
         Task { @MainActor in
@@ -524,29 +560,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func showAbout() {
         let credits = NSMutableAttributedString()
-        let centered = NSMutableParagraphStyle()
-        centered.alignment = .center
 
-        func line(_ text: String, link: String?, breakAfter: Bool = true) {
+        let heading = NSMutableParagraphStyle()
+        heading.alignment = .center
+        heading.paragraphSpacing = 14      // air between the sentence and the links
+
+        let link = NSMutableParagraphStyle()
+        link.alignment = .center
+        link.paragraphSpacing = 6          // and between the links themselves,
+                                           // which otherwise read as one block
+
+        func line(_ text: String, url: String?, style: NSParagraphStyle,
+                  last: Bool = false) {
             var attributes: [NSAttributedString.Key: Any] = [
                 .font: NSFont.systemFont(ofSize: 11),
                 .foregroundColor: NSColor.labelColor,
-                .paragraphStyle: centered,
+                .paragraphStyle: style,
             ]
-            if let link { attributes[.link] = link }
+            if let url { attributes[.link] = url }
             credits.append(NSAttributedString(string: text, attributes: attributes))
-            if breakAfter {
+            if !last {
                 credits.append(NSAttributedString(string: "\n", attributes: attributes))
             }
         }
 
         line(String(localized: "Dictation that works in languages the big tools skip.",
-                    bundle: .module), link: nil)
-        line("", link: nil)
+                    bundle: .module), url: nil, style: heading)
+        line(String(localized: "nativevoice.trustbe.com", bundle: .module),
+             url: Self.website, style: link)
         line(String(localized: "Report an issue", bundle: .module),
-             link: Self.homepage + "/issues")
+             url: Self.homepage + "/issues", style: link)
         line(String(localized: "Buy me a coffee", bundle: .module),
-             link: Self.donate, breakAfter: false)
+             url: Self.donate, style: link, last: true)
 
         // An accessory app's about panel opens behind everything unless the
         // app is brought forward first.
@@ -569,6 +614,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // worth the extra plumbing. What matters is that a key change can
         // never leave the previous account's figures on screen.
         usageSnapshot = nil
+        subscription = nil
         usageFetchedAt = nil
         rebuildMenu()
     }

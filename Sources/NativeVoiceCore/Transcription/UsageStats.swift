@@ -55,20 +55,71 @@ public enum UsageStats {
         return formatter
     }()
 
-    /// The disabled row at the top of the menu. No unit is named: what the
-    /// STT series counts is not established here, and a wrong unit is worse
-    /// than none.
-    public static func menuTitle(for snapshot: Snapshot?) -> String {
+    /// The account's quota for the current billing period.
+    ///
+    /// This is the number the bill is based on, which is why it is read from
+    /// the subscription rather than summed out of the daily buckets: those
+    /// cover the last N days, and a billing period does not start N days ago.
+    ///
+    /// ElevenLabs' API calls the unit "characters" and its pricing page calls
+    /// it credits. They are the same counter; the menu says credits, because
+    /// that is the word on the page where the money is.
+    public struct Subscription: Equatable, Sendable {
+        public let used: Int
+        public let limit: Int
+        public let resetsAt: Date?
+
+        public init(used: Int, limit: Int, resetsAt: Date?) {
+            self.used = used
+            self.limit = limit
+            self.resetsAt = resetsAt
+        }
+    }
+
+    public static func subscription(from json: Data) -> Subscription? {
+        guard let object = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
+              let used = object["character_count"] as? Int,
+              let limit = object["character_limit"] as? Int
+        else { return nil }
+        // Nullable in the API, and absent on plans that do not reset.
+        let reset = (object["next_character_count_reset_unix"] as? Double)
+            .map { Date(timeIntervalSince1970: $0) }
+        return Subscription(used: used, limit: limit, resetsAt: reset)
+    }
+
+    static func grouped(_ value: Int) -> String {
+        formatter.string(from: NSNumber(value: value)) ?? String(value)
+    }
+
+    /// The first usage row: what today has cost.
+    public static func todayTitle(for snapshot: Snapshot?) -> String {
         guard let snapshot else {
-            return String(localized: "Dictation: loading…", bundle: .module)
+            return String(localized: "Today: loading…", bundle: .module)
         }
-        func grouped(_ value: Int) -> String {
-            formatter.string(from: NSNumber(value: value)) ?? String(value)
+        return String(localized: "Today: \(grouped(snapshot.today)) credits", bundle: .module)
+    }
+
+    /// The second: the billing period, against its limit, which is the only
+    /// form in which a number of credits means anything.
+    public static func periodTitle(for subscription: Subscription?,
+                                   now: Date = Date()) -> String {
+        guard let subscription else {
+            return String(localized: "This billing period: loading…", bundle: .module)
         }
-        return String(localized: """
-            Dictation: \(grouped(snapshot.today)) today · \
-            \(grouped(snapshot.week)) this week · \
-            \(grouped(snapshot.total)) total
-            """, bundle: .module)
+        let used = grouped(subscription.used)
+        let limit = grouped(subscription.limit)
+
+        guard let resetsAt = subscription.resetsAt, resetsAt > now else {
+            return String(localized: "This billing period: \(used) of \(limit) credits",
+                          bundle: .module)
+        }
+        // Rounded up, so "resets in 1 day" never means "in four minutes".
+        let days = Int((resetsAt.timeIntervalSince(now) / 86_400).rounded(.up))
+        if days <= 1 {
+            return String(localized: "This billing period: \(used) of \(limit) credits · resets tomorrow",
+                          bundle: .module)
+        }
+        return String(localized: "This billing period: \(used) of \(limit) credits · resets in \(days) days",
+                      bundle: .module)
     }
 }
