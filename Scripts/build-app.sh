@@ -89,11 +89,28 @@ IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null \
 
 if [ -n "$IDENTITY" ]; then
     echo "▸ signing as: $IDENTITY"
-    codesign --force --options runtime --sign "$IDENTITY" --timestamp "$APP"
+    # The entitlements are not optional: under the hardened runtime a process
+    # without com.apple.security.device.audio-input is refused the microphone
+    # with no dialog and no explanation. Signing without them produces an app
+    # that looks correct everywhere and cannot hear anybody.
+    ENTITLEMENTS="$ROOT/Resources/NativeVoice.entitlements"
+    [ -f "$ENTITLEMENTS" ] || { echo "✗ $ENTITLEMENTS missing" >&2; exit 1; }
+    codesign --force --options runtime --entitlements "$ENTITLEMENTS" \
+             --sign "$IDENTITY" --timestamp "$APP"
 else
     echo "▸ signing ad-hoc — no Developer ID found"
     echo "   Accessibility permission will be revoked on every rebuild."
     codesign --force --sign - --timestamp=none "$APP"
 fi
+
+# Checked rather than assumed. The whole reason this line exists is that an
+# app can be signed, notarized, published and installed, and still be unable
+# to record, with nothing anywhere saying so.
+if ! codesign -d --entitlements - --xml "$APP" 2>/dev/null \
+     | grep -q "com.apple.security.device.audio-input"; then
+    echo "✗ $APP carries no audio-input entitlement — it cannot use the microphone" >&2
+    exit 1
+fi
+echo "▸ entitlements: audio-input present"
 
 echo "✓ $APP"

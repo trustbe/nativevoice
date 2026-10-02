@@ -687,13 +687,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!)
     }
 
-    private func requestMicrophone() {
+    /// Asks for the microphone and calls back when the user has answered.
+    ///
+    /// The callback is what lets the next request wait its turn; see
+    /// `requestPermissions`.
+    private func requestMicrophone(then next: @escaping @MainActor () -> Void) {
         let status = AVCaptureDevice.authorizationStatus(for: .audio)
         appLog("microphone authorization: \(status.rawValue)")
-        if status == .notDetermined {
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                appLog("microphone access \(granted ? "granted" : "denied")")
-            }
+        guard status == .notDetermined else { next(); return }
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+            appLog("microphone access \(granted ? "granted" : "denied")")
+            Task { @MainActor in next() }
         }
     }
 
@@ -882,26 +886,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// question; `CGRequestListenEventAccess` and the `kAXTrustedCheckOption`
     /// prompt ask it.
     ///
-    /// Asked one after another so macOS does not stack three dialogs on top
-    /// of each other, and only for what is actually missing — macOS shows
-    /// each of these once per app, so asking again when it is already granted
-    /// does nothing except look broken.
+    /// **One at a time, and each only after the last is answered.** Fired
+    /// together they collide: measured on a freshly reset install, all three
+    /// went out in the same runloop tick and the microphone came back
+    /// `denied` within the same second, with no dialog ever shown. The
+    /// microphone is first because it is the only one whose answer arrives in
+    /// a callback, so it is the only one that can sequence the others.
+    ///
+    /// Only what is missing is asked for: macOS shows each of these once per
+    /// app, and asking again when it is already granted does nothing except
+    /// look broken.
     private func requestPermissions() {
-        requestMicrophone()
-
-        if !CGPreflightListenEventAccess() {
-            appLog("input monitoring: asking")
-            // Returns the status rather than waiting for an answer: the dialog
-            // it raises offers to open System Settings, and the user may take
-            // a while. applicationDidBecomeActive picks the result up.
-            _ = CGRequestListenEventAccess()
+        requestMicrophone { [weak self] in
+            self?.requestInputMonitoring()
         }
+    }
 
-        if !AXIsProcessTrusted() {
-            appLog("accessibility: asking")
-            let prompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
-            _ = AXIsProcessTrustedWithOptions([prompt: true] as CFDictionary)
+    private func requestInputMonitoring() {
+        guard !CGPreflightListenEventAccess() else { requestAccessibility(); return }
+        appLog("input monitoring: asking")
+        // Returns the current status rather than waiting: the dialog it raises
+        // offers to open System Settings and the user may take a while.
+        // applicationDidBecomeActive picks the answer up.
+        _ = CGRequestListenEventAccess()
+        // Half a second so the next dialog does not land on top of this one.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.requestAccessibility()
         }
+    }
+
+    private func requestAccessibility() {
+        guard !AXIsProcessTrusted() else { return }
+        appLog("accessibility: asking")
+        let prompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
+        _ = AXIsProcessTrustedWithOptions([prompt: true] as CFDictionary)
     }
 
     /// Picks up permissions granted while the app was running.

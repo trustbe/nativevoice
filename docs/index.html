@@ -200,12 +200,12 @@ footer img{width:22px; height:22px; border-radius:5px}
       Settings &#8594; API Keys</a> and copy it at once — they show it only the first time.</p></li>
     <li><p>Menu &#8594; <strong>Settings…</strong> &#8594; paste &#8594; <strong>Save</strong>. It goes
       into the macOS keychain and the app never shows it again.</p></li>
-    <li><p>Allow <strong>Input Monitoring</strong> in System Settings, then <strong>quit and reopen
-      the app</strong>. macOS gives the permission only to a fresh process, so nothing changes until
-      you do.</p></li>
-    <li><p>Allow <strong>Accessibility</strong> too. This one fails quietly: without it your words
-      are transcribed and the paste is thrown away, so you hear the finishing sound and nothing
-      arrives.</p></li>
+    <li><p>Say yes to the three permission dialogs it raises on first launch: the microphone,
+      <strong>Input Monitoring</strong> so it can tell you are holding the key, and
+      <strong>Accessibility</strong> so it can paste. It asks for them itself; you do not have to go
+      looking.</p></li>
+    <li><p>After Input Monitoring, let it <strong>restart</strong> when it offers. macOS hands that
+      permission to a freshly started process only, so nothing works until it does.</p></li>
   </ol>
 </div></section>
 

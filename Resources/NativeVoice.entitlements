@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Required. The app is signed with the hardened runtime, and under it a
+         process with no audio input entitlement is refused the microphone
+         outright: requestAccess returns denied in the same instant, no dialog
+         is ever shown, and nothing in the system says why.
+
+         Measured: a hardened build with no entitlements file logged
+         "microphone access denied" within the same second as the request, on
+         an install whose permissions had just been reset. Dictation had
+         worked only because of a TCC grant left over from an earlier,
+         differently signed build. -->
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
+</dict>
+</plist>

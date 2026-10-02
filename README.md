@@ -37,14 +37,14 @@ Requires macOS 13 or later. Universal: Apple silicon and Intel.
 
 1. Download the `.dmg` from the [releases page](https://github.com/trustbe/nativevoice/releases).
 2. Open it and drag **NativeVoice** into **Applications**.
-3. Open NativeVoice from Applications. It needs **two** permissions in
-   System Settings, and macOS will not ask you for the first one — the app's
-   own menu tells you which it is waiting for:
+3. Open NativeVoice from Applications. It asks for three permissions on first
+   launch, one dialog after another — you do not have to go looking for them:
 
+   - **Microphone** — to record what you say.
    - **Input Monitoring** — lets NativeVoice notice when you hold the
      trigger key. Without it, nothing happens when you hold the key down.
-     **Quit and reopen the app after granting it**; macOS hands the permission
-     only to a freshly started process, so nothing changes until you do.
+     macOS hands this one only to a freshly started process, so the app offers
+     to restart itself once you have granted it; let it.
    - **Accessibility** — lets NativeVoice paste the finished transcript into
      whatever you were typing into. Without it, NativeVoice still transcribes
      your speech, but nothing appears where you were typing: it pastes
