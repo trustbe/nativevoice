@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://nativevoice.trustbe.com/sitemap.xml
