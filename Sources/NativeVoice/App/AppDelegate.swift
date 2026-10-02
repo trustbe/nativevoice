@@ -96,7 +96,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         updateStatusIcon()
         rebuildMenu()
 
-        requestMicrophone()
+        // After the status item exists, so the dialogs arrive over an app the
+        // user can already see rather than over nothing.
+        requestPermissions()
 
         let tap = EventTap { [weak self] flags in
             Task { @MainActor in self?.handle(flags: flags) }
@@ -110,6 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // and wears the crossed-out microphone while working perfectly.
         updateStatusIcon()
         rebuildMenu()
+        didFinishLaunching = true
     }
 
     // MARK: - Status item
@@ -856,6 +859,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// remark people learn to dismiss without reading. It waits 1.5 s so it
     /// lands after the paste rather than on top of it.
     private var hasWarnedAboutLevel = false
+    private var didFinishLaunching = false
 
     private func warnAboutQuietInput(peak: Float) {
         guard !hasWarnedAboutLevel,
@@ -866,6 +870,80 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self, self.state == .idle else { return }
             self.hud.showError(message)
+        }
+    }
+
+    /// Asks for everything the app needs, rather than telling the user to go
+    /// and find it.
+    ///
+    /// All three have a request API; two of them were only ever *checked*
+    /// here, which is why the menu ended up explaining where System Settings
+    /// is. `CGPreflightListenEventAccess` and `AXIsProcessTrusted` answer the
+    /// question; `CGRequestListenEventAccess` and the `kAXTrustedCheckOption`
+    /// prompt ask it.
+    ///
+    /// Asked one after another so macOS does not stack three dialogs on top
+    /// of each other, and only for what is actually missing — macOS shows
+    /// each of these once per app, so asking again when it is already granted
+    /// does nothing except look broken.
+    private func requestPermissions() {
+        requestMicrophone()
+
+        if !CGPreflightListenEventAccess() {
+            appLog("input monitoring: asking")
+            // Returns the status rather than waiting for an answer: the dialog
+            // it raises offers to open System Settings, and the user may take
+            // a while. applicationDidBecomeActive picks the result up.
+            _ = CGRequestListenEventAccess()
+        }
+
+        if !AXIsProcessTrusted() {
+            appLog("accessibility: asking")
+            let prompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
+            _ = AXIsProcessTrustedWithOptions([prompt: true] as CFDictionary)
+        }
+    }
+
+    /// Picks up permissions granted while the app was running.
+    ///
+    /// Accessibility starts working immediately, so the menu and the icon just
+    /// need rebuilding. Input Monitoring does not: macOS hands it to a freshly
+    /// started process only, so a tap created before the grant stays deaf
+    /// forever and the app looks broken while the checkbox says it is allowed.
+    /// That is the one case worth interrupting someone for.
+    func applicationDidBecomeActive(_ notification: Notification) {
+        guard didFinishLaunching else { return }
+        let canListen = CGPreflightListenEventAccess()
+        defer { updateStatusIcon(); rebuildMenu() }
+
+        guard canListen, !tapIsRunning, !hasOfferedRestart else { return }
+        hasOfferedRestart = true
+
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Input Monitoring is allowed now.",
+                                   bundle: .module)
+        alert.informativeText = String(localized: """
+            macOS only hands this permission to a freshly started process, so \
+            NativeVoice has to restart before it can hear the trigger key.
+            """, bundle: .module)
+        alert.addButton(withTitle: String(localized: "Restart now", bundle: .module))
+        alert.addButton(withTitle: String(localized: "Later", bundle: .module))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        relaunch()
+    }
+
+    private var hasOfferedRestart = false
+
+    private func relaunch() {
+        // The new instance is started before this one quits, so there is no
+        // window in which the app is simply gone.
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL,
+                                           configuration: configuration) { _, error in
+            if let error { appLog("relaunch failed: \(error.localizedDescription)") }
+            DispatchQueue.main.async { NSApp.terminate(nil) }
         }
     }
 
