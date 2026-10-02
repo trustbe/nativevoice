@@ -194,6 +194,17 @@ footer{border-top:1px solid var(--line); margin-top:80px; padding:26px 0 48px;
 footer .wrap{display:flex; flex-wrap:wrap; gap:22px; align-items:center}
 footer a{color:var(--ink-2); text-decoration:none}
 footer img{width:20px; height:20px; border-radius:5px}
+.coffee{display:flex; flex-wrap:wrap; gap:18px; align-items:center;
+  justify-content:space-between; margin:30px 0 0; padding:20px 24px;
+  background:var(--soft); border:1px solid var(--line); border-radius:13px}
+.coffee p{margin:0; font-size:15px; color:var(--ink-2); max-width:58ch}
+.coffee-btn{display:inline-flex; align-items:center; gap:9px; white-space:nowrap;
+  padding:10px 20px; border-radius:9px; font-size:14.5px; font-weight:600;
+  text-decoration:none; color:var(--ink); background:var(--bg);
+  border:1px solid var(--line)}
+.coffee-btn span{font-size:17px; line-height:1}
+.coffee-btn:hover{border-color:var(--accent); color:var(--accent)}
+
 .ai-note{margin-top:14px; font-size:13px; color:var(--ink-3); display:flex;
   flex-wrap:wrap; gap:10px; align-items:baseline}
 @media (max-width:560px){ .wrap{padding:0 20px} }
@@ -260,7 +271,7 @@ footer img{width:20px; height:20px; border-radius:5px}
     <p class="kicker">NativeVoice</p>
     <h1>ഇംഗ്ലീഷിൽ മാത്രം ഒതുങ്ങാത്ത ഡിക്റ്റേഷൻ.</h1>
     <p class="lede">ഒരു കീ അമർത്തിപ്പിടിക്കൂ, സംസാരിക്കൂ, വിടൂ — കർസർ ഉള്ളിടത്ത് ടെക്സ്റ്റ് തെളിയും. Mac-ലെ ഡിക്റ്റേഷൻ ഇംഗ്ലീഷിൽ മികച്ചതാണ്, മറ്റെല്ലാ ഭാഷകളിലും അത് പാളിപ്പോകുന്നതോ തീരെ ഇല്ലാത്തതോ ആണ്. ഇത് നിർമ്മിച്ചിരിക്കുന്നത് നേരെ വിപരീത ദിശയിലാണ്.</p>
-    <p class="why"><b>ElevenLabs Scribe</b> API അടിസ്ഥാനമാക്കി നിർമ്മിച്ചത്. ഞാൻ യഥാർത്ഥത്തിൽ ഡിക്റ്റേറ്റ് ചെയ്യുന്ന ഭാഷകളിൽ മറ്റ് ഓപ്ഷനുകൾ പരീക്ഷിച്ചു, അവയെ ശരിയായി തിരിച്ചറിഞ്ഞ ഒന്നേയൊന്ന് ഇതായിരുന്നു — വിശ്വസനീയമായി, വിശ്വസിക്കാൻ മാത്രം കൃത്യതയോടെ. ചെലവ് നാമമാത്രം.</p>
+    <p class="why"><b>ElevenLabs Scribe</b> API-യെ അടിസ്ഥാനമാക്കി — ഇത് ഏതു ഭാഷകൾക്കു വേണ്ടിയാണോ, അതേ ഭാഷകളിൽ മറ്റു വഴികളുമായി താരതമ്യം ചെയ്തു; ശരിയായി പിടിച്ചത് ഇതു മാത്രം. വിശ്വസിക്കാവുന്നത്ര കൃത്യം.</p>
     <div class="cta">
       <a class="btn" href="https://github.com/trustbe/nativevoice/releases/latest">macOS-നായി ഡൗൺലോഡ് ചെയ്യൂ</a>
       <a class="btn ghost" href="https://github.com/trustbe/nativevoice">GitHub</a>
@@ -308,20 +319,19 @@ footer img{width:20px; height:20px; border-radius:5px}
   </div>
 </div>
 
+<div class="wrap">
+  <div class="coffee">
+    <p>NativeVoice സൗജന്യമാണ്, സൗജന്യമായി തുടരുകയും ചെയ്യും. ഇത് നിങ്ങളുടെ സമയം ലാഭിക്കുന്നെങ്കിൽ, എനിക്കൊരു കാപ്പി വാങ്ങിത്തരാം.</p>
+    <a class="coffee-btn" href="https://buymeacoffee.com/jenicek666">
+      <span aria-hidden="true">&#9749;</span>എനിക്കൊരു കാപ്പി വാങ്ങിക്കൊടുക്കൂ
+    </a>
+  </div>
+</div>
+
 <section id="languages"><div class="wrap">
   <h2>36 ഭാഷകൾ</h2>
   <p class="sub">വലിയ ടൂളുകൾ അപ്രധാനമായി കാണുന്ന ഭാഷകളും ഉൾപ്പെടെ. macOS ഓഫ്‌ലൈൻ മോഡലും സ്വയമേവയുള്ള വിരാമചിഹ്നങ്ങളും തുടർച്ചയായ ശ്രവണവും നൽകുന്നത് <code>en-US</code> ന് മാത്രം.</p>
-  <div class="flags">
-    <span><i>&#127463;&#127486;</i>Belarusian</span><span><i>&#127463;&#127462;</i>Bosnian</span><span><i>&#127463;&#127468;</i>Bulgarian</span><span><i>&#127466;&#127480;</i>Catalan</span>
-    <span><i>&#127469;&#127479;</i>Croatian</span><span><i>&#127464;&#127487;</i>Czech</span><span><i>&#127465;&#127472;</i>Danish</span><span><i>&#127475;&#127473;</i>Dutch</span>
-    <span><i>&#127468;&#127463;</i>English</span><span><i>&#127466;&#127466;</i>Estonian</span><span><i>&#127467;&#127470;</i>Finnish</span><span><i>&#127467;&#127479;</i>French</span>
-    <span><i>&#127466;&#127480;</i>Galician</span><span><i>&#127465;&#127466;</i>German</span><span><i>&#127468;&#127479;</i>Greek</span><span><i>&#127469;&#127482;</i>Hungarian</span>
-    <span><i>&#127470;&#127480;</i>Icelandic</span><span><i>&#127470;&#127465;</i>Indonesian</span><span><i>&#127470;&#127481;</i>Italian</span><span><i>&#127471;&#127477;</i>Japanese</span>
-    <span><i>&#127470;&#127475;</i>Kannada</span><span><i>&#127473;&#127483;</i>Latvian</span><span><i>&#127474;&#127472;</i>Macedonian</span><span><i>&#127474;&#127486;</i>Malay</span>
-    <span><i>&#127470;&#127475;</i>Malayalam</span><span><i>&#127475;&#127476;</i>Norwegian</span><span><i>&#127477;&#127473;</i>Polish</span><span><i>&#127477;&#127481;</i>Portuguese</span>
-    <span><i>&#127479;&#127476;</i>Romanian</span><span><i>&#127479;&#127482;</i>Russian</span><span><i>&#127480;&#127472;</i>Slovak</span><span><i>&#127466;&#127480;</i>Spanish</span>
-    <span><i>&#127480;&#127466;</i>Swedish</span><span><i>&#127481;&#127479;</i>Turkish</span><span><i>&#127482;&#127462;</i>Ukrainian</span><span><i>&#127483;&#127475;</i>Vietnamese</span>
-  </div>
+  <div class="flags"><span><i>🇬🇧</i>English</span><span><i>🇧🇾</i>Беларуская</span><span><i>🇧🇦</i>Bosanski</span><span><i>🇧🇬</i>Български</span><span><i>🇪🇸</i>Català</span><span><i>🇭🇷</i>Hrvatski</span><span><i>🇨🇿</i>Čeština</span><span><i>🇩🇰</i>Dansk</span><span><i>🇳🇱</i>Nederlands</span><span><i>🇪🇪</i>Eesti</span><span><i>🇫🇮</i>Suomi</span><span><i>🇫🇷</i>Français</span><span><i>🇪🇸</i>Galego</span><span><i>🇩🇪</i>Deutsch</span><span><i>🇬🇷</i>Ελληνικά</span><span><i>🇭🇺</i>Magyar</span><span><i>🇮🇸</i>Íslenska</span><span><i>🇮🇩</i>Indonesia</span><span><i>🇮🇹</i>Italiano</span><span><i>🇯🇵</i>日本語</span><span><i>🇮🇳</i>ಕನ್ನಡ</span><span><i>🇱🇻</i>Latviešu</span><span><i>🇲🇰</i>Македонски</span><span><i>🇲🇾</i>Melayu</span><span><i>🇮🇳</i>മലയാളം</span><span><i>🇳🇴</i>Norsk</span><span><i>🇵🇱</i>Polski</span><span><i>🇵🇹</i>Português</span><span><i>🇷🇴</i>Română</span><span><i>🇷🇺</i>Русский</span><span><i>🇸🇰</i>Slovenčina</span><span><i>🇪🇸</i>Español</span><span><i>🇸🇪</i>Svenska</span><span><i>🇹🇷</i>Türkçe</span><span><i>🇺🇦</i>Українська</span><span><i>🇻🇳</i>Tiếng Việt</span></div>
 </div></section>
 
 <section><div class="wrap">

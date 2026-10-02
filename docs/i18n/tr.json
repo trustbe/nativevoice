@@ -7,7 +7,7 @@
  "nav.download": "İndir",
  "h1": "Dikte, İngilizce ile sınırlı değil.",
  "lede": "Bir tuşa bas, konuş, bırak — metin imlecinin olduğu yerde belirir. Mac'te dikte İngilizce'de mükemmel, diğer her dilde ise yetersiz ya da yok denecek kadar az. Bu uygulama tam tersi mantıkla yapıldı.",
- "why": "<b>ElevenLabs Scribe</b> API'si üzerine kurulu. Gerçekten dikte ettiğim dillerde alternatifleri denedim ve bunları doğru yapan tek seçenek buydu — güvenilir biçimde, güvenmeye yetecek kadar da doğru. Maliyeti birkaç sent.",
+ "why": "<b>ElevenLabs Scribe</b> API’si üzerine kurulu — alternatiflere karşı, tam da bunun var olduğu dillerde denendi ve doğru çıkaran tek seçenek oydu. Güvenilir ve güvenmeye yetecek kadar isabetli.",
  "btn.download": "macOS için indir",
  "btn.github": "GitHub",
  "meta": "Ücretsiz · açık kaynak · macOS 13+ · Apple silicon ve Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Sorun bildir",
  "foot.coffee": "Bana bir kahve al",
  "foot.translate": "Bu çeviriyi iyileştir",
- "foot.ai": "Otuz altısını da konuşan ve hiçbirinde yaşamayan bir makine çevirdi."
+ "foot.ai": "Otuz altısını da konuşan ve hiçbirinde yaşamayan bir makine çevirdi.",
+ "coffee": "NativeVoice ücretsiz ve öyle kalacak. Sana zaman kazandırıyorsa bir kahve ısmarlayabilirsin."
 }

@@ -7,7 +7,7 @@
  "nav.download": "Descargar",
  "h1": "Dictado que no se detiene en inglés.",
  "lede": "Mantén pulsada una tecla, habla, suelta — el texto aparece donde está tu cursor. El dictado en Mac es excelente en inglés e irregular o inexistente en todo lo demás. Este está construido al revés.",
- "why": "Basado en la API <b>ElevenLabs Scribe</b>. Probé las alternativas en los idiomas en los que realmente dicto, y esta fue la única que los acertó — de forma fiable y lo bastante precisa para confiar en ella. Cuesta céntimos.",
+ "why": "Basado en la API de <b>ElevenLabs Scribe</b> — probada frente a las alternativas justo en los idiomas para los que esto existe, y la única que los acertó. De forma fiable y lo bastante precisa para confiar en ella.",
  "btn.download": "Descargar para macOS",
  "btn.github": "GitHub",
  "meta": "Gratis · código abierto · macOS 13+ · Apple silicon e Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Informar de un problema",
  "foot.coffee": "Invítame a un café",
  "foot.translate": "Mejorar esta traducción",
- "foot.ai": "Traducido por una máquina que habla los treinta y seis y no vive en ninguno."
+ "foot.ai": "Traducido por una máquina que habla los treinta y seis y no vive en ninguno.",
+ "coffee": "NativeVoice es gratis y seguirá siéndolo. Si te ahorra tiempo, puedes invitarme a un café."
 }

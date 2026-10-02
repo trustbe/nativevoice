@@ -7,7 +7,7 @@
  "nav.download": "Descarregar",
  "h1": "Ditado que não fica preso ao inglês.",
  "lede": "Mantenha uma tecla premida, fale, solte — o texto aparece onde estiver o cursor. O ditado no Mac é excelente em inglês e irregular ou inexistente em tudo o resto. Este foi construído ao contrário.",
- "why": "Baseado na API <b>ElevenLabs Scribe</b>. Testei as alternativas nos idiomas em que realmente dito, e esta foi a única que os percebeu bem — de forma fiável e precisa o suficiente para confiar. Custa cêntimos.",
+ "why": "Assente na API <b>ElevenLabs Scribe</b> — testada contra as alternativas exatamente nas línguas para que isto existe, e a única que as acertou. De forma fiável e suficientemente exata para se confiar.",
  "btn.download": "Descarregar para macOS",
  "btn.github": "GitHub",
  "meta": "Gratuito · código aberto · macOS 13+ · Apple silicon e Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Reportar um problema",
  "foot.coffee": "Compre-me um café",
  "foot.translate": "Melhorar esta tradução",
- "foot.ai": "Traduzido por uma máquina que fala as trinta e seis e não vive em nenhuma."
+ "foot.ai": "Traduzido por uma máquina que fala as trinta e seis e não vive em nenhuma.",
+ "coffee": "O NativeVoice é gratuito e continuará a sê-lo. Se lhe poupar tempo, pode pagar-me um café."
 }

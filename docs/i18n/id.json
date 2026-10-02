@@ -7,7 +7,7 @@
  "nav.download": "Unduh",
  "h1": "Dikte yang tak berhenti di bahasa Inggris.",
  "lede": "Tahan sebuah tombol, bicara, lepaskan — teks muncul di tempat kursormu berada. Dikte di Mac sangat bagus dalam bahasa Inggris, tapi lemah hingga tidak ada sama sekali untuk bahasa lain. Aplikasi ini dibangun dengan arah sebaliknya.",
- "why": "Dibangun di atas API <b>ElevenLabs Scribe</b>. Saya mencoba alternatif-alternatifnya pada bahasa yang benar-benar saya pakai untuk berdikte, dan ini satu-satunya yang berhasil dengan benar — secara konsisten, dan cukup akurat untuk dipercaya. Biayanya hanya recehan.",
+ "why": "Dibangun di atas API <b>ElevenLabs Scribe</b> — diuji terhadap alternatifnya persis pada bahasa yang menjadi alasan ini ada, dan hanya ia yang tepat. Andal dan cukup akurat untuk dipercaya.",
  "btn.download": "Unduh untuk macOS",
  "btn.github": "GitHub",
  "meta": "Gratis · sumber terbuka · macOS 13+ · Apple silicon dan Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Laporkan masalah",
  "foot.coffee": "Belikan saya kopi",
  "foot.translate": "Perbaiki terjemahan ini",
- "foot.ai": "Diterjemahkan oleh mesin yang bisa ketiga puluh enam bahasa dan tidak tinggal di satu pun."
+ "foot.ai": "Diterjemahkan oleh mesin yang bisa ketiga puluh enam bahasa dan tidak tinggal di satu pun.",
+ "coffee": "NativeVoice gratis dan akan tetap gratis. Kalau menghemat waktumu, kamu boleh mentraktir kopi."
 }

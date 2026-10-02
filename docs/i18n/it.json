@@ -7,7 +7,7 @@
  "nav.download": "Scarica",
  "h1": "Dettatura che non si ferma all’inglese.",
  "lede": "Tieni premuto un tasto, parla, rilascia — il testo appare dove si trova il cursore. La dettatura su Mac è eccellente in inglese e scarsa o assente in tutto il resto. Questa è costruita al contrario.",
- "why": "Basata sull’API <b>ElevenLabs Scribe</b>. Ho provato le alternative nelle lingue in cui detto davvero, e questa è stata l’unica a riconoscerle bene — in modo affidabile e abbastanza preciso da potersi fidare. Costa pochi centesimi.",
+ "why": "Basato sull’API <b>ElevenLabs Scribe</b> — provata contro le alternative proprio sulle lingue per cui esiste questo progetto, ed è stata l’unica a coglierle. In modo affidabile e abbastanza preciso da fidarsi.",
  "btn.download": "Scarica per macOS",
  "btn.github": "GitHub",
  "meta": "Gratuito · open source · macOS 13+ · Apple silicon e Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Segnala un problema",
  "foot.coffee": "Offrimi un caffè",
  "foot.translate": "Migliora questa traduzione",
- "foot.ai": "Tradotto da una macchina che parla tutte e trentasei e non vive in nessuna."
+ "foot.ai": "Tradotto da una macchina che parla tutte e trentasei e non vive in nessuna.",
+ "coffee": "NativeVoice è gratuito e resta gratuito. Se ti fa risparmiare tempo, puoi offrirmi un caffè."
 }

@@ -7,7 +7,7 @@
  "nav.download": "Letöltés",
  "h1": "Diktálás, ami nem áll meg az angolnál.",
  "lede": "Tartsd lenyomva a billentyűt, beszélj, engedd el — a szöveg ott jelenik meg, ahol a kurzor áll. A diktálás Macen kiváló angolul, és minden másban gyenge vagy nem létező. Ez pont fordítva épült fel.",
- "why": "Az <b>ElevenLabs Scribe</b> API-ra épül. Kipróbáltam az alternatívákat azokon a nyelveken, amelyeken valóban diktálok, és csak ez oldotta meg jól — megbízhatóan, és elég pontosan ahhoz, hogy bízzak benne. Centekbe kerül.",
+ "why": "Az <b>ElevenLabs Scribe</b> API-ra épül — a többi megoldással összevetve, pontosan azokon a nyelveken, amelyekért ez készült, és egyedül ez találta el őket. Megbízhatóan és elég pontosan ahhoz, hogy bízni lehessen benne.",
  "btn.download": "Letöltés macOS-re",
  "btn.github": "GitHub",
  "meta": "Ingyenes · nyílt forráskódú · macOS 13+ · Apple silicon és Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Hiba bejelentése",
  "foot.coffee": "Végy nekem egy kávét",
  "foot.translate": "Javítsd ezt a fordítást",
- "foot.ai": "Egy gép fordította, amely mind a harminchatot beszéli, és egyikben sem él."
+ "foot.ai": "Egy gép fordította, amely mind a harminchatot beszéli, és egyikben sem él.",
+ "coffee": "A NativeVoice ingyenes, és az is marad. Ha időt spórol neked, meghívhatsz egy kávéra."
 }

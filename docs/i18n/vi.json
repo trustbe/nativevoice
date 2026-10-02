@@ -7,7 +7,7 @@
  "nav.download": "Tải xuống",
  "h1": "Đọc chính tả không chỉ dừng ở tiếng Anh.",
  "lede": "Giữ một phím, nói, rồi thả ra — văn bản xuất hiện ngay tại vị trí con trỏ của bạn. Đọc chính tả trên Mac rất tốt với tiếng Anh nhưng chập chờn hoặc gần như không có với mọi ngôn ngữ khác. Ứng dụng này được xây theo chiều ngược lại.",
- "why": "Xây trên API <b>ElevenLabs Scribe</b>. Tôi đã thử các lựa chọn khác với những ngôn ngữ mình thực sự dùng để đọc chính tả, và đây là lựa chọn duy nhất làm đúng — ổn định, và đủ chính xác để tin tưởng. Chi phí chỉ vài xu.",
+ "why": "Dựa trên API <b>ElevenLabs Scribe</b> — đã thử với các lựa chọn khác đúng trên những ngôn ngữ mà cái này sinh ra để phục vụ, và chỉ nó làm đúng. Ổn định và đủ chính xác để tin.",
  "btn.download": "Tải cho macOS",
  "btn.github": "GitHub",
  "meta": "Miễn phí · mã nguồn mở · macOS 13+ · Apple silicon và Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Báo lỗi",
  "foot.coffee": "Mua tôi một cốc cà phê",
  "foot.translate": "Cải thiện bản dịch này",
- "foot.ai": "Được dịch bởi một cỗ máy nói cả ba mươi sáu thứ tiếng và không sống ở nơi nào."
+ "foot.ai": "Được dịch bởi một cỗ máy nói cả ba mươi sáu thứ tiếng và không sống ở nơi nào.",
+ "coffee": "NativeVoice miễn phí và sẽ luôn miễn phí. Nếu nó giúp bạn tiết kiệm thời gian, hãy mời tôi một ly cà phê."
 }

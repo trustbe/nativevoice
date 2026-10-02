@@ -7,7 +7,7 @@
  "nav.download": "Descarrega",
  "h1": "Dictar que no s'atura a l'anglès.",
  "lede": "Mantén premuda una tecla, parla, deixa-la anar — el text apareix on tens el cursor. El dictat a Mac és excel·lent en anglès i irregular o inexistent en tota la resta. Aquesta app està feta a l'inrevés.",
- "why": "Fet amb l'API <b>ElevenLabs Scribe</b>. Vaig provar les alternatives en els idiomes en què realment dicto, i aquesta va ser l'única que els va encertar — de manera fiable, i amb prou precisió per confiar-hi. Costa cèntims.",
+ "why": "Basat en l’API d’<b>ElevenLabs Scribe</b> — provada contra les alternatives justament en les llengües per a les quals existeix això, i l’única que les va encertar. De manera fiable i prou precisa per confiar-hi.",
  "btn.download": "Descarrega per a macOS",
  "btn.github": "GitHub",
  "meta": "Gratuït · codi obert · macOS 13+ · Apple silicon i Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Informa d'un problema",
  "foot.coffee": "Convida'm a un cafè",
  "foot.translate": "Millora aquesta traducció",
- "foot.ai": "Traduït per una màquina que parla les trenta-sis i no viu en cap."
+ "foot.ai": "Traduït per una màquina que parla les trenta-sis i no viu en cap.",
+ "coffee": "NativeVoice és gratuït i ho continuarà sent. Si t’estalvia temps, em pots convidar a un cafè."
 }

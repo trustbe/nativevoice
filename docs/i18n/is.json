@@ -7,7 +7,7 @@
  "nav.download": "Hlaða niður",
  "h1": "Upptal sem stoppar ekki við ensku.",
  "lede": "Haltu niðri takka, talaðu, slepptu — textinn birtist þar sem bendillinn er. Talgreining á Mac er frábær á ensku og götótt eða engin á öllu öðru. Þetta er byggt á hinn veginn.",
- "why": "Byggt á <b>ElevenLabs Scribe</b> API. Ég prófaði valkostina á þeim tungumálum sem ég tala raunverulega inn á, og þetta var eina lausnin sem náði þeim réttum — áreiðanlega og nógu nákvæmt til að treysta. Það kostar örfá sent.",
+ "why": "Byggt á <b>ElevenLabs Scribe</b> API — prófað gegn hinum valkostunum á einmitt þeim tungumálum sem þetta er fyrir, og það eina sem hafði þau rétt. Áreiðanlega og nógu nákvæmlega til að treysta.",
  "btn.download": "Hlaða niður fyrir macOS",
  "btn.github": "GitHub",
  "meta": "Frítt · opinn grunnkóði · macOS 13+ · Apple silicon og Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Tilkynna villu",
  "foot.coffee": "Gefa mér kaffibolla",
  "foot.translate": "Bæta þessa þýðingu",
- "foot.ai": "Þýtt af vél sem talar öll þrjátíu og sex og býr í engu þeirra."
+ "foot.ai": "Þýtt af vél sem talar öll þrjátíu og sex og býr í engu þeirra.",
+ "coffee": "NativeVoice er ókeypis og verður það áfram. Spari það þér tíma máttu bjóða upp á kaffi."
 }

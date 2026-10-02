@@ -7,7 +7,7 @@
  "nav.download": "Download",
  "h1": "Dictation that doesn’t stop at English.",
  "lede": "Hold a key, speak, let go — the text appears where your cursor is. Dictation on a Mac is excellent in English and patchy to absent in everything else. This is built the other way round.",
- "why": "Built on the <b>ElevenLabs Scribe</b> API. I tried the alternatives on the languages I actually dictate in, and this was the one that got them right — reliably, and accurately enough to trust. It costs cents.",
+ "why": "Built on the <b>ElevenLabs Scribe</b> API — tested against the alternatives on exactly the languages this is for, and the one that got them right. Reliably, and accurately enough to trust.",
  "btn.download": "Download for macOS",
  "btn.github": "GitHub",
  "meta": "Free · open source · macOS 13+ · Apple silicon and Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Report an issue",
  "foot.coffee": "Buy me a coffee",
  "foot.translate": "Improve a translation",
- "foot.ai": "Translated into thirty-five other languages by a machine that lives in none of them."
+ "foot.ai": "Translated into thirty-five other languages by a machine that lives in none of them.",
+ "coffee": "NativeVoice is free, and stays free. If it saves you time, you can buy me a coffee."
 }

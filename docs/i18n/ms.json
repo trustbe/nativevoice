@@ -7,7 +7,7 @@
  "nav.download": "Muat turun",
  "h1": "Diktaan yang tidak terhad kepada Inggeris.",
  "lede": "Tahan satu kekunci, bercakap, lepaskan — teks muncul di tempat kursor anda berada. Diktaan di Mac sangat baik dalam bahasa Inggeris tetapi tidak menentu atau tidak wujud langsung dalam bahasa lain. Aplikasi ini dibina dengan cara yang terbalik.",
- "why": "Dibina atas API <b>ElevenLabs Scribe</b>. Saya mencuba pilihan lain dalam bahasa yang benar-benar saya gunakan untuk mendikte, dan inilah satu-satunya yang berjaya dengan betul — secara konsisten, dan cukup tepat untuk dipercayai. Kosnya cuma beberapa sen.",
+ "why": "Dibina atas API <b>ElevenLabs Scribe</b> — diuji terhadap alternatif tepat pada bahasa yang menjadi sebab ini wujud, dan hanya ia yang betul. Boleh harap dan cukup tepat untuk dipercayai.",
  "btn.download": "Muat turun untuk macOS",
  "btn.github": "GitHub",
  "meta": "Percuma · sumber terbuka · macOS 13+ · Apple silicon dan Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Laporkan isu",
  "foot.coffee": "Belikan saya kopi",
  "foot.translate": "Perbaiki terjemahan ini",
- "foot.ai": "Diterjemahkan oleh mesin yang bertutur kesemua tiga puluh enam dan tidak tinggal di mana-mana."
+ "foot.ai": "Diterjemahkan oleh mesin yang bertutur kesemua tiga puluh enam dan tidak tinggal di mana-mana.",
+ "coffee": "NativeVoice percuma dan akan kekal percuma. Kalau ia menjimatkan masa anda, belanjalah secawan kopi."
 }

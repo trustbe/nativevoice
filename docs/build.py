@@ -139,6 +139,19 @@ def check(code: str, text: dict) -> list:
     return problems
 
 
+def flags() -> str:
+    """The language list, each in its own name.
+
+    It was hardcoded in English, so a Czech reader was told their language was
+    called "Czech". The names come from the same table as the switcher: the
+    word a language calls itself is the one its speakers look for.
+    """
+    return "".join(
+        f"<span><i>{flag}</i>{name}</span>"
+        for name, flag in LANGUAGES.values()
+    )
+
+
 def build(code: str) -> None:
     text = load(code)
     problems = check(code, text)
@@ -159,6 +172,7 @@ def build(code: str) -> None:
             .replace("{{alternates}}", alternates(code))
             .replace("{{switcher}}", switcher(code))
             .replace("{{url}}", url_for(code))
+            .replace("{{flags}}", flags())
             .replace("{{codes}}", json.dumps(list(LANGUAGES)))
             # English is the source, not a translation: its link goes to the
             # directory of all of them, not to its own file.

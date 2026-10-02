@@ -7,7 +7,7 @@
  "nav.download": "Downloaden",
  "h1": "Dicteren dat niet bij Engels stopt.",
  "lede": "Houd een toets ingedrukt, spreek, laat los — de tekst verschijnt waar je cursor staat. Dicteren op de Mac is uitstekend in het Engels en wisselvallig tot afwezig in al het andere. Dit is andersom gebouwd.",
- "why": "Gebouwd op de <b>ElevenLabs Scribe</b>-API. Ik heb de alternatieven getest in de talen waarin ik echt dicteer, en dit was de enige die ze goed deed — betrouwbaar, en nauwkeurig genoeg om te vertrouwen. Het kost centen.",
+ "why": "Gebouwd op de <b>ElevenLabs Scribe</b> API — getest tegen de alternatieven in precies de talen waarvoor dit bestaat, en als enige kreeg die ze goed. Betrouwbaar en nauwkeurig genoeg om op te vertrouwen.",
  "btn.download": "Download voor macOS",
  "btn.github": "GitHub",
  "meta": "Gratis · open source · macOS 13+ · Apple silicon en Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Probleem melden",
  "foot.coffee": "Trakteer me op een koffie",
  "foot.translate": "Verbeter deze vertaling",
- "foot.ai": "Vertaald door een machine die alle zesendertig spreekt en in geen ervan woont."
+ "foot.ai": "Vertaald door een machine die alle zesendertig spreekt en in geen ervan woont.",
+ "coffee": "NativeVoice is gratis en blijft gratis. Bespaart het je tijd, trakteer me dan op een koffie."
 }

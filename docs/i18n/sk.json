@@ -7,7 +7,7 @@
  "nav.download": "Stiahnuť",
  "h1": "Diktovanie, ktoré nekončí pri angličtine.",
  "lede": "Podrž kláves, hovor, pusti — text sa objaví tam, kde máš kurzor. Diktovanie na Macu je výborné v angličtine a mizerné až žiadne vo všetkom ostatnom. Toto je postavené naopak.",
- "why": "Postavené na API <b>ElevenLabs Scribe</b>. Vyskúšal som alternatívy na jazykoch, ktorými naozaj diktujem, a táto jediná ich zvládla — spoľahlivo a dosť presne na to, aby som jej veril. Stojí to pár centov.",
+ "why": "Postavené na API <b>ElevenLabs Scribe</b> — otestované proti alternatívam presne na jazykoch, pre ktoré toto vzniklo, a jediné ich zvládlo. Spoľahlivo a dosť presne na to, aby sa tomu dalo veriť.",
  "btn.download": "Stiahnuť pre macOS",
  "btn.github": "GitHub",
  "meta": "Zadarmo · otvorený kód · macOS 13+ · Apple silicon aj Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Nahlásiť chybu",
  "foot.coffee": "Kúp mi kávu",
  "foot.translate": "Vylepšiť tento preklad",
- "foot.ai": "Preložil stroj, ktorý hovorí všetkými tridsiatimi šiestimi a nežije ani v jednom z nich."
+ "foot.ai": "Preložil stroj, ktorý hovorí všetkými tridsiatimi šiestimi a nežije ani v jednom z nich.",
+ "coffee": "NativeVoice je zadarmo a zadarmo zostane. Ak ti šetrí čas, môžeš mi kúpiť kávu."
 }

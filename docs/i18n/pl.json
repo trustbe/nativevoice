@@ -7,7 +7,7 @@
  "nav.download": "Pobierz",
  "h1": "Dyktowanie, które nie kończy się na angielskim.",
  "lede": "Przytrzymaj klawisz, mów, puść — tekst pojawia się tam, gdzie jest kursor. Dyktowanie na Macu jest świetne po angielsku i co najwyżej przeciętne we wszystkim innym. To działa odwrotnie.",
- "why": "Oparte na API <b>ElevenLabs Scribe</b>. Wypróbowałem alternatywy w językach, w których naprawdę dyktuję, i tylko to poradziło sobie dobrze — wiarygodnie i na tyle precyzyjnie, by mu ufać. Kosztuje grosze.",
+ "why": "Oparte na API <b>ElevenLabs Scribe</b> — przetestowane wobec alternatyw dokładnie na tych językach, dla których powstało, i jako jedyne je zrozumiało. Niezawodnie i na tyle dokładnie, by mu zaufać.",
  "btn.download": "Pobierz dla macOS",
  "btn.github": "GitHub",
  "meta": "Darmowe · open source · macOS 13+ · Apple silicon i Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Zgłoś problem",
  "foot.coffee": "Postaw mi kawę",
  "foot.translate": "Ulepsz to tłumaczenie",
- "foot.ai": "Przetłumaczyła maszyna, która mówi we wszystkich trzydziestu sześciu i nie mieszka w żadnym z nich."
+ "foot.ai": "Przetłumaczyła maszyna, która mówi we wszystkich trzydziestu sześciu i nie mieszka w żadnym z nich.",
+ "coffee": "NativeVoice jest darmowy i taki zostanie. Jeśli oszczędza ci czas, możesz postawić mi kawę."
 }

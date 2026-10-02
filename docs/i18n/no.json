@@ -7,7 +7,7 @@
  "nav.download": "Last ned",
  "h1": "Diktering som ikke stopper ved engelsk.",
  "lede": "Hold inne en tast, snakk, slipp — teksten dukker opp der markøren er. Diktering på Mac er utmerket på engelsk og ujevnt til ikke-eksisterende i alt annet. Denne er bygget den andre veien.",
- "why": "Bygget på <b>ElevenLabs Scribe</b>-API. Jeg prøvde alternativene på språkene jeg faktisk dikterer på, og dette var det eneste som fikk dem riktig — pålitelig og nøyaktig nok til å stole på. Det koster et par øre.",
+ "why": "Bygget på <b>ElevenLabs Scribe</b>-API-et — testet mot alternativene på nettopp de språkene dette finnes for, og det eneste som traff. Pålitelig og presist nok til å stole på.",
  "btn.download": "Last ned for macOS",
  "btn.github": "GitHub",
  "meta": "Gratis · åpen kildekode · macOS 13+ · Apple silicon og Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Rapporter et problem",
  "foot.coffee": "By meg en kaffe",
  "foot.translate": "Forbedre denne oversettelsen",
- "foot.ai": "Oversatt av en maskin som snakker alle trettiseks og bor i ingen av dem."
+ "foot.ai": "Oversatt av en maskin som snakker alle trettiseks og bor i ingen av dem.",
+ "coffee": "NativeVoice er gratis og forblir det. Sparer det deg tid, kan du spandere en kaffe."
 }

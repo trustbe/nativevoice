@@ -7,7 +7,7 @@
  "nav.download": "Laadi alla",
  "h1": "Diktimine, mis ei piirdu inglise keelega.",
  "lede": "Hoia klahvi all, räägi, laska lahti — tekst ilmub seal, kus on kursor. Diktimine Macis on inglise keeles suurepärane ja kõiges muus kehv kuni olematu. See on tehtud vastupidi.",
- "why": "Põhineb <b>ElevenLabs Scribe</b> API-l. Proovisin alternatiive keeltes, milles ma tegelikult dikteerin, ja ainult see sai nendega hästi hakkama — usaldusväärselt ja piisavalt täpselt, et seda usaldada. Maksab sente.",
+ "why": "Põhineb <b>ElevenLabs Scribe</b> API-l — katsetatud alternatiivide vastu just nendes keeltes, mille pärast see olemas on, ja ainsana sai need õigesti. Usaldusväärselt ja piisavalt täpselt.",
  "btn.download": "Laadi alla macOS-ile",
  "btn.github": "GitHub",
  "meta": "Tasuta · avatud lähtekood · macOS 13+ · Apple silicon ja Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Teata probleemist",
  "foot.coffee": "Osta mulle kohv",
  "foot.translate": "Täienda seda tõlget",
- "foot.ai": "Tõlkis masin, kes räägib kõiki kolmekümmet kuut ega ela üheski neist."
+ "foot.ai": "Tõlkis masin, kes räägib kõiki kolmekümmet kuut ega ela üheski neist.",
+ "coffee": "NativeVoice on tasuta ja jääb tasuta. Kui see sulle aega säästab, võid välja teha kohvi."
 }

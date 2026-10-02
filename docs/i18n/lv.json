@@ -7,7 +7,7 @@
  "nav.download": "Lejupielādēt",
  "h1": "Diktēšana, kas neapstājas pie angļu valodas.",
  "lede": "Turi taustiņu, runā, atlaid — teksts parādās tur, kur ir kursors. Diktēšana Mac datorā ir izcila angliski un vāja vai nekāda visā citā. Šis ir veidots pretēji.",
- "why": "Balstīts uz <b>ElevenLabs Scribe</b> API. Izmēģināju alternatīvas valodās, kurās tiešām diktēju, un vienīgi šī tika ar tām galā — uzticami un pietiekami precīzi, lai tai varētu uzticēties. Tas maksā pāris centus.",
+ "why": "Balstīts uz <b>ElevenLabs Scribe</b> API — pārbaudīts pret alternatīvām tieši tajās valodās, kuru dēļ tas ir, un vienīgais tās trāpīja. Uzticami un pietiekami precīzi, lai tam ticētu.",
  "btn.download": "Lejupielādēt macOS",
  "btn.github": "GitHub",
  "meta": "Bezmaksas · atvērtā koda · macOS 13+ · Apple silicon un Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Ziņot par problēmu",
  "foot.coffee": "Nopirkt man kafiju",
  "foot.translate": "Uzlabot šo tulkojumu",
- "foot.ai": "Tulkojusi mašīna, kas runā visās trīsdesmit sešās un nedzīvo nevienā no tām."
+ "foot.ai": "Tulkojusi mašīna, kas runā visās trīsdesmit sešās un nedzīvo nevienā no tām.",
+ "coffee": "NativeVoice ir bez maksas un tāds paliks. Ja tas ietaupa tev laiku, vari uzsaukt kafiju."
 }

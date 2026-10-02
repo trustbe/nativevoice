@@ -7,7 +7,7 @@
  "nav.download": "Lataa",
  "h1": "Sanelu, joka ei pääty englantiin.",
  "lede": "Pidä näppäintä painettuna, puhu, päästä irti — teksti ilmestyy kursorin kohdalle. Sanelu Macilla on erinomaista englanniksi ja puutteellista tai olematonta kaikessa muussa. Tämä on rakennettu toisin päin.",
- "why": "Perustuu <b>ElevenLabs Scribe</b> -rajapintaan. Kokeilin vaihtoehtoja kielillä, joilla todella sanelen, ja tämä oli ainoa, joka osasi ne — luotettavasti ja riittävän tarkasti luottaakseen siihen. Maksaa senttejä.",
+ "why": "Rakennettu <b>ElevenLabs Scribe</b> -rajapinnan varaan — testattu vaihtoehtoja vastaan juuri niillä kielillä, joita varten tämä on, ja ainoana se osui oikeaan. Luotettavasti ja riittävän tarkasti.",
  "btn.download": "Lataa macOSille",
  "btn.github": "GitHub",
  "meta": "Ilmainen · avoin lähdekoodi · macOS 13+ · Apple silicon ja Intel",
@@ -45,5 +45,6 @@
  "foot.issue": "Ilmoita ongelmasta",
  "foot.coffee": "Tarjoa minulle kahvit",
  "foot.translate": "Paranna tätä käännöstä",
- "foot.ai": "Kääntänyt kone, joka puhuu kaikkia kolmeakymmentäkuutta eikä asu yhdessäkään niistä."
+ "foot.ai": "Kääntänyt kone, joka puhuu kaikkia kolmeakymmentäkuutta eikä asu yhdessäkään niistä.",
+ "coffee": "NativeVoice on ilmainen ja pysyy sellaisena. Jos se säästää aikaasi, voit tarjota kahvit."
 }
