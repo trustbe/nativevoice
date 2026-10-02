@@ -515,7 +515,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                        bundle: .module)
             alert.informativeText = String(localized: """
                 You are running \(Updater.currentVersion). Installing replaces this \
-                copy and NativeVoice will quit; open it again afterwards.
+                copy and restarts NativeVoice.
                 """, bundle: .module)
             alert.addButton(withTitle: String(localized: "Install", bundle: .module))
             alert.addButton(withTitle: String(localized: "Release notes", bundle: .module))
