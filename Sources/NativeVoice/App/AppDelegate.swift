@@ -112,6 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // and wears the crossed-out microphone while working perfectly.
         updateStatusIcon()
         rebuildMenu()
+        scheduleAutomaticUpdates()
         didFinishLaunching = true
     }
 
@@ -214,6 +215,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                 #selector(toggleAutoPaste(_:)), preferences.autoPaste))
         menu.addItem(toggleItem(String(localized: "Remove filler words", bundle: .module),
                                 #selector(toggleRemoveFillers(_:)), preferences.removeFillers))
+        menu.addItem(toggleItem(String(localized: "Update automatically", bundle: .module),
+                                #selector(toggleAutomaticUpdates(_:)),
+                                preferences.automaticUpdates))
         // Returns two rows when macOS is waiting for approval: the one that
         // opens Settings, and a real toggle, so it can still be switched off.
         for item in loginItem() { menu.addItem(item) }
@@ -657,6 +661,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         item.state = preferences.autoPaste ? .on : .off
     }
 
+    @objc private func toggleAutomaticUpdates(_ item: NSMenuItem) {
+        preferences.automaticUpdates.toggle()
+        item.state = preferences.automaticUpdates ? .on : .off
+        if preferences.automaticUpdates { scheduleAutomaticUpdates() }
+    }
+
     @objc private func toggleRemoveFillers(_ item: NSMenuItem) {
         preferences.removeFillers.toggle()
         item.state = preferences.removeFillers ? .on : .off
@@ -1017,6 +1027,68 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 }
                 NSApp.terminate(nil)
             }
+        }
+    }
+
+    // MARK: - Automatic updates
+
+    private var updateTimer: Timer?
+
+    /// Checks on its own, and installs what it finds.
+    ///
+    /// The first check waits two minutes: starting the app must not wait on a
+    /// network request, and somebody who has just opened it is about to use
+    /// it, not to be restarted out from under themselves.
+    private func scheduleAutomaticUpdates() {
+        updateTimer?.invalidate()
+        guard preferences.automaticUpdates else { return }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + UpdateSchedule.delayAfterLaunch) {
+            [weak self] in self?.checkForUpdatesQuietly()
+        }
+        // Hourly ticks, but the decision to act is UpdateSchedule's: a timer
+        // does not fire while the machine is asleep, so the elapsed time
+        // matters and the tick count does not.
+        let timer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.checkForUpdatesQuietly() }
+        }
+        timer.tolerance = 300
+        updateTimer = timer
+    }
+
+    private func checkForUpdatesQuietly() {
+        guard preferences.automaticUpdates,
+              UpdateSchedule.isDue(lastCheck: preferences.lastUpdateCheck) else { return }
+
+        // Never in the middle of anything. Replacing the bundle under a
+        // recording loses it, and restarting while somebody is mid-sentence
+        // is worse than waiting an hour.
+        guard state == .idle, !hold.isHolding, NSApp.windows.allSatisfy({ !$0.isVisible })
+        else { return }
+
+        Task { @MainActor in
+            guard let release = await Updater.check() else {
+                // Stamped on success only — including "already current", which
+                // is a successful answer. A failed request must not count as
+                // a check, or one offline hour silences the next six.
+                self.preferences.lastUpdateCheck = Date()
+                return
+            }
+            self.preferences.lastUpdateCheck = Date()
+
+            // Checked again: the download took time, and the user may have
+            // started talking during it.
+            guard self.state == .idle, !self.hold.isHolding else {
+                appLog("update to \(release.version) deferred — busy")
+                return
+            }
+            appLog("installing \(release.version) automatically")
+            if let problem = await Updater.install(release) {
+                appLog("automatic update failed: \(problem)")
+                return
+            }
+            appLog("updated to \(release.version) — relaunching")
+            self.relaunch()
         }
     }
 

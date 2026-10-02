@@ -16,6 +16,8 @@ public final class Preferences {
         static let playSounds = "playSounds"
         static let autoPaste = "autoPaste"
         static let removeFillers = "removeFillers"
+        static let automaticUpdates = "automaticUpdates"
+        static let lastUpdateCheck = "lastUpdateCheck"
     }
 
     public init(defaults: UserDefaults = .standard) {
@@ -85,5 +87,18 @@ public final class Preferences {
     public var removeFillers: Bool {
         get { defaults.bool(forKey: Key.removeFillers) }
         set { defaults.set(newValue, forKey: Key.removeFillers) }
+    }
+
+    /// On unless switched off. An app that can update itself and does not is
+    /// one more thing to remember, and the fixes it misses are the ones its
+    /// user already hit.
+    public var automaticUpdates: Bool {
+        get { defaults.object(forKey: Key.automaticUpdates) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Key.automaticUpdates) }
+    }
+
+    public var lastUpdateCheck: Date? {
+        get { defaults.object(forKey: Key.lastUpdateCheck) as? Date }
+        set { defaults.set(newValue, forKey: Key.lastUpdateCheck) }
     }
 }
