@@ -4,11 +4,13 @@
 # One command, identical locally and in CI, so a green build here means the
 # same thing as a green build there.
 #
-# The tests use swift-testing (`import Testing`), not XCTest. Both ship with
-# Xcode and the two can coexist in one target, but swift-testing also works
-# on a machine that only has the Command Line Tools — where XCTest.framework
-# is absent entirely. Choosing it costs nothing and removes a dependency on
-# a full Xcode install.
+# The tests use swift-testing (`import Testing`), not XCTest. The two coexist
+# in one target, and swift-testing does not need XCTest.framework, which the
+# Command Line Tools alone do not provide.
+#
+# It does need Xcode 16 or newer. A CI image with Xcode 15 fails here with
+# "no such module 'Testing'" after the build step has already passed, which
+# reads as a test failure and is not one.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 

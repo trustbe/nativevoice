@@ -1,12 +1,34 @@
 name: CI
-on: [push, pull_request]
+
+# Documentation and the website do not affect the build, and a commit that
+# only touches them used to send a run — and a failure mail — for every
+# wording change. The code paths below are the ones a test can speak to.
+on:
+  push:
+    paths-ignore: ['docs/**', 'README.md', 'LICENSE', '**/*.md']
+  pull_request:
+    paths-ignore: ['docs/**', 'README.md', 'LICENSE', '**/*.md']
+
 jobs:
   build-and-test:
-    runs-on: macos-14
+    # macos-15 or newer. The tests use swift-testing (`import Testing`), which
+    # arrived with Xcode 16 — on the macos-14 image, whose default is Xcode 15,
+    # every run failed with "no such module 'Testing'" while the build step
+    # passed, so the failure looked like a test failure and was not.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      # Printed before anything else, because the one failure this job has
+      # actually had was a toolchain that did not match the source.
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
       - name: Build
         run: swift build
+
       # The same script as locally, so CI exercises what the developer does.
       - name: Test
         run: ./Scripts/test.sh
