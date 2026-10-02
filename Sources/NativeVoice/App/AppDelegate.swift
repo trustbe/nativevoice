@@ -37,9 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var tapIsRunning = false
     private var hold = HoldTracker(key: .default)
     private let history = History()
-    private var usageSnapshot: UsageStats.Snapshot?
     private var subscription: UsageStats.Subscription?
-    private weak var todayMenuItem: NSMenuItem?
     private weak var periodMenuItem: NSMenuItem?
     private var usageFetchedAt: Date?
     private var state: State = .idle {
@@ -247,10 +245,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                 action: nil, keyEquivalent: "")
         let submenu = NSMenu()
 
-        let today = disabledItem(UsageStats.todayTitle(for: usageSnapshot))
-        todayMenuItem = today
-        submenu.addItem(today)
-
         let period = disabledItem(UsageStats.periodTitle(for: subscription))
         periodMenuItem = period
         submenu.addItem(period)
@@ -434,23 +428,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Task { [weak self] in
             guard let self else { return }
             let key = self.secrets.apiKey() ?? ""
-            // Both, because they answer different questions and come from
-            // different endpoints: the daily buckets cannot tell you where a
-            // billing period starts, and the subscription cannot tell you
-            // about today.
-            async let stats = ElevenLabsClient.usage(key: key)
-            async let plan = ElevenLabsClient.subscription(key: key)
-            let (snapshot, subscription) = await (stats, plan)
-            guard snapshot != nil || subscription != nil else { return }
+            // Only the subscription. There was a second request, for daily
+            // figures, and its numbers could not be squared with these: our
+            // own log showed three recordings totalling twelve seconds on a
+            // day it reported as 13, where the billing counter would put that
+            // near 66. Rather than print a number in a unit nobody could
+            // name, the request is gone.
+            guard let subscription = await ElevenLabsClient.subscription(key: key)
+            else { return }
             await MainActor.run {
-                if let snapshot { self.usageSnapshot = snapshot }
-                if let subscription { self.subscription = subscription }
+                self.subscription = subscription
                 // Stamped on success only: stamping before the request let
                 // one failure (offline, a revoked key) pin the row at
                 // "loading…" for a full ten minutes even after the network
                 // came back.
                 self.usageFetchedAt = Date()
-                self.todayMenuItem?.title = UsageStats.todayTitle(for: self.usageSnapshot)
                 self.periodMenuItem?.title = UsageStats.periodTitle(for: self.subscription)
             }
         }
@@ -613,7 +605,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // fetches again on the next menu open, so telling those apart is not
         // worth the extra plumbing. What matters is that a key change can
         // never leave the previous account's figures on screen.
-        usageSnapshot = nil
         subscription = nil
         usageFetchedAt = nil
         rebuildMenu()
