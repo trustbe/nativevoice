@@ -529,18 +529,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     failed.alertStyle = .warning
                     failed.runModal()
                 } else {
-                    // Relaunching the bundle we have just replaced from inside
-                    // that same bundle is not something to attempt; quitting
-                    // and saying so is honest and works.
-                    let done = NSAlert()
-                    done.messageText = String(
-                        localized: "Version \(release.version) is installed.",
-                        bundle: .module)
-                    done.informativeText = String(
-                        localized: "NativeVoice will now quit. Open it again to use it.",
-                        bundle: .module)
-                    done.runModal()
-                    NSApp.terminate(nil)
+                    // Started again rather than left for the user to find in
+                    // Applications. An app that updates itself and then simply
+                    // vanishes from the menu bar has, from where the user is
+                    // standing, crashed.
+                    //
+                    // The new instance launches from the bundle path whose
+                    // contents have just been replaced, so it is the new
+                    // version that starts; this process then quits. Same route
+                    // as the restart after Input Monitoring is granted.
+                    appLog("updated to \(release.version) — relaunching")
+                    relaunch()
                 }
             case .alertSecondButtonReturn:
                 NSWorkspace.shared.open(release.pageURL)
@@ -997,8 +996,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         configuration.createsNewApplicationInstance = true
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL,
                                            configuration: configuration) { _, error in
-            if let error { appLog("relaunch failed: \(error.localizedDescription)") }
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            Task { @MainActor in
+                guard error == nil else {
+                    // Quitting now would leave nothing running and nothing
+                    // said. Better to stay up, in the old version, and tell
+                    // them what to do about it.
+                    appLog("relaunch failed: \(error!.localizedDescription)")
+                    let alert = NSAlert()
+                    alert.messageText = String(
+                        localized: "NativeVoice could not restart itself.", bundle: .module)
+                    alert.informativeText = String(
+                        localized: """
+                            Quit it from the menu and open it again from \
+                            Applications. Nothing has been lost.
+                            """, bundle: .module)
+                    alert.alertStyle = .warning
+                    NSApp.activate(ignoringOtherApps: true)
+                    alert.runModal()
+                    return
+                }
+                NSApp.terminate(nil)
+            }
         }
     }
 
