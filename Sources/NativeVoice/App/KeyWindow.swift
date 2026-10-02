@@ -14,6 +14,12 @@ import NativeVoiceCore
 @MainActor
 final class KeyWindow: NSObject, NSWindowDelegate {
     private var window: NSWindow?
+
+    /// Whether the key window is on screen.
+    ///
+    /// Asked by the automatic updater, which must not replace the bundle
+    /// while somebody is halfway through pasting a key into it.
+    var isOpen: Bool { window?.isVisible == true }
     private let secrets: SecretStore
     private let onChange: () -> Void
 

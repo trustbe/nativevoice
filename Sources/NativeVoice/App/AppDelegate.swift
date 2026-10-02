@@ -1057,14 +1057,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func checkForUpdatesQuietly() {
-        guard preferences.automaticUpdates,
-              UpdateSchedule.isDue(lastCheck: preferences.lastUpdateCheck) else { return }
+        guard preferences.automaticUpdates else { return }
+        guard UpdateSchedule.isDue(lastCheck: preferences.lastUpdateCheck) else {
+            appLog("automatic update: not due yet")
+            return
+        }
+        appLog("automatic update: checking")
 
         // Never in the middle of anything. Replacing the bundle under a
         // recording loses it, and restarting while somebody is mid-sentence
         // is worse than waiting an hour.
-        guard state == .idle, !hold.isHolding, NSApp.windows.allSatisfy({ !$0.isVisible })
-        else { return }
+        //
+        // The window test asks the key window directly. It used to be
+        // `NSApp.windows.allSatisfy { !$0.isVisible }`, which is always false
+        // in a menu bar app: NSStatusBarWindow is one of those windows and it
+        // is always visible. Measured — the guard never passed once, and
+        // because it returned before any logging, nothing said so.
+        guard state == .idle, !hold.isHolding, !keyWindow.isOpen else {
+            appLog("automatic update skipped — busy")
+            return
+        }
 
         Task { @MainActor in
             guard let release = await Updater.check() else {
