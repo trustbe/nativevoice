@@ -32,15 +32,4 @@ import Testing
         #expect(LevelAdvice.of(peakDecibels: LevelAdvice.silentBelow) == .tooQuiet)
     }
 
-    @Test func onlyTheQuietCaseGetsAMessage() {
-        #expect(LevelAdvice.message(forPeakDecibels: -12) == nil)
-        #expect(LevelAdvice.message(forPeakDecibels: -70) == nil)
-        #expect(LevelAdvice.message(forPeakDecibels: -41) != nil)
-    }
-
-    @Test func theMessageNamesTheActualNumber() {
-        // "Too quiet" invites an argument about whether it really was.
-        let message = LevelAdvice.message(forPeakDecibels: -41)
-        #expect(message?.contains("-41") == true || message?.contains("−41") == true)
-    }
 }

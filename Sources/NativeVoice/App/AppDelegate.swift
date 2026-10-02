@@ -896,31 +896,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     Sounds.done(enabled: self.preferences.playSounds)
                     Paste.deliver(text, autoPaste: self.preferences.autoPaste,
                                   restore: self.clipboardRestore)
-                    self.warnAboutQuietInput(peak: peak)
+                    self.noteQuietInput(peak: peak)
                 }
             }
         }
     }
 
-    /// Says so, once, when the microphone is audible but too quiet to trust.
-    ///
-    /// Once per launch and no more. The text arrived, so this is a remark and
-    /// not a failure, and a remark that repeats after every sentence is a
-    /// remark people learn to dismiss without reading. It waits 1.5 s so it
-    /// lands after the paste rather than on top of it.
-    private var hasWarnedAboutLevel = false
+    /// Set once launch has finished, so applicationDidBecomeActive does not
+    /// act on a half-built app.
     private var didFinishLaunching = false
 
-    private func warnAboutQuietInput(peak: Float) {
-        guard !hasWarnedAboutLevel,
-              let message = LevelAdvice.message(forPeakDecibels: Double(peak))
-        else { return }
-        hasWarnedAboutLevel = true
+    /// Notes a quiet recording in the log, and nowhere else.
+    ///
+    /// There was a panel here. It said "very quiet, peak -40 dB, turn the
+    /// microphone up" after the text had already landed — by which point the
+    /// dictation it was about was finished and the only remedy was a trip to
+    /// System Settings. The HUD already shows a live level meter *while* you
+    /// speak, which is the same information at the moment it can still be
+    /// acted on, so the panel was the same news five seconds late and with
+    /// nothing to do about it.
+    ///
+    /// The log line stays. It costs nothing, interrupts nobody, and it is the
+    /// first thing to look at when somebody asks why their numbers come out
+    /// wrong — which is how this was diagnosed in the first place.
+    private func noteQuietInput(peak: Float) {
+        guard LevelAdvice.of(peakDecibels: Double(peak)) == .tooQuiet else { return }
         appLog(String(format: "input is quiet — peak %.0f dB", peak))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self, self.state == .idle else { return }
-            self.hud.showError(message)
-        }
     }
 
     /// Asks for everything the app needs, rather than telling the user to go

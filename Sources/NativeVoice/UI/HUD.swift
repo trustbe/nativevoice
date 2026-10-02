@@ -176,8 +176,11 @@ final class HUD {
                             width: iconHome.width, height: iconHome.height)
         setIcon("exclamationmark.triangle.fill", pointSize: 24, alpha: 1)
 
-        label.frame = NSRect(x: 16, y: 46, width: size.width - 32, height: 40)
-        label.maximumNumberOfLines = 2
+        // Three lines, not two: at 13pt in this width two lines hold about
+        // sixty characters, and every message longer than that was being
+        // truncated with no sign that it had been.
+        label.frame = NSRect(x: 16, y: 38, width: size.width - 32, height: 56)
+        label.maximumNumberOfLines = 3
         label.lineBreakMode = .byWordWrapping
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.textColor = NSColor.white.withAlphaComponent(0.9)
@@ -188,8 +191,11 @@ final class HUD {
         errorDismiss?.cancel()
         let work = DispatchWorkItem { [weak self] in self?.hide() }
         errorDismiss = work
-        // Long enough to read, scaled to the length of the message.
-        let seconds = min(5.0, 2.2 + Double(text.count) / 22.0)
+        // Long enough to read, scaled to the length of the message. The cap
+        // used to be 5 seconds, which quietly defeated the scaling: the
+        // longest message this panel shows wanted eleven and got the same
+        // five as a three-word one.
+        let seconds = min(9.0, 2.2 + Double(text.count) / 22.0)
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: work)
     }
 

@@ -14,8 +14,10 @@ import Foundation
 /// dangerous way round: a mangled word is obviously wrong and a wrong digit
 /// is not. Healthy speech peaks around −12 to −6 dB.
 ///
-/// Working this out took three attempts and a look at the log. The app has
-/// the number already, so it can say it the first time.
+/// Used to decide whether a recording is worth a line in the log. There was
+/// a panel too, raised after the transcript had landed; it is gone, because
+/// the HUD's live meter says the same thing while you are still speaking and
+/// can still do something about it.
 public enum LevelAdvice: Equatable, Sendable {
     /// Nothing was there. Already handled as its own case by the caller.
     case silent
@@ -32,19 +34,4 @@ public enum LevelAdvice: Equatable, Sendable {
         return .fine
     }
 
-    /// What to tell someone, or nil when there is nothing worth saying.
-    ///
-    /// It names the number. "Too quiet" invites an argument about whether it
-    /// really was; "peak −41 dB, healthy speech is around −12" does not, and
-    /// it tells them whether their next attempt helped.
-    public static func message(forPeakDecibels peak: Double) -> String? {
-        guard of(peakDecibels: peak) == .tooQuiet else { return nil }
-        return String(
-            localized: """
-                Heard you, but very quietly — peak \(Int(peak)) dB where speech \
-                is usually around −12. Numbers are the first thing to go wrong \
-                at this level. Raise the input volume in System Settings → Sound.
-                """,
-            bundle: .module)
-    }
 }
