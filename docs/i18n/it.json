@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — dettatura che non si ferma all’inglese",
  "description": "Dettatura per Mac per chi non detta in inglese. Basata sull’API ElevenLabs Scribe. 36 lingue, tieni premuto e parla, la tua chiave, pochi centesimi a uso.",
- "nav.languages": "Lingue", "nav.setup": "Configurazione", "nav.github": "GitHub", "nav.download": "Scarica",
+ "nav.languages": "Lingue",
+ "nav.setup": "Configurazione",
+ "nav.github": "GitHub",
+ "nav.download": "Scarica",
  "h1": "Dettatura che non si ferma all’inglese.",
  "lede": "Tieni premuto un tasto, parla, rilascia — il testo appare dove si trova il cursore. La dettatura su Mac è eccellente in inglese e scarsa o assente in tutto il resto. Questa è costruita al contrario.",
  "why": "Basata sull’API <b>ElevenLabs Scribe</b>. Ho provato le alternative nelle lingue in cui detto davvero, e questa è stata l’unica a riconoscerle bene — in modo affidabile e abbastanza preciso da potersi fidare. Costa pochi centesimi.",
- "btn.download": "Scarica per macOS", "btn.github": "GitHub",
+ "btn.download": "Scarica per macOS",
+ "btn.github": "GitHub",
  "meta": "Gratuito · open source · macOS 13+ · Apple silicon e Intel",
  "shot.listening": "Il pannello di registrazione, che mostra il livello mentre parli",
  "c1.h": "36 lingue",
@@ -36,7 +40,10 @@
  "s6": "Tieni premuto <kbd>Command destro ⌘</kbd> e parla.",
  "build.h": "Compilarlo da solo",
  "build.sub": "Nessuna dipendenza, niente di nascosto.",
- "foot.licence": "Licenza MIT", "foot.source": "Codice sorgente",
- "foot.issue": "Segnala un problema", "foot.coffee": "Offrimi un caffè",
- "foot.translate": "Migliora questa traduzione"
+ "foot.licence": "Licenza MIT",
+ "foot.source": "Codice sorgente",
+ "foot.issue": "Segnala un problema",
+ "foot.coffee": "Offrimi un caffè",
+ "foot.translate": "Migliora questa traduzione",
+ "foot.ai": "Tradotto da una macchina che parla tutte e trentasei e non vive in nessuna."
 }

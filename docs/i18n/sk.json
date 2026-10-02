@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — diktovanie, ktoré nekončí pri angličtine",
  "description": "Diktovanie pre Mac pre tých, čo nediktujú po anglicky. Postavené na ElevenLabs Scribe. 36 jazykov, podrž a hovor, vlastný kľúč, pár centov.",
- "nav.languages": "Jazyky", "nav.setup": "Nastavenie", "nav.github": "GitHub", "nav.download": "Stiahnuť",
+ "nav.languages": "Jazyky",
+ "nav.setup": "Nastavenie",
+ "nav.github": "GitHub",
+ "nav.download": "Stiahnuť",
  "h1": "Diktovanie, ktoré nekončí pri angličtine.",
  "lede": "Podrž kláves, hovor, pusti — text sa objaví tam, kde máš kurzor. Diktovanie na Macu je výborné v angličtine a mizerné až žiadne vo všetkom ostatnom. Toto je postavené naopak.",
  "why": "Postavené na API <b>ElevenLabs Scribe</b>. Vyskúšal som alternatívy na jazykoch, ktorými naozaj diktujem, a táto jediná ich zvládla — spoľahlivo a dosť presne na to, aby som jej veril. Stojí to pár centov.",
- "btn.download": "Stiahnuť pre macOS", "btn.github": "GitHub",
+ "btn.download": "Stiahnuť pre macOS",
+ "btn.github": "GitHub",
  "meta": "Zadarmo · otvorený kód · macOS 13+ · Apple silicon aj Intel",
  "shot.listening": "Panel pri nahrávaní ukazuje hlasitosť, kým hovoríš",
  "c1.h": "36 jazykov",
@@ -36,7 +40,10 @@
  "s6": "Podrž <kbd>pravý ⌘</kbd> a hovor.",
  "build.h": "Zostav si to sám",
  "build.sub": "Žiadne závislosti, nič skryté.",
- "foot.licence": "Licencia MIT", "foot.source": "Zdrojový kód",
- "foot.issue": "Nahlásiť chybu", "foot.coffee": "Kúp mi kávu",
- "foot.translate": "Vylepšiť tento preklad"
+ "foot.licence": "Licencia MIT",
+ "foot.source": "Zdrojový kód",
+ "foot.issue": "Nahlásiť chybu",
+ "foot.coffee": "Kúp mi kávu",
+ "foot.translate": "Vylepšiť tento preklad",
+ "foot.ai": "Preložil stroj, ktorý hovorí všetkými tridsiatimi šiestimi a nežije ani v jednom z nich."
 }

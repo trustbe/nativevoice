@@ -159,7 +159,12 @@ def build(code: str) -> None:
             .replace("{{alternates}}", alternates(code))
             .replace("{{switcher}}", switcher(code))
             .replace("{{url}}", url_for(code))
-            .replace("{{codes}}", json.dumps(list(LANGUAGES))))
+            .replace("{{codes}}", json.dumps(list(LANGUAGES)))
+            # English is the source, not a translation: its link goes to the
+            # directory of all of them, not to its own file.
+            .replace("{{i18n}}",
+                     "tree/main/docs/i18n" if code == "en"
+                     else f"blob/main/docs/i18n/{code}.json"))
 
     # Every English string must be gone from a translated page. A key that
     # was never wired into the template looks translated in the JSON and

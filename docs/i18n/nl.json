@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — dicteren dat niet bij Engels stopt",
  "description": "Mac-dictee voor wie niet in het Engels dicteert. Gebouwd op de ElevenLabs Scribe-API: 36 talen, eigen sleutel, centen per gebruik.",
- "nav.languages": "Talen", "nav.setup": "Installatie", "nav.github": "GitHub", "nav.download": "Downloaden",
+ "nav.languages": "Talen",
+ "nav.setup": "Installatie",
+ "nav.github": "GitHub",
+ "nav.download": "Downloaden",
  "h1": "Dicteren dat niet bij Engels stopt.",
  "lede": "Houd een toets ingedrukt, spreek, laat los — de tekst verschijnt waar je cursor staat. Dicteren op de Mac is uitstekend in het Engels en wisselvallig tot afwezig in al het andere. Dit is andersom gebouwd.",
  "why": "Gebouwd op de <b>ElevenLabs Scribe</b>-API. Ik heb de alternatieven getest in de talen waarin ik echt dicteer, en dit was de enige die ze goed deed — betrouwbaar, en nauwkeurig genoeg om te vertrouwen. Het kost centen.",
- "btn.download": "Download voor macOS", "btn.github": "GitHub",
+ "btn.download": "Download voor macOS",
+ "btn.github": "GitHub",
  "meta": "Gratis · open source · macOS 13+ · Apple silicon en Intel",
  "shot.listening": "Het opnamepaneel, met het niveau terwijl je spreekt",
  "c1.h": "36 talen",
@@ -36,7 +40,10 @@
  "s6": "Houd <kbd>rechter ⌘</kbd> ingedrukt en spreek.",
  "build.h": "Zelf bouwen",
  "build.sub": "Geen afhankelijkheden, niets verborgen.",
- "foot.licence": "MIT-licentie", "foot.source": "Broncode",
- "foot.issue": "Probleem melden", "foot.coffee": "Trakteer me op een koffie",
- "foot.translate": "Verbeter deze vertaling"
+ "foot.licence": "MIT-licentie",
+ "foot.source": "Broncode",
+ "foot.issue": "Probleem melden",
+ "foot.coffee": "Trakteer me op een koffie",
+ "foot.translate": "Verbeter deze vertaling",
+ "foot.ai": "Vertaald door een machine die alle zesendertig spreekt en in geen ervan woont."
 }

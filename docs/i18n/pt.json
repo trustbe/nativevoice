@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — ditado que não fica preso ao inglês",
  "description": "Ditado para Mac para quem não dita em inglês. Baseado na API ElevenLabs Scribe. 36 idiomas, manter premido e falar, a sua própria chave, cêntimos por uso.",
- "nav.languages": "Idiomas", "nav.setup": "Configuração", "nav.github": "GitHub", "nav.download": "Descarregar",
+ "nav.languages": "Idiomas",
+ "nav.setup": "Configuração",
+ "nav.github": "GitHub",
+ "nav.download": "Descarregar",
  "h1": "Ditado que não fica preso ao inglês.",
  "lede": "Mantenha uma tecla premida, fale, solte — o texto aparece onde estiver o cursor. O ditado no Mac é excelente em inglês e irregular ou inexistente em tudo o resto. Este foi construído ao contrário.",
  "why": "Baseado na API <b>ElevenLabs Scribe</b>. Testei as alternativas nos idiomas em que realmente dito, e esta foi a única que os percebeu bem — de forma fiável e precisa o suficiente para confiar. Custa cêntimos.",
- "btn.download": "Descarregar para macOS", "btn.github": "GitHub",
+ "btn.download": "Descarregar para macOS",
+ "btn.github": "GitHub",
  "meta": "Gratuito · código aberto · macOS 13+ · Apple silicon e Intel",
  "shot.listening": "O painel de gravação, a mostrar o nível enquanto fala",
  "c1.h": "36 idiomas",
@@ -36,7 +40,10 @@
  "s6": "Mantenha premida a <kbd>Command direita ⌘</kbd> e fale.",
  "build.h": "Compilá-lo você mesmo",
  "build.sub": "Sem dependências, nada escondido.",
- "foot.licence": "Licença MIT", "foot.source": "Código-fonte",
- "foot.issue": "Reportar um problema", "foot.coffee": "Compre-me um café",
- "foot.translate": "Melhorar esta tradução"
+ "foot.licence": "Licença MIT",
+ "foot.source": "Código-fonte",
+ "foot.issue": "Reportar um problema",
+ "foot.coffee": "Compre-me um café",
+ "foot.translate": "Melhorar esta tradução",
+ "foot.ai": "Traduzido por uma máquina que fala as trinta e seis e não vive em nenhuma."
 }

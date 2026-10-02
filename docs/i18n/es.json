@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — dictado que no se detiene en inglés",
  "description": "Dictado para Mac para quienes no dictan en inglés. Basado en la API ElevenLabs Scribe. 36 idiomas, mantener pulsado, tu propia clave, céntimos por uso.",
- "nav.languages": "Idiomas", "nav.setup": "Configuración", "nav.github": "GitHub", "nav.download": "Descargar",
+ "nav.languages": "Idiomas",
+ "nav.setup": "Configuración",
+ "nav.github": "GitHub",
+ "nav.download": "Descargar",
  "h1": "Dictado que no se detiene en inglés.",
  "lede": "Mantén pulsada una tecla, habla, suelta — el texto aparece donde está tu cursor. El dictado en Mac es excelente en inglés e irregular o inexistente en todo lo demás. Este está construido al revés.",
  "why": "Basado en la API <b>ElevenLabs Scribe</b>. Probé las alternativas en los idiomas en los que realmente dicto, y esta fue la única que los acertó — de forma fiable y lo bastante precisa para confiar en ella. Cuesta céntimos.",
- "btn.download": "Descargar para macOS", "btn.github": "GitHub",
+ "btn.download": "Descargar para macOS",
+ "btn.github": "GitHub",
  "meta": "Gratis · código abierto · macOS 13+ · Apple silicon e Intel",
  "shot.listening": "El panel de grabación, mostrando el nivel mientras hablas",
  "c1.h": "36 idiomas",
@@ -36,7 +40,10 @@
  "s6": "Mantén pulsada <kbd>Command derecha ⌘</kbd> y habla.",
  "build.h": "Compílalo tú mismo",
  "build.sub": "Sin dependencias, nada oculto.",
- "foot.licence": "Licencia MIT", "foot.source": "Código fuente",
- "foot.issue": "Informar de un problema", "foot.coffee": "Invítame a un café",
- "foot.translate": "Mejorar esta traducción"
+ "foot.licence": "Licencia MIT",
+ "foot.source": "Código fuente",
+ "foot.issue": "Informar de un problema",
+ "foot.coffee": "Invítame a un café",
+ "foot.translate": "Mejorar esta traducción",
+ "foot.ai": "Traducido por una máquina que habla los treinta y seis y no vive en ninguno."
 }

@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — sanelu, joka ei pääty englantiin",
  "description": "Mac-sanelu niille, jotka eivät sanele englanniksi. ElevenLabs Scribe -rajapinta: 36 kieltä, oma avain, senttejä per käyttö.",
- "nav.languages": "Kielet", "nav.setup": "Käyttöönotto", "nav.github": "GitHub", "nav.download": "Lataa",
+ "nav.languages": "Kielet",
+ "nav.setup": "Käyttöönotto",
+ "nav.github": "GitHub",
+ "nav.download": "Lataa",
  "h1": "Sanelu, joka ei pääty englantiin.",
  "lede": "Pidä näppäintä painettuna, puhu, päästä irti — teksti ilmestyy kursorin kohdalle. Sanelu Macilla on erinomaista englanniksi ja puutteellista tai olematonta kaikessa muussa. Tämä on rakennettu toisin päin.",
  "why": "Perustuu <b>ElevenLabs Scribe</b> -rajapintaan. Kokeilin vaihtoehtoja kielillä, joilla todella sanelen, ja tämä oli ainoa, joka osasi ne — luotettavasti ja riittävän tarkasti luottaakseen siihen. Maksaa senttejä.",
- "btn.download": "Lataa macOSille", "btn.github": "GitHub",
+ "btn.download": "Lataa macOSille",
+ "btn.github": "GitHub",
  "meta": "Ilmainen · avoin lähdekoodi · macOS 13+ · Apple silicon ja Intel",
  "shot.listening": "Tallennuspaneeli, joka näyttää tason puhuessasi",
  "c1.h": "36 kieltä",
@@ -36,7 +40,10 @@
  "s6": "Pidä <kbd>oikeaa ⌘</kbd> painettuna ja puhu.",
  "build.h": "Käännä se itse",
  "build.sub": "Ei riippuvuuksia, ei mitään piilossa.",
- "foot.licence": "MIT-lisenssi", "foot.source": "Lähdekoodi",
- "foot.issue": "Ilmoita ongelmasta", "foot.coffee": "Tarjoa minulle kahvit",
- "foot.translate": "Paranna tätä käännöstä"
+ "foot.licence": "MIT-lisenssi",
+ "foot.source": "Lähdekoodi",
+ "foot.issue": "Ilmoita ongelmasta",
+ "foot.coffee": "Tarjoa minulle kahvit",
+ "foot.translate": "Paranna tätä käännöstä",
+ "foot.ai": "Kääntänyt kone, joka puhuu kaikkia kolmeakymmentäkuutta eikä asu yhdessäkään niistä."
 }

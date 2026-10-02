@@ -157,6 +157,8 @@ footer{border-top:1px solid var(--line); margin-top:80px; padding:26px 0 48px;
 footer .wrap{display:flex; flex-wrap:wrap; gap:22px; align-items:center}
 footer a{color:var(--ink-2); text-decoration:none}
 footer img{width:20px; height:20px; border-radius:5px}
+.ai-note{margin-top:14px; font-size:13px; color:var(--ink-3); display:flex;
+  flex-wrap:wrap; gap:10px; align-items:baseline}
 @media (max-width:560px){ .wrap{padding:0 20px} }
 </style>
 </head>
@@ -289,7 +291,9 @@ cd nativevoice
   <a href="https://github.com/trustbe/nativevoice">{{foot.source}}</a>
   <a href="https://github.com/trustbe/nativevoice/issues">{{foot.issue}}</a>
   <a href="https://buymeacoffee.com/jenicek666">{{foot.coffee}}</a>
-  <a href="https://github.com/trustbe/nativevoice/blob/main/docs/i18n/{{lang}}.json">{{foot.translate}}</a>
+</div><div class="wrap ai-note">
+  <span>{{foot.ai}}</span>
+  <a href="https://github.com/trustbe/nativevoice/{{i18n}}">{{foot.translate}} &#8594;</a>
 </div></footer>
 
 

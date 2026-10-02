@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — Diktieren, das nicht bei Englisch endet",
  "description": "Mac-Diktieren für alle, die nicht auf Englisch diktieren. Mit der ElevenLabs-Scribe-API: 36 Sprachen, eigener Schlüssel, Cent-Beträge pro Nutzung.",
- "nav.languages": "Sprachen", "nav.setup": "Einrichtung", "nav.github": "GitHub", "nav.download": "Download",
+ "nav.languages": "Sprachen",
+ "nav.setup": "Einrichtung",
+ "nav.github": "GitHub",
+ "nav.download": "Download",
  "h1": "Diktieren, das nicht bei Englisch endet.",
  "lede": "Taste halten, sprechen, loslassen — der Text erscheint, wo der Cursor steht. Diktieren auf dem Mac ist auf Englisch ausgezeichnet und bei allem anderen lückenhaft bis gar nicht vorhanden. Das hier ist umgekehrt aufgebaut.",
  "why": "Basiert auf der <b>ElevenLabs Scribe</b>-API. Ich habe die Alternativen in den Sprachen getestet, die ich tatsächlich diktiere, und das hier war die einzige, die sie zuverlässig und genau genug erfasst hat, um ihr zu vertrauen. Kostet Cent-Beträge.",
- "btn.download": "Für macOS herunterladen", "btn.github": "GitHub",
+ "btn.download": "Für macOS herunterladen",
+ "btn.github": "GitHub",
  "meta": "Kostenlos · Open Source · macOS 13+ · Apple silicon und Intel",
  "shot.listening": "Das Aufnahmefenster zeigt den Pegel, während du sprichst",
  "c1.h": "36 Sprachen",
@@ -36,7 +40,10 @@
  "s6": "Halte <kbd>rechtes ⌘</kbd> und sprich.",
  "build.h": "Selbst bauen",
  "build.sub": "Keine Abhängigkeiten, nichts versteckt.",
- "foot.licence": "MIT-Lizenz", "foot.source": "Quellcode",
- "foot.issue": "Fehler melden", "foot.coffee": "Kauf mir einen Kaffee",
- "foot.translate": "Diese Übersetzung verbessern"
+ "foot.licence": "MIT-Lizenz",
+ "foot.source": "Quellcode",
+ "foot.issue": "Fehler melden",
+ "foot.coffee": "Kauf mir einen Kaffee",
+ "foot.translate": "Diese Übersetzung verbessern",
+ "foot.ai": "Übersetzt von einer Maschine, die alle sechsunddreißig spricht und in keiner davon lebt."
 }

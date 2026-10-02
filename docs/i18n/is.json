@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — upptal sem stoppar ekki við ensku",
  "description": "Talgreining fyrir Mac fyrir þá sem tala ekki á ensku. Byggt á ElevenLabs Scribe API: 36 tungumál, eigin lykill, nokkur sent á notkun.",
- "nav.languages": "Tungumál", "nav.setup": "Uppsetning", "nav.github": "GitHub", "nav.download": "Hlaða niður",
+ "nav.languages": "Tungumál",
+ "nav.setup": "Uppsetning",
+ "nav.github": "GitHub",
+ "nav.download": "Hlaða niður",
  "h1": "Upptal sem stoppar ekki við ensku.",
  "lede": "Haltu niðri takka, talaðu, slepptu — textinn birtist þar sem bendillinn er. Talgreining á Mac er frábær á ensku og götótt eða engin á öllu öðru. Þetta er byggt á hinn veginn.",
  "why": "Byggt á <b>ElevenLabs Scribe</b> API. Ég prófaði valkostina á þeim tungumálum sem ég tala raunverulega inn á, og þetta var eina lausnin sem náði þeim réttum — áreiðanlega og nógu nákvæmt til að treysta. Það kostar örfá sent.",
- "btn.download": "Hlaða niður fyrir macOS", "btn.github": "GitHub",
+ "btn.download": "Hlaða niður fyrir macOS",
+ "btn.github": "GitHub",
  "meta": "Frítt · opinn grunnkóði · macOS 13+ · Apple silicon og Intel",
  "shot.listening": "Upptökuglugginn, sem sýnir hljóðstyrkinn meðan þú talar",
  "c1.h": "36 tungumál",
@@ -36,7 +40,10 @@
  "s6": "Haltu niðri <kbd>hægri ⌘</kbd> og talaðu.",
  "build.h": "Byggðu það sjálf(ur)",
  "build.sub": "Engin ytri aðfang, engu haldið falið.",
- "foot.licence": "MIT-leyfi", "foot.source": "Grunnkóði",
- "foot.issue": "Tilkynna villu", "foot.coffee": "Gefa mér kaffibolla",
- "foot.translate": "Bæta þessa þýðingu"
+ "foot.licence": "MIT-leyfi",
+ "foot.source": "Grunnkóði",
+ "foot.issue": "Tilkynna villu",
+ "foot.coffee": "Gefa mér kaffibolla",
+ "foot.translate": "Bæta þessa þýðingu",
+ "foot.ai": "Þýtt af vél sem talar öll þrjátíu og sex og býr í engu þeirra."
 }

@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — la dictée qui ne s’arrête pas à l’anglais",
  "description": "Dictée Mac pour qui ne dicte pas en anglais. Basé sur l’API ElevenLabs Scribe. 36 langues, appui maintenu, votre propre clé, quelques centimes par usage.",
- "nav.languages": "Langues", "nav.setup": "Installation", "nav.github": "GitHub", "nav.download": "Télécharger",
+ "nav.languages": "Langues",
+ "nav.setup": "Installation",
+ "nav.github": "GitHub",
+ "nav.download": "Télécharger",
  "h1": "La dictée qui ne s’arrête pas à l’anglais.",
  "lede": "Maintenez une touche, parlez, relâchez — le texte apparaît où se trouve votre curseur. La dictée sur Mac est excellente en anglais et inégale, voire absente, dans tout le reste. Celle-ci est construite à l’inverse.",
  "why": "Basé sur l’API <b>ElevenLabs Scribe</b>. J’ai essayé les alternatives dans les langues où je dicte réellement, et c’est la seule qui les a bien gérées — de façon fiable, et assez précise pour qu’on lui fasse confiance. Ça coûte quelques centimes.",
- "btn.download": "Télécharger pour macOS", "btn.github": "GitHub",
+ "btn.download": "Télécharger pour macOS",
+ "btn.github": "GitHub",
  "meta": "Gratuit · open source · macOS 13+ · Apple silicon et Intel",
  "shot.listening": "Le panneau d’enregistrement, montrant le niveau pendant que vous parlez",
  "c1.h": "36 langues",
@@ -36,7 +40,10 @@
  "s6": "Maintenez <kbd>Command droite ⌘</kbd> et parlez.",
  "build.h": "Le compiler soi-même",
  "build.sub": "Aucune dépendance, rien de caché.",
- "foot.licence": "Licence MIT", "foot.source": "Code source",
- "foot.issue": "Signaler un problème", "foot.coffee": "M’offrir un café",
- "foot.translate": "Améliorer cette traduction"
+ "foot.licence": "Licence MIT",
+ "foot.source": "Code source",
+ "foot.issue": "Signaler un problème",
+ "foot.coffee": "M’offrir un café",
+ "foot.translate": "Améliorer cette traduction",
+ "foot.ai": "Traduit par une machine qui parle les trente-six et ne vit dans aucune."
 }

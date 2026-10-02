@@ -1,11 +1,15 @@
 {
  "title": "NativeVoice — diktering som ikke stopper ved engelsk",
  "description": "Mac-diktering for dem som ikke dikterer på engelsk. Bygget på ElevenLabs Scribe-API. 36 språk, hold inne og tal, din egen nøkkel, øre per bruk.",
- "nav.languages": "Språk", "nav.setup": "Oppsett", "nav.github": "GitHub", "nav.download": "Last ned",
+ "nav.languages": "Språk",
+ "nav.setup": "Oppsett",
+ "nav.github": "GitHub",
+ "nav.download": "Last ned",
  "h1": "Diktering som ikke stopper ved engelsk.",
  "lede": "Hold inne en tast, snakk, slipp — teksten dukker opp der markøren er. Diktering på Mac er utmerket på engelsk og ujevnt til ikke-eksisterende i alt annet. Denne er bygget den andre veien.",
  "why": "Bygget på <b>ElevenLabs Scribe</b>-API. Jeg prøvde alternativene på språkene jeg faktisk dikterer på, og dette var det eneste som fikk dem riktig — pålitelig og nøyaktig nok til å stole på. Det koster et par øre.",
- "btn.download": "Last ned for macOS", "btn.github": "GitHub",
+ "btn.download": "Last ned for macOS",
+ "btn.github": "GitHub",
  "meta": "Gratis · åpen kildekode · macOS 13+ · Apple silicon og Intel",
  "shot.listening": "Opptakspanelet, som viser nivået mens du snakker",
  "c1.h": "36 språk",
@@ -36,7 +40,10 @@
  "s6": "Hold inne <kbd>høyre ⌘</kbd> og snakk.",
  "build.h": "Bygg den selv",
  "build.sub": "Ingen avhengigheter, ingenting skjult.",
- "foot.licence": "MIT-lisens", "foot.source": "Kildekode",
- "foot.issue": "Rapporter et problem", "foot.coffee": "By meg en kaffe",
- "foot.translate": "Forbedre denne oversettelsen"
+ "foot.licence": "MIT-lisens",
+ "foot.source": "Kildekode",
+ "foot.issue": "Rapporter et problem",
+ "foot.coffee": "By meg en kaffe",
+ "foot.translate": "Forbedre denne oversettelsen",
+ "foot.ai": "Oversatt av en maskin som snakker alle trettiseks og bor i ingen av dem."
 }
