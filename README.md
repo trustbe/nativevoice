@@ -3,11 +3,11 @@
 Hold a key, speak, let go. The text appears where your cursor is.
 
 NativeVoice is a macOS dictation app for the languages the big tools treat as
-an afterthought. Dictation on a Mac is excellent if you speak English and
-patchy to absent if you do not — macOS offers an offline model, automatic
-punctuation and continuous listening for `en-US` alone, and the well-known
-third-party apps advertise "100+ languages" while quietly listing Polish,
-Russian and Ukrainian but not Czech.
+an afterthought. Dictation on a Mac is excellent in English and the biggest
+languages, and patchy to absent in the rest: Czech, Polish, Hungarian,
+Ukrainian and Greek get only basic dictation — no automatic punctuation, no
+on-device model — and Bulgarian, Estonian, Latvian and Icelandic get none at
+all, according to [Apple's own feature list](https://www.apple.com/macos/feature-availability/).
 
 This one treats those languages as the point rather than the long tail. It
 speaks 36:
