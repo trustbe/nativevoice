@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A quiet microphone breaks numbers before it breaks words</title>
+<meta name="description" content="Measured on one Mac: at a −41 dB peak, “paragraph 142” came back as “paragraph 162”. The words were fine. That is the dangerous way round.">
+<link rel="canonical" href="https://nativevoice.trustbe.com/notes/quiet-microphone/">
+<link rel="icon" href="../../icon.png">
+<meta property="og:title" content="A quiet microphone breaks numbers before it breaks words">
+<meta property="og:description" content="At −41 dB, “paragraph 142” came back as “paragraph 162”. The words were fine.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://nativevoice.trustbe.com/icon-large.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--soft:#f7f7f9;--ink:#15151b;--ink-2:#55556a;--ink-3:#90909f;--line:#e9e9ee;--accent:#6b4fdb;
+  --good:#0f7b3f;--good-bg:#e8f6ed;--bad:#c0362c;--bad-bg:#fdeceb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0e13;--soft:#17171e;--ink:#f0f0f6;
+  --ink-2:#a0a0b2;--ink-3:#6e6e82;--line:#242430;--accent:#a690ff;--good:#58c98a;--good-bg:#12301f;--bad:#ff968c;--bad-bg:#311917}}
+:root[data-theme="dark"]{--bg:#0e0e13;--soft:#17171e;--ink:#f0f0f6;--ink-2:#a0a0b2;--ink-3:#6e6e82;--line:#242430;
+  --accent:#a690ff;--good:#58c98a;--good-bg:#12301f;--bad:#ff968c;--bad-bg:#311917}
+*{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17.5px/1.7 Inter,-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 24px}
+.bar{border-bottom:1px solid var(--line)} .bar .wrap{display:flex;align-items:center;gap:10px;height:56px}
+.bar a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:600}
+.bar img{width:22px;height:22px;border-radius:5px}
+article{padding:56px 0 24px}
+.kicker{font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0 0 14px}
+h1{font-size:clamp(30px,5vw,42px);line-height:1.12;letter-spacing:-1.2px;font-weight:800;margin:0 0 22px;text-wrap:balance}
+h2{font-size:23px;letter-spacing:-.5px;font-weight:700;margin:44px 0 12px}
+p{margin:0 0 18px;text-wrap:pretty} .lede{font-size:20px;color:var(--ink-2);line-height:1.55}
+a{color:var(--accent);text-underline-offset:3px}
+table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15.5px}
+th,td{text-align:left;padding:12px 12px;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+td.n{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:13.5px;font-weight:600}
+.g{background:var(--good-bg);color:var(--good)} .r{background:var(--bad-bg);color:var(--bad)}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:26px 0;font-size:15.5px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.86em;background:var(--soft);padding:2px 6px;border-radius:5px}
+footer{border-top:1px solid var(--line);margin-top:48px;padding:24px 0 48px;font-size:14.5px;color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap"><a href="../../"><img src="../../icon.png" alt="" width="22" height="22">NativeVoice</a></div></div>
+
+<div class="wrap"><article>
+<p class="kicker">A measurement</p>
+<h1>A quiet microphone breaks numbers before it breaks words</h1>
+
+<p class="lede">The same sentence, dictated three times. At a −41 dB peak, “paragraph one hundred
+and forty-two” came back as “paragraph one hundred and <em>sixty</em>-two”. Every other word in
+the sentence was fine.</p>
+
+<p>That is the dangerous way round. A mangled word looks wrong, so you catch it. A wrong number
+looks exactly like a right one, so you don’t — and in a legal reference, an invoice or a dose, the
+number is the part that mattered.</p>
+
+<h2>What was measured</h2>
+<p>One Mac, one external microphone, one Czech sentence containing a paragraph number, an amount
+and two proper names, transcribed by the ElevenLabs Scribe API. Only one thing changed between the
+first two takes: the system input volume.</p>
+
+<table>
+<tr><th>Input volume</th><th>Peak</th><th>“paragraph one hundred and forty-two”</th></tr>
+<tr><td class="n">29 / 100</td><td class="n">−41 dB</td><td><span class="pill r">one hundred and sixty-two</span></td></tr>
+<tr><td class="n">75 / 100</td><td class="n">−26 dB</td><td><span class="pill g">correct</span></td></tr>
+</table>
+
+<p>Speech normally peaks somewhere around −12 dB. At −41 dB the model was working with a signal
+roughly a hundred times fainter in amplitude than it expects, and the first thing to go was the
+distinction between two similar-sounding numbers.</p>
+
+<div class="note"><b>This is one measurement, not a benchmark.</b> Three takes on one machine
+prove that the effect exists and that it can be large; they do not tell you how often it happens
+on yours. What they do tell you is where to look first.</div>
+
+<h2>The second thing that changed the result</h2>
+<p>Raising the volume fixed the number and left the names wrong. The company name in the sentence
+came back as two ordinary words, and the product name was split in half. Adding both to a plain
+list of expected terms — and changing nothing else, at the same −25 dB level — fixed them both.</p>
+
+<table>
+<tr><th>Spoken</th><th>Volume up</th><th>Volume up + vocabulary</th></tr>
+<tr><td>NativeVoice</td><td><span class="pill r">Native Voice</span></td><td><span class="pill g">NativeVoice</span></td></tr>
+</table>
+
+<p>So the two fixes do different jobs and neither replaces the other. Volume protects the
+<em>numbers</em>; a vocabulary list protects the <em>names</em>. A better model would have done
+less for either than these two did together.</p>
+
+<h2>What to do with this</h2>
+<p><b>Look at the level before you blame the model.</b> On a Mac:
+<code>System Settings → Sound → Input</code>, speak normally, and watch the meter. If it barely
+moves, raise the input volume. Then dictate something with a number in it and read the number.</p>
+<p><b>Read numbers back. Always.</b> Even at a good level, no engine handles digits reliably — on
+the same recording one run can break the amount and get the paragraph right, and the next does the
+reverse.</p>
+<p><b>Give it your names.</b> Proper nouns and jargon are a short list only you know, and they are
+what every transcription engine gets wrong.</p>
+</article>
+
+<footer>
+  This was measured while building <a href="../../">NativeVoice</a>, a free, open-source dictation
+  app for macOS that works in 36 languages — including the ones the big tools treat as an
+  afterthought. Its recording panel shows a live level meter for exactly this reason.
+</footer>
+</div>
+</body>
+</html>
